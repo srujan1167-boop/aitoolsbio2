@@ -385,15 +385,15 @@ img{max-width:100%}
 .adm-search::placeholder{color:var(--m1)}
 .adm-table{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:1rem}
 .adm-thead{display:grid;padding:.6rem .875rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bd);font-size:10px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;gap:8px}
-/* ── CHANGED: added Biometric column ── */
 .th-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-.th-users{grid-template-columns:28px 1fr 90px 55px 90px 70px}
+.th-users{grid-template-columns:28px 1fr 90px 60px 80px 80px}
+.th-bio{grid-template-columns:28px 1fr 90px 60px 80px 80px}
 .adm-row{display:grid;padding:.7rem .875rem;border-bottom:1px solid var(--bd);font-size:13px;gap:8px;align-items:center;transition:background .15s}
 .adm-row:last-child{border-bottom:none}
 .adm-row:hover{background:rgba(255,255,255,.02)}
 .tr-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-/* ── CHANGED: added Biometric column ── */
-.tr-users{grid-template-columns:28px 1fr 90px 55px 90px 70px}
+.tr-users{grid-template-columns:28px 1fr 90px 60px 80px 80px}
+.tr-bio{grid-template-columns:28px 1fr 90px 60px 80px 80px}
 .rank{font-size:11px;font-weight:800;color:var(--m1);text-align:center}
 .rank.t3{color:var(--gold)}
 .row-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -401,14 +401,20 @@ img{max-width:100%}
 .badge-c{font-size:11px;font-weight:700;background:rgba(232,164,48,.1);color:var(--gold);border:1px solid rgba(232,164,48,.2);border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
 .badge-c.red{background:rgba(232,85,85,.1);color:var(--red);border-color:rgba(232,85,85,.2)}
 .badge-c.grn{background:rgba(62,201,122,.1);color:var(--grn);border-color:rgba(62,201,122,.2)}
+.badge-c.blue{background:rgba(74,108,247,.1);color:#7b9cf7;border-color:rgba(74,108,247,.2)}
 .adm-act-btn{padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:7px;color:var(--m2);font-size:12px;font-weight:600;white-space:nowrap;transition:all .2s;min-height:32px;display:inline-flex;align-items:center;gap:4px}
 .adm-act-btn:hover{border-color:rgba(232,164,48,.4);color:var(--gold)}
 .adm-act-btn.success{border-color:rgba(62,201,122,.3);color:var(--grn)}
+.adm-act-btn.danger{border-color:rgba(232,85,85,.3);color:var(--red)}
 .credit-edit{display:none;align-items:center;gap:5px;margin-top:4px}
 .credit-edit input{width:65px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:4px 6px;color:var(--txt);font-size:13px;outline:none;text-align:center;-webkit-appearance:none}
 .save-c,.cancel-c{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700;min-height:28px;border:none}
 .save-c{background:var(--grn);color:#0a0a0a}
 .cancel-c{background:rgba(255,255,255,.08);color:var(--m1)}
+
+/* Bio ID badge in admin */
+.bio-id-badge{font-size:10px;font-weight:700;background:rgba(74,108,247,.1);color:#7b9cf7;border:1px solid rgba(74,108,247,.2);border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.bio-id-none{font-size:11px;color:var(--m1)}
 
 /* Cat footer */
 .cat-footer{padding:1.5rem 1rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;border-top:1px solid var(--bd)}
@@ -429,11 +435,12 @@ img{max-width:100%}
   .cat-strip{display:none}
   .mob-only{display:none}
   #admin-page{padding:.875rem 1.5rem 1.5rem}
-  /* ── CHANGED: desktop widths updated for Biometric column ── */
   .th-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  .th-users{grid-template-columns:32px 1fr 120px 65px 110px 90px}
+  .th-users{grid-template-columns:32px 1fr 120px 70px 100px 100px}
+  .th-bio{grid-template-columns:32px 1fr 120px 70px 100px 100px}
   .tr-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  .tr-users{grid-template-columns:32px 1fr 120px 65px 110px 90px}
+  .tr-users{grid-template-columns:32px 1fr 120px 70px 100px 100px}
+  .tr-bio{grid-template-columns:32px 1fr 120px 70px 100px 100px}
 }
 </style>
 </head>
@@ -774,6 +781,7 @@ img{max-width:100%}
     <button class="adm-tab on" onclick="switchAdmTab('tools')"><i class="bi bi-tools"></i> Tools</button>
     <button class="adm-tab" onclick="switchAdmTab('users')"><i class="bi bi-people"></i> Users</button>
     <button class="adm-tab" onclick="switchAdmTab('credits')"><i class="bi bi-lightning-charge"></i> Credits</button>
+    <button class="adm-tab" onclick="switchAdmTab('biometrics')"><i class="bi bi-fingerprint"></i> Biometrics</button>
   </div>
 
   <!-- Tools Panel -->
@@ -837,6 +845,25 @@ img{max-width:100%}
       <div class="p-3 text-center" style="color:var(--m1);font-size:13px">Load users tab first to populate this.</div>
     </div>
   </div>
+
+  <!-- ══════════ BIOMETRICS PANEL (NEW) ══════════ -->
+  <div class="adm-panel" id="adm-panel-biometrics">
+    <div class="sec-hd">
+      <div class="sec-lbl">🔐 Biometric Registrations</div>
+      <span style="font-size:11px;color:var(--m1)" id="adm-bio-count">—</span>
+    </div>
+    <div style="background:rgba(74,108,247,.05);border:1px solid rgba(74,108,247,.18);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:12px;color:var(--m2);line-height:1.6">
+      <strong style="color:#7b9cf7"><i class="bi bi-info-circle"></i> About Biometric IDs</strong><br>
+      Biometric credentials are stored securely in each user's browser (WebAuthn / FIDO2). This panel shows which users have registered biometrics on this app, along with a partial credential reference ID for admin tracking. Full credential data never leaves the user's device.
+    </div>
+    <div class="adm-search-wrap">
+      <i class="bi bi-search"></i>
+      <input class="adm-search" id="adm-bio-search" placeholder="Search by email or credential ID…" oninput="filterAdmBio(this.value)">
+    </div>
+    <div class="adm-table" id="adm-bio-table">
+      <div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading biometric data…</div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ MODAL ══════════ -->
@@ -892,7 +919,7 @@ img{max-width:100%}
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" style="position:fixed;bottom:calc(var(--bnav-h) + 14px);left:50%;transform:translateX(-50%);z-index:9000;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -910,7 +937,49 @@ function gsr(action, params) {
 /* ── GLOBALS ── */
 var $ = function(id){ return document.getElementById(id); };
 var allTools=[], fuse=null, currentEmail='', activeCat='all', activeView='grid', userCredits=0;
-var _admAllTools=[], _admAllUsers=[];
+var _admAllTools=[], _admAllUsers=[], _admAllBio=[];
+
+/* ══════════════════════════════════════════
+   BIOMETRIC STORAGE KEY & ADMIN REGISTRY
+   We store a global registry in localStorage under 'aih_bio_registry'
+   so the admin panel can read all registered users on this device.
+   Each entry: { email, credIdShort, type, registeredAt, device }
+══════════════════════════════════════════ */
+var BIO_REGISTRY_KEY = 'aih_bio_registry';
+
+function getBioRegistry() {
+  try { return JSON.parse(localStorage.getItem(BIO_REGISTRY_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveBioRegistry(entries) {
+  try { localStorage.setItem(BIO_REGISTRY_KEY, JSON.stringify(entries)); }
+  catch(e) {}
+}
+
+function addToBioRegistry(email, rawId, bioType) {
+  var entries = getBioRegistry();
+  // Remove old entry for same email if exists
+  entries = entries.filter(function(e){ return e.email !== email; });
+  // Convert rawId (ArrayBuffer or Uint8Array) to base64 short ref
+  var arr = new Uint8Array(rawId instanceof ArrayBuffer ? rawId : rawId);
+  var b64 = btoa(String.fromCharCode.apply(null, arr));
+  var shortId = b64.substring(0, 16) + '…'; // short display ref
+  entries.push({
+    email: email,
+    credIdShort: shortId,
+    credIdFull: b64,
+    type: bioType || 'unknown',
+    registeredAt: new Date().toISOString(),
+    device: navigator.userAgent.substring(0, 60)
+  });
+  saveBioRegistry(entries);
+}
+
+function removeFromBioRegistry(email) {
+  var entries = getBioRegistry().filter(function(e){ return e.email !== email; });
+  saveBioRegistry(entries);
+}
 
 /* ══════════════════════════════════════════
    BIOMETRIC (WebAuthn)
@@ -933,7 +1002,6 @@ var BIO = {
       $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;$('bio-register-hint').style.display='none';
     }else{$('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';$('bio-register-hint').style.display='block';}
   },
-  /* ── CHANGED: register() now also saves biometric info to backend ── */
   register:async function(email, bioType){
     var rpId=location.hostname||'localhost';
     var challenge=crypto.getRandomValues(new Uint8Array(32));
@@ -941,25 +1009,10 @@ var BIO = {
     var cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'AI Tools Hub',id:rpId},user:{id:userId,name:email,displayName:email},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});
     localStorage.setItem(BIO.KEY_CRED,BIO.bufferToB64(cred.rawId));
     localStorage.setItem(BIO.KEY_EMAIL,email);localStorage.setItem(BIO.KEY_RP,rpId);
-    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.updateUI();
-
-    /* ── Save biometric registration to backend for admin visibility ── */
-    var ua=navigator.userAgent;
-    var device=(ua.indexOf('iPhone')>-1||ua.indexOf('iPad')>-1)?'iOS':(ua.indexOf('Android')>-1?'Android':(ua.indexOf('Mac')>-1?'macOS':(ua.indexOf('Win')>-1?'Windows':'Desktop')));
-    var method=bioType==='face'?'Face ID':'Fingerprint';
-    var credB64=BIO.bufferToB64(cred.rawId);
-    gsr('setBioRegistered',{
-      email:email,
-      bioRegistered:true,
-      bioType:method,
-      bioDevice:device,
-      bioDate:new Date().toISOString(),
-      bioCredId:credB64
-    }).catch(function(e){console.warn('Bio backend save failed:',e.message);});
-
-    /* Also persist bio info locally for display if backend slow */
-    localStorage.setItem('aih_bio_meta',JSON.stringify({bioType:method,bioDevice:device,bioDate:new Date().toISOString()}));
-    return true;
+    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;
+    // ── Store in admin bio registry ──
+    addToBioRegistry(email, cred.rawId, bioType || 'platform');
+    BIO.updateUI();return true;
   },
   authenticate:async function(){
     var rpId=localStorage.getItem(BIO.KEY_RP)||location.hostname||'localhost';
@@ -982,7 +1035,6 @@ function setBioState(type,state,label){
   else{BIO.updateUI();}
 }
 
-/* ── CHANGED: pass bioType into register() ── */
 async function doBiometric(type){
   if(!BIO.supported){toast('Biometrics not supported on this device.','err');return;}
   if(BIO.enrolled&&BIO.credId){
@@ -1005,7 +1057,7 @@ async function doBiometric(type){
   setBioState(type,'scanning','Registering…');
   try{
     await gsr('validateUser',{email:email,password:pass});
-    await BIO.register(email, type); /* ← pass type so backend knows Face ID vs Fingerprint */
+    await BIO.register(email, type==='fingerprint'?'fingerprint':'face');
     setBioState(type,'success','Registered ✓');
     toast('✅ Biometrics registered! Use them next time to sign in.','ok');
     setMsg('msg-si','Biometrics set up! You can now sign in with touch/face.','ok');
@@ -1043,503 +1095,716 @@ window.addEventListener('load',function(){
 /* ── HELPERS ── */
 function toast(msg,type){
   var t=$('toast');
-  t.textContent=msg;
-  t.style.cssText='position:fixed;bottom:calc(var(--bnav-h) + 14px);left:50%;transform:translateX(-50%);background:'+(type==='ok'?'var(--grn)':type==='inf'?'var(--gold)':'var(--red)')+';color:'+(type==='inf'?'#0a0a0a':'#fff')+';padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:fadeUp .25s ease';
-  clearTimeout(t._tid);t._tid=setTimeout(function(){t.textContent='';t.style.cssText='';},3200);
+  var d=document.createElement('div');
+  d.style.cssText='background:'+(type==='ok'?'rgba(62,201,122,.15)':type==='inf'?'rgba(232,164,48,.15)':'rgba(232,85,85,.15)')+';border:1px solid '+(type==='ok'?'rgba(62,201,122,.3)':type==='inf'?'rgba(232,164,48,.3)':'rgba(232,85,85,.3)')+';color:'+(type==='ok'?'#3ec97a':type==='inf'?'#e8a430':'#e85555')+';padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;animation:fadeUp .25s ease;backdrop-filter:blur(12px);white-space:nowrap;max-width:90vw;text-align:center';
+  d.textContent=msg;t.appendChild(d);
+  setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(function(){d.remove();},300);},3000);
 }
-function setMsg(id,msg,type){var el=$(id);if(!el)return;el.textContent=msg;el.className='amsg'+(type?' '+type:'');}
-function toggleEye(id,btn){var inp=$(id);inp.type=inp.type==='password'?'text':'password';btn.querySelector('i').className=inp.type==='password'?'bi bi-eye':'bi bi-eye-slash';}
-function showPage(id){['auth-page','forgot-page','catalog-page','admin-page'].forEach(function(p){$(p).classList.add('hidden');});$(id).classList.remove('hidden');}
+
+function setMsg(id,msg,type){
+  var el=$(id);if(!el)return;
+  el.textContent=msg;el.className='amsg'+(type?' '+type:'');
+}
+
+function setBtn(id,loading,label){
+  var btn=$(id);if(!btn)return;
+  btn.disabled=loading;
+  btn.innerHTML=loading?'<span class="loader"></span>'+label:label;
+}
+
+function toggleEye(id,btn){
+  var inp=$(id);if(!inp)return;
+  var show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.innerHTML=show?'<i class="bi bi-eye-slash"></i>':'<i class="bi bi-eye"></i>';
+}
+
+function showPage(id){
+  ['auth-page','forgot-page','catalog-page','admin-page'].forEach(function(p){
+    var el=$(p);if(el)el.classList.add('hidden');
+  });
+  var t=$(id);if(t)t.classList.remove('hidden');
+}
+
+/* ── AUTH TABS ── */
 function switchTab(t){
-  $('tab-si').classList.toggle('on',t==='si');$('tab-su').classList.toggle('on',t==='su');
-  $('form-si').classList.toggle('hidden',t!=='si');$('form-su').classList.toggle('hidden',t!=='su');
-  $('auth-h').textContent=t==='si'?'Welcome back':'Create account';
+  $('tab-si').classList.toggle('on',t==='si');
+  $('tab-su').classList.toggle('on',t==='su');
+  $('form-si').classList.toggle('hidden',t!=='si');
+  $('form-su').classList.toggle('hidden',t!=='su');
+  $('auth-h').textContent=t==='si'?'Welcome back':'Create Account';
   $('auth-p').textContent=t==='si'?'Your student toolkit for the AI generation':'Join thousands of students using AI tools';
 }
 
-/* ── AUTH ── */
+/* ── SIGN IN ── */
 function doSignIn(){
-  var email=($('si-email').value||'').trim().toLowerCase();
-  var pass=$('si-pass').value||'';
+  var email=($('si-email').value||'').trim();
+  var pass=($('si-pass').value||'').trim();
   if(!email||!pass){setMsg('msg-si','Please enter email and password.','');return;}
-  var btn=$('btn-si');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Signing in…';
+  setBtn('btn-si',true,'Signing in…');setMsg('msg-si','');
   gsr('validateUser',{email:email,password:pass}).then(function(r){
-    btn.disabled=false;btn.innerHTML='Sign In →';
+    setBtn('btn-si',false,'Sign In →');
     if(r.success){
       currentEmail=email;userCredits=Number(r.credits||100);
       localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:r.isAdmin}));
       initCatalog(r);
-    }else{setMsg('msg-si',r.message||'Invalid credentials.','');}
-  }).catch(function(e){btn.disabled=false;btn.innerHTML='Sign In →';setMsg('msg-si','Error: '+e.message,'');});
+    }else{setMsg('msg-si',r.message||'Invalid credentials.');}
+  }).catch(function(e){setBtn('btn-si',false,'Sign In →');setMsg('msg-si','Connection error. Please try again.');});
 }
 
+/* ── SIGN UP ── */
 function doSignUp(){
   var name=($('su-name').value||'').trim();
-  var email=($('su-email').value||'').trim().toLowerCase();
-  var pass=$('su-pass').value||'';
-  var mobile=($('su-mobile').value||'').trim();
-  var inst=($('su-inst').value||'').trim();
-  var qual=($('su-qual').value||'').trim();
-  var addr=($('su-addr').value||'').trim();
+  var email=($('su-email').value||'').trim();
+  var pass=($('su-pass').value||'').trim();
   if(!name||!email||!pass){setMsg('msg-su','Name, email and password are required.','');return;}
   if(pass.length<6){setMsg('msg-su','Password must be at least 6 characters.','');return;}
-  var btn=$('btn-su');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Creating…';
-  gsr('registerUser',{name:name,email:email,password:pass,mobile:mobile,institution:inst,qualification:qual,address:addr}).then(function(r){
-    btn.disabled=false;btn.innerHTML='Create Account →';
-    if(r.success){setMsg('msg-su','Account created! Signing you in…','ok');currentEmail=email;userCredits=Number(r.credits||100);localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:false}));setTimeout(function(){initCatalog({isAdmin:false,credits:userCredits});},800);}
-    else{setMsg('msg-su',r.message||'Registration failed.','');}
-  }).catch(function(e){btn.disabled=false;btn.innerHTML='Create Account →';setMsg('msg-su','Error: '+e.message,'');});
-}
-
-function doLogout(){
-  localStorage.removeItem('aih_session');
-  currentEmail='';userCredits=0;
-  showPage('auth-page');
-  switchTab('si');
+  setBtn('btn-su',true,'Creating account…');setMsg('msg-su','');
+  var data={name:name,email:email,password:pass,
+    mobile:($('su-mobile').value||'').trim(),
+    institution:($('su-inst').value||'').trim(),
+    qualification:($('su-qual').value||'').trim(),
+    address:($('su-addr').value||'').trim()};
+  gsr('signUp',data).then(function(r){
+    setBtn('btn-su',false,'Create Account →');
+    if(r.success){setMsg('msg-su','Account created! Signing you in…','ok');
+      setTimeout(function(){currentEmail=email;userCredits=100;
+        localStorage.setItem('aih_session',JSON.stringify({email:email,credits:100,isAdmin:false}));
+        initCatalog({isAdmin:false,credits:100});},1200);
+    }else{setMsg('msg-su',r.message||'Registration failed. Try again.');}
+  }).catch(function(){setBtn('btn-su',false,'Create Account →');setMsg('msg-su','Connection error.');});
 }
 
 /* ── FORGOT PASSWORD ── */
 var _fpEmail='';
 function showForgot(){showPage('forgot-page');}
 function backToAuth(){showPage('auth-page');}
+
 function fpSend(){
-  var email=($('fp-email').value||'').trim().toLowerCase();
+  var email=($('fp-email').value||'').trim();
   if(!email){setMsg('msg-fp1','Enter your email address.','');return;}
-  _fpEmail=email;
-  var btn=$('btn-fp1');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Sending…';
+  setBtn('btn-fp1',true,'Sending…');setMsg('msg-fp1','');
   gsr('sendResetCode',{email:email}).then(function(r){
-    btn.disabled=false;btn.innerHTML='Send Code →';
-    if(r.success){
-      $('fp-p2-sub').textContent='Code sent to '+email;
+    setBtn('btn-fp1',false,'Send Code →');
+    if(r.success){_fpEmail=email;$('fp-p2-sub').textContent='Code sent to '+email;
       $('fp-p1').classList.add('hidden');$('fp-p2').classList.remove('hidden');
-      $('fp-s1').className='fp-step done';$('fp-l1').className='fp-line done';$('fp-s2').className='fp-step on';
-    }else{setMsg('msg-fp1',r.message||'Could not send code.','');}
-  }).catch(function(e){btn.disabled=false;btn.innerHTML='Send Code →';setMsg('msg-fp1','Error: '+e.message,'');});
+      $('fp-s1').classList.remove('on');$('fp-s1').classList.add('done');
+      $('fp-l1').classList.add('done');$('fp-s2').classList.add('on');
+    }else{setMsg('msg-fp1',r.message||'Email not found.');}
+  }).catch(function(){setBtn('btn-fp1',false,'Send Code →');setMsg('msg-fp1','Connection error.');});
 }
+
 function fpReset(){
   var code=($('fp-code').value||'').trim();
-  var np=$('fp-np').value||'';
-  var cp=$('fp-cp').value||'';
-  if(!code||!np||!cp){setMsg('msg-fp2','All fields are required.','');return;}
+  var np=($('fp-np').value||'').trim();
+  var cp=($('fp-cp').value||'').trim();
+  if(!code||!np||!cp){setMsg('msg-fp2','All fields required.','');return;}
   if(np!==cp){setMsg('msg-fp2','Passwords do not match.','');return;}
-  if(np.length<6){setMsg('msg-fp2','Password must be at least 6 characters.','');return;}
-  var btn=$('btn-fp2');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Resetting…';
+  if(np.length<6){setMsg('msg-fp2','Min 6 characters.','');return;}
+  setBtn('btn-fp2',true,'Resetting…');setMsg('msg-fp2','');
   gsr('resetPassword',{email:_fpEmail,code:code,newPassword:np}).then(function(r){
-    btn.disabled=false;btn.innerHTML='Reset Password →';
-    if(r.success){
-      $('fp-p2').classList.add('hidden');$('fp-p3').classList.remove('hidden');
-      $('fp-s2').className='fp-step done';$('fp-l2').className='fp-line done';$('fp-s3').className='fp-step on';
-    }else{setMsg('msg-fp2',r.message||'Reset failed. Check your code.','');}
-  }).catch(function(e){btn.disabled=false;btn.innerHTML='Reset Password →';setMsg('msg-fp2','Error: '+e.message,'');});
+    setBtn('btn-fp2',false,'Reset Password →');
+    if(r.success){$('fp-p2').classList.add('hidden');$('fp-p3').classList.remove('hidden');
+      $('fp-s2').classList.remove('on');$('fp-s2').classList.add('done');
+      $('fp-l2').classList.add('done');$('fp-s3').classList.add('on');
+    }else{setMsg('msg-fp2',r.message||'Invalid code or expired.');}
+  }).catch(function(){setBtn('btn-fp2',false,'Reset Password →');setMsg('msg-fp2','Connection error.');});
 }
 
-/* ── CATALOG INIT ── */
-function initCatalog(r){
+/* ── LOGOUT ── */
+function doLogout(){
+  localStorage.removeItem('aih_session');currentEmail='';userCredits=0;
+  allTools=[];fuse=null;activeCat='all';
+  showPage('auth-page');
+}
+
+/* ══════════════════════════════════════════
+   CATALOG INIT
+══════════════════════════════════════════ */
+function initCatalog(userData){
   showPage('catalog-page');
-  var av=$('uav');var un=$('uname');
-  av.textContent=(currentEmail[0]||'U').toUpperCase();
-  un.textContent=currentEmail.split('@')[0];
-  if(r.isAdmin){$('adminBtn').classList.remove('hidden');}else{$('adminBtn').classList.add('hidden');}
-  var cc=$('credit-chip');
-  userCredits=Number(r.credits||userCredits||100);
-  $('cval').textContent=userCredits;
+  var isAdmin=userData&&userData.isAdmin;
+  userCredits=Number((userData&&userData.credits)||userCredits||100);
+
+  /* Topbar */
+  var av=$('uav'),un=$('uname'),cc=$('credit-chip'),cv=$('cval');
+  var letter=(currentEmail||'U')[0].toUpperCase();
+  av.textContent=letter;un.textContent=currentEmail;
+  cv.textContent=userCredits;
   cc.classList.add('show');
   cc.classList.toggle('low',userCredits<=10);
+  $('adminBtn').classList.toggle('hidden',!isAdmin);
+
   loadTools();
+  initPWA();
 }
 
-/* ── TOOLS ── */
 function loadTools(){
   var grid=$('grid');
-  grid.innerHTML='<div class="col-12 text-center py-5" style="color:var(--m1)"><span class="loader"></span> Loading tools…</div>';
+  grid.innerHTML='<div class="col-12 text-center py-5"><span class="loader"></span><span style="color:var(--m1);font-size:14px;margin-left:8px">Loading tools…</span></div>';
   gsr('getTools',{}).then(function(r){
-    allTools=Array.isArray(r.tools)?r.tools:[];
-    buildCatStrip();buildDtChips();
-    fuse=new Fuse(allTools,{keys:['name','category','description'],threshold:.38,includeScore:true});
+    allTools=Array.isArray(r.tools)?r.tools:(Array.isArray(r)?r:[]);
+    if(!allTools.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔧</div><div>No tools found</div></div></div>';return;}
+    fuse=new Fuse(allTools,{keys:['name','category','description'],threshold:0.35});
+    buildCatChips();
     renderTools(allTools);
-  }).catch(function(e){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">⚠️</div><p>'+e.message+'</p></div></div>';});
-}
-
-function buildCatStrip(){
-  var cats=['All'];
-  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
-  var strip=$('cat-strip');
-  strip.innerHTML=cats.map(function(c,i){return '<button class="chip'+(i===0?' on':'')+'" onclick="filterCat(this,\''+c.toLowerCase()+'\')">'+c+'</button>';}).join('');
-}
-function buildDtChips(){
-  var cats=['All'];
-  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
-  var wrap=$('dt-chips');
-  wrap.innerHTML=cats.map(function(c,i){return '<button class="dt-chip'+(i===0?' on':'')+'" onclick="filterDtCat(this,\''+c.toLowerCase()+'\')">'+c+'</button>';}).join('');
-}
-function filterCat(btn,cat){
-  document.querySelectorAll('.cat-strip .chip').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');activeCat=cat;syncAndFilter();
-}
-function filterDtCat(btn,cat){
-  document.querySelectorAll('#dt-chips .dt-chip').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');activeCat=cat;syncAndFilter();
-}
-
-function getFilteredTools(){
-  var q=($('search').value||'').trim();
-  var free=$('dt-free').value||'all';
-  var sort=$('dt-sort').value||'default';
-  var list=q?fuse.search(q).map(function(r){return r.item;}):allTools.slice();
-  if(activeCat&&activeCat!=='all')list=list.filter(function(t){return (t.category||'').toLowerCase()===activeCat;});
-  if(free==='free')list=list.filter(function(t){return (t.pricing||'').toLowerCase()==='free';});
-  else if(free==='paid')list=list.filter(function(t){return (t.pricing||'').toLowerCase()!=='free';});
-  if(sort==='az')list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  else if(sort==='za')list.sort(function(a,b){return (b.name||'').localeCompare(a.name||'');});
-  else if(sort==='popular')list.sort(function(a,b){return Number(b.clicks||0)-Number(a.clicks||0);});
-  return list;
-}
-
-function syncAndFilter(){
-  var ms=$('m-sort').value;
-  var ds=$('dt-sort').value;
-  var mf=$('fd-free')&&$('fd-free').value;
-  var df=$('dt-free').value;
-  /* sync sort */
-  if(ms!=='default'&&ms!==ds){$('dt-sort').value=ms;}
-  else if(ds!=='default'&&ds!==ms){$('m-sort').value=ds;}
-  /* sync free filter */
-  if(mf&&mf!==df)$('dt-free').value=mf;
-  renderTools(getFilteredTools());
-}
-function doSearch(){syncAndFilter();}
-
-function setView(v){
-  activeView=v;
-  var grid=$('grid');
-  grid.classList.toggle('lv',v==='list');
-  ['gbtn','lbtn','m-gbtn','m-lbtn'].forEach(function(id){
-    var el=$(id);if(!el)return;
-    el.classList.toggle('on',(id.indexOf('g')>-1&&v==='grid')||(id.indexOf('l')>-1&&v==='list'));
+  }).catch(function(e){
+    grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">⚠️</div><div style="color:var(--red)">Failed to load tools</div></div></div>';
   });
 }
 
-function renderTools(list){
-  var grid=$('grid');
-  $('res-count').innerHTML='<strong>'+list.length+'</strong> tool'+(list.length!==1?'s':'');
-  if(!list.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔍</div><p style="color:var(--m1)">No tools found</p></div></div>';return;}
-  grid.innerHTML=list.map(function(t,i){
-    var isFree=(t.pricing||'').toLowerCase()==='free';
-    var sl=t.slNo||t.sl_no||t.id||'#';
-    return '<div class="col-6 col-md-4 col-lg-3" style="animation-delay:'+(i*30)+'ms"><div class="tool-card" onclick="openTool(\''+encodeURIComponent(JSON.stringify(t))+'\')">'+
-      '<span class="sl-no">#'+sl+'</span>'+
-      '<div class="cbadge">'+(t.category||'Tool')+'</div>'+
-      '<div class="cname">'+(t.name||'Untitled')+'</div>'+
-      '<div class="cdesc">'+(t.description||'')+'</div>'+
-      '<div class="cfoot"><span class="ftag '+(isFree?'free':'paid')+'">'+(isFree?'Free':t.pricing||'Paid')+'</span><span class="arr"><i class="bi bi-arrow-up-right"></i></span></div>'+
-    '</div></div>';
-  }).join('');
-  if(activeView==='list')grid.classList.add('lv');
+function buildCatChips(){
+  var cats=['All'];
+  allTools.forEach(function(t){if(t.category&&!cats.includes(t.category))cats.push(t.category);});
+
+  /* Mobile strip */
+  var strip=$('cat-strip');
+  strip.innerHTML='';
+  cats.forEach(function(c){
+    var b=document.createElement('button');
+    b.className='chip'+(c==='All'?' on':'');
+    b.textContent=c;
+    b.onclick=function(){filterCat(b,c.toLowerCase()==='all'?'all':c);};
+    strip.appendChild(b);
+  });
+
+  /* Desktop chips */
+  var dc=$('dt-chips');dc.innerHTML='';
+  cats.forEach(function(c){
+    var b=document.createElement('button');
+    b.className='dt-chip'+(c==='All'?' on':'');
+    b.textContent=c;
+    b.onclick=function(){filterCat(b,c.toLowerCase()==='all'?'all':c);};
+    dc.appendChild(b);
+  });
+
+  /* Drawer chips */
+  var fc=$('fd-chips');fc.innerHTML='';
+  cats.forEach(function(c){
+    var b=document.createElement('button');
+    b.className='fd-chip'+(c==='All'?' on':'');
+    b.textContent=c;
+    b.onclick=function(){
+      fc.querySelectorAll('.fd-chip').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+    };
+    fc.appendChild(b);
+  });
 }
 
-/* ── TOOL MODAL ── */
-function openTool(enc){
-  var t;try{t=JSON.parse(decodeURIComponent(enc));}catch(e){return;}
-  var isFree=(t.pricing||'').toLowerCase()==='free';
-  var feats=t.features?t.features.split(',').map(function(f){return f.trim();}).filter(Boolean):[];
-  $('modal-content').innerHTML=
-    '<div class="m-head">'+
-      '<div class="m-head-row">'+
-        '<span class="m-cat">'+(t.category||'AI Tool')+'</span>'+
-        '<button class="m-close" onclick="closeModal()"><i class="bi bi-x"></i></button>'+
-      '</div>'+
-      '<div class="m-title">'+(t.name||'Tool')+'</div>'+
-    '</div>'+
-    '<div class="m-body">'+
-      '<div class="m-meta">'+
-        '<div><div class="meta-k">Pricing</div><div class="meta-v"><span class="ftag '+(isFree?'free':'paid')+'">'+(isFree?'Free':t.pricing||'Paid')+'</span></div></div>'+
-        (t.slNo||t.sl_no?'<div><div class="meta-k">Sl. No.</div><div class="meta-v">#'+(t.slNo||t.sl_no)+'</div></div>':'')+
-        (t.difficulty?'<div><div class="meta-k">Level</div><div class="meta-v">'+t.difficulty+'</div></div>':'')+
-        (t.rating?'<div><div class="meta-k">Rating</div><div class="meta-v">⭐ '+t.rating+'</div></div>':'')+
-      '</div>'+
-      '<div class="m-desc">'+(t.description||'No description available.')+'</div>'+
-      (feats.length?'<div class="sec-ttl">Features</div><div class="feat-wrap">'+feats.map(function(f){return '<span class="feat">'+f+'</span>';}).join('')+'</div>':'')+
-      (t.useCase?'<div class="sec-ttl" style="margin-top:.5rem">Use Case</div><div class="m-desc">'+t.useCase+'</div>':'')+
-    '</div>'+
-    '<div class="m-foot">'+
-      '<button class="btn-launch" '+(t.url?'':'disabled')+'  onclick="launchTool(\''+encodeURIComponent(t.url||'')+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')"><i class="bi bi-rocket-takeoff-fill"></i> Launch Tool</button>'+
-      (t.videoUrl?'<button class="btn-preview" onclick="window.open(\''+t.videoUrl+'\',\'_blank\')"><i class="bi bi-play-circle"></i> Watch Preview</button>':'')+
-    '</div>';
+function filterCat(el,cat){
+  activeCat=cat;
+  /* Sync all chip groups */
+  document.querySelectorAll('.chip,.dt-chip').forEach(function(c){
+    var cv=c.textContent.toLowerCase()==='all'?'all':c.textContent;
+    c.classList.toggle('on',cv===cat);
+  });
+  syncAndFilter();
+}
+
+function getSort(){
+  var ds=$('dt-sort'),ms=$('m-sort');
+  if(ds&&ds.value&&ds.value!=='default')return ds.value;
+  if(ms&&ms.value&&ms.value!=='default')return ms.value;
+  return 'default';
+}
+
+function getFree(){
+  var df=$('dt-free'),ff=$('fd-free');
+  if(df&&df.value&&df.value!=='all')return df.value;
+  if(ff&&ff.value&&ff.value!=='all')return ff.value;
+  return 'all';
+}
+
+function syncAndFilter(){renderTools(getFilteredTools());}
+
+function getFilteredTools(){
+  var sort=getSort(),free=getFree();
+  var base=activeCat==='all'?allTools:allTools.filter(function(t){return t.category===activeCat;});
+  if(free==='free')base=base.filter(function(t){return (t.pricing||'').toLowerCase()==='free';});
+  else if(free==='paid')base=base.filter(function(t){return (t.pricing||'').toLowerCase()!=='free';});
+  var out=base.slice();
+  if(sort==='az')out.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  else if(sort==='za')out.sort(function(a,b){return (b.name||'').localeCompare(a.name||'');});
+  else if(sort==='popular')out.sort(function(a,b){return Number(b.clicks||0)-Number(a.clicks||0);});
+  return out;
+}
+
+function doSearch(){
+  var q=($('search').value||'').trim();
+  if(!q){renderTools(getFilteredTools());return;}
+  if(!fuse){return;}
+  var res=fuse.search(q).map(function(r){return r.item;});
+  renderTools(res);
+}
+
+function renderTools(tools){
+  var grid=$('grid');
+  $('res-count').innerHTML='<strong>'+tools.length+'</strong> tools';
+  if(!tools.length){
+    grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔍</div><div>No tools found</div><div style="font-size:13px;color:var(--m1);margin-top:6px">Try a different search or filter</div></div></div>';
+    return;
+  }
+  var cols=activeView==='grid'?'col-6 col-md-4 col-lg-3':'col-12';
+  grid.className='row g-2 g-md-3'+(activeView==='list'?' lv':'');
+  grid.innerHTML=tools.map(function(t,i){
+    var sl=t.slNo||t.sl_no||(i+1);
+    var free=(t.pricing||'').toLowerCase()==='free';
+    return '<div class="'+cols+'" style="animation-delay:'+(i*0.03)+'s" onclick="openModal('+i+')">'
+      +'<div class="tool-card">'
+      +'<span class="sl-no">#'+sl+'</span>'
+      +'<div class="cbadge">'+esc(t.category||'Tool')+'</div>'
+      +'<div class="cname">'+esc(t.name||'Unnamed')+'</div>'
+      +'<div class="cdesc">'+esc(t.description||'')+'</div>'
+      +'<div class="cfoot">'
+      +'<span class="ftag '+(free?'free':'paid')+'">'+(free?'Free':'Paid')+'</span>'
+      +'<div class="arr"><i class="bi bi-arrow-up-right"></i></div>'
+      +'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function setView(v){
+  activeView=v;
+  ['gbtn','lbtn','m-gbtn','m-lbtn'].forEach(function(id){var el=$(id);if(el)el.classList.remove('on');});
+  if(v==='grid'){var gb=$('gbtn'),mg=$('m-gbtn');if(gb)gb.classList.add('on');if(mg)mg.classList.add('on');}
+  else{var lb=$('lbtn'),ml=$('m-lbtn');if(lb)lb.classList.add('on');if(ml)ml.classList.add('on');}
+  $('fd-view').value=v;
+  renderTools(getFilteredTools());
+}
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+var _modalToolIdx=-1;
+function openModal(idx){
+  _modalToolIdx=idx;
+  var t=allTools[idx];if(!t)return;
+  var free=(t.pricing||'').toLowerCase()==='free';
+  var hasCredits=userCredits>0;
+  var mc=$('modal-content');
+  mc.innerHTML=
+    '<div class="m-head">'
+    +'<div class="m-head-row"><span class="m-cat">'+esc(t.category||'Tool')+'</span><button class="m-close" onclick="closeModal()"><i class="bi bi-x"></i></button></div>'
+    +'<div class="m-title">'+esc(t.name||'Tool')+'</div>'
+    +'</div>'
+    +'<div class="m-body">'
+    +'<div class="m-meta">'
+    +'<div><div class="meta-k">Pricing</div><div class="meta-v"><span class="ftag '+(free?'free':'paid')+'" style="font-size:12px">'+(free?'Free':'Paid / Freemium')+'</span></div></div>'
+    +(t.slNo?'<div><div class="meta-k">Sl. No.</div><div class="meta-v">#'+t.slNo+'</div></div>':'')
+    +(t.clicks?'<div><div class="meta-k">Launches</div><div class="meta-v">'+t.clicks+'</div></div>':'')
+    +'</div>'
+    +'<div class="m-desc">'+esc(t.description||'No description available.')+'</div>'
+    +(t.features?'<div class="sec-ttl">Features</div><div class="feat-wrap">'+t.features.split(',').map(function(f){return '<span class="feat">'+esc(f.trim())+'</span>';}).join('')+'</div>':'')
+    +'</div>'
+    +'<div class="m-foot">'
+    +(t.url?'<button class="btn-launch" '+(hasCredits?'':'disabled')+' onclick="launchTool('+idx+')">'
+      +'<i class="bi bi-rocket-takeoff"></i> '+(hasCredits?'Launch Tool':'No Credits Left')
+      +'</button>':'')
+    +(t.url&&t.previewUrl?'<button class="btn-preview" onclick="window.open(\''+esc(t.previewUrl)+'\',\'_blank\')"><i class="bi bi-eye"></i> Preview</button>':'')
+    +'</div>';
   $('modal').classList.add('open');
   document.body.classList.add('no-scroll');
 }
-function closeModal(){$('modal').classList.remove('open');document.body.classList.remove('no-scroll');}
-function launchTool(encUrl,encTool){
-  var url=decodeURIComponent(encUrl);
-  var t;try{t=JSON.parse(decodeURIComponent(encTool));}catch(e){t={};}
-  if(!url)return;
-  /* Deduct credit */
-  gsr('useTool',{email:currentEmail,toolId:t.slNo||t.id||'',toolName:t.name||''}).then(function(r){
-    userCredits=Number(r.credits||userCredits);$('cval').textContent=userCredits;
-    $('credit-chip').classList.toggle('low',userCredits<=10);
-    var sess=JSON.parse(localStorage.getItem('aih_session')||'{}');sess.credits=userCredits;localStorage.setItem('aih_session',JSON.stringify(sess));
-  }).catch(function(){});
-  window.open(url,'_blank','noopener');
+
+function closeModal(){
+  $('modal').classList.remove('open');
+  document.body.classList.remove('no-scroll');
 }
 
-/* ── MOBILE SEARCH ── */
-function openMSearch(){$('msearch').classList.add('open');document.body.classList.add('no-scroll');setTimeout(function(){$('ms-inp').focus();},100);}
-function closeMSearch(){$('msearch').classList.remove('open');document.body.classList.remove('no-scroll');$('ms-inp').value='';}
+function launchTool(idx){
+  var t=allTools[idx];if(!t||!t.url)return;
+  if(userCredits<=0){toast('No credits remaining!','err');return;}
+  userCredits=Math.max(0,userCredits-1);
+  $('cval').textContent=userCredits;
+  $('credit-chip').classList.toggle('low',userCredits<=10);
+  var sess=localStorage.getItem('aih_session');
+  if(sess){try{var s=JSON.parse(sess);s.credits=userCredits;localStorage.setItem('aih_session',JSON.stringify(s));}catch(e){}}
+  gsr('logClick',{email:currentEmail,toolName:t.name,credits:userCredits}).catch(function(){});
+  window.open(t.url,'_blank');
+  closeModal();
+  toast('🚀 Launched '+t.name,'ok');
+}
+
+/* ══════════════════════════════════════════
+   MOBILE SEARCH
+══════════════════════════════════════════ */
+function openMSearch(){
+  $('msearch').classList.add('open');
+  document.body.classList.add('no-scroll');
+  setTimeout(function(){$('ms-inp').focus();},200);
+}
+function closeMSearch(){
+  $('msearch').classList.remove('open');
+  document.body.classList.remove('no-scroll');
+  $('ms-inp').value='';
+  $('msh-body').innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';
+}
 function doMSearch(q){
   var body=$('msh-body');
-  if(!q.trim()){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';return;}
-  var res=fuse?fuse.search(q).map(function(r){return r.item;}).slice(0,30):[];
-  if(!res.length){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico">🔍</div><p style="color:var(--m1)">No results for "'+q+'"</p></div>';return;}
-  body.innerHTML=res.map(function(t){
-    var sl=t.slNo||t.sl_no||t.id||'';
-    return '<div class="msh-item" onclick="closeMSearch();openTool(\''+encodeURIComponent(JSON.stringify(t))+'\')">'+
-      '<span class="msh-dot"></span>'+
-      (sl?'<span class="msh-sl">#'+sl+'</span>':'')+
-      '<div style="flex:1;min-width:0"><div class="msh-name">'+(t.name||'')+'</div><div class="msh-meta">'+(t.category||'')+(t.pricing?' · '+t.pricing:'')+'</div></div>'+
-      '<i class="bi bi-arrow-up-right msh-arr"></i>'+
-    '</div>';
+  if(!q||!fuse){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';return;}
+  var res=fuse.search(q).slice(0,30).map(function(r){return r.item;});
+  if(!res.length){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico">🔍</div><p>No results for "'+esc(q)+'"</p></div>';return;}
+  body.innerHTML=res.map(function(t,i){
+    var idx=allTools.indexOf(t);
+    return '<div class="msh-item" onclick="closeMSearch();openModal('+idx+')">'
+      +'<span class="msh-sl">#'+(t.slNo||i+1)+'</span>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div class="msh-name">'+esc(t.name||'')+'</div>'
+      +'<div class="msh-meta">'+esc(t.category||'')+(t.pricing?' · '+t.pricing:'')+'</div>'
+      +'</div>'
+      +'<i class="bi bi-arrow-up-right msh-arr"></i>'
+      +'</div>';
   }).join('');
 }
 
-/* ── FILTER DRAWER ── */
-function openFDrawer(){
-  buildFdChips();$('fdrawer').classList.add('open');document.body.classList.add('no-scroll');
-}
+/* ══════════════════════════════════════════
+   FILTER DRAWER
+══════════════════════════════════════════ */
+function openFDrawer(){$('fdrawer').classList.add('open');document.body.classList.add('no-scroll');}
 function closeFDrawer(){$('fdrawer').classList.remove('open');document.body.classList.remove('no-scroll');}
-function buildFdChips(){
-  var cats=['All'];
-  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
-  $('fd-chips').innerHTML=cats.map(function(c){
-    var v=c.toLowerCase();
-    return '<button class="fd-chip'+(activeCat===v||(c==='All'&&activeCat==='all')?' on':'')+'" onclick="fdPickCat(this,\''+v+'\')">'+c+'</button>';
-  }).join('');
-}
-function fdPickCat(btn,cat){
-  document.querySelectorAll('#fd-chips .fd-chip').forEach(function(b){b.classList.remove('on');});
-  btn.classList.add('on');activeCat=cat;
-}
 function clearDrawer(){
-  activeCat='all';$('fd-free').value='all';$('fd-sort').value='default';$('fd-view').value='grid';
-  buildFdChips();
+  $('fd-chips').querySelectorAll('.fd-chip').forEach(function(c,i){c.classList.toggle('on',i===0);});
+  $('fd-free').value='all';$('fd-sort').value='default';$('fd-view').value='grid';
 }
 function applyDrawer(){
-  var free=$('fd-free').value;var sort=$('fd-sort').value;var view=$('fd-view').value;
-  $('dt-free').value=free;$('dt-sort').value=sort;$('m-sort').value=sort;
-  setView(view);syncAndFilter();closeFDrawer();
-  /* sync cat strip */
-  document.querySelectorAll('.cat-strip .chip').forEach(function(b){b.classList.remove('on');});
-  var matched=false;
-  document.querySelectorAll('.cat-strip .chip').forEach(function(b){if(b.textContent.toLowerCase()===activeCat||(activeCat==='all'&&b.textContent==='All')){b.classList.add('on');matched=true;}});
-  if(!matched){var first=document.querySelector('.cat-strip .chip');if(first)first.classList.add('on');}
+  var sel=$('fd-chips').querySelector('.fd-chip.on');
+  var cat=sel?(sel.textContent.toLowerCase()==='all'?'all':sel.textContent):'all';
+  activeCat=cat;
+  document.querySelectorAll('.chip,.dt-chip').forEach(function(c){
+    var cv=c.textContent.toLowerCase()==='all'?'all':c.textContent;
+    c.classList.toggle('on',cv===cat);
+  });
+  $('dt-free').value=$('fd-free').value;
+  $('dt-sort').value=$('fd-sort').value;
+  setView($('fd-view').value);
+  closeFDrawer();
+  syncAndFilter();
 }
-
-/* ── BOTTOM NAV ── */
-function bnHome(){showPage('catalog-page');}
 
 /* ══════════════════════════════════════════
    ADMIN
 ══════════════════════════════════════════ */
 function openAdmin(){showPage('admin-page');loadAdminData();}
 function backToCatalog(){showPage('catalog-page');}
+function bnHome(){showPage('catalog-page');}
+
 function switchAdmTab(tab){
-  document.querySelectorAll('.adm-tab').forEach(function(b,i){b.classList.toggle('on',['tools','users','credits'][i]===tab);});
+  document.querySelectorAll('.adm-tab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.adm-panel').forEach(function(p){p.classList.remove('on');});
+  event.currentTarget.classList.add('on');
   $('adm-panel-'+tab).classList.add('on');
+  if(tab==='biometrics')renderAdmBio();
 }
 
 function loadAdminData(){
   $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
-  /* load tools */
+  loadAdmTools();
+  loadAdmUsers();
+}
+
+/* ── Admin Tools ── */
+function loadAdmTools(){
+  $('adm-tools').innerHTML='<div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading tools…</div>';
   gsr('getTools',{}).then(function(r){
-    _admAllTools=Array.isArray(r.tools)?r.tools:[];
-    renderAdmStats();
+    _admAllTools=Array.isArray(r.tools)?r.tools:(Array.isArray(r)?r:[]);
+    $('adm-tool-count').textContent=_admAllTools.length+' tools';
     renderAdmTools(_admAllTools);
-  });
-  /* load users */
-  gsr('getUsers',{}).then(function(r){
-    _admAllUsers=Array.isArray(r.users)?r.users:[];
-    renderAdmUsers(_admAllUsers);
-    renderLowCredits();
-  });
-}
-
-function renderAdmStats(){
-  var total=_admAllTools.length;
-  var cats=[...new Set(_admAllTools.map(function(t){return t.category||'';}).filter(Boolean))].length;
-  var users=_admAllUsers.length;
-  var bioCount=_admAllUsers.filter(function(u){return u.bioRegistered||u.bioType;}).length;
-  $('adm-stats').innerHTML=
-    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">🧰</span><div><div class="stat-lbl">Total Tools</div><div class="stat-val">'+total+'</div></div></div></div>'+
-    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">📂</span><div><div class="stat-lbl">Categories</div><div class="stat-val">'+cats+'</div></div></div></div>'+
-    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">👤</span><div><div class="stat-lbl">Users</div><div class="stat-val">'+users+'</div></div></div></div>'+
-    /* ── CHANGED: stat card now shows biometric-registered users ── */
-    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">🫆</span><div><div class="stat-lbl">Bio Enrolled</div><div class="stat-val">'+bioCount+'</div></div></div></div>';
-}
-
-function renderAdmTools(list){
-  $('adm-tool-count').textContent=list.length+' tools';
-  if(!list.length){$('adm-tools').innerHTML='<div class="p-4 text-center" style="color:var(--m1)">No tools found.</div>';return;}
-  $('adm-tools').innerHTML=
-    '<div class="adm-thead th-tools"><span>#</span><span>Tool</span><span>Category</span><span>Pricing</span><span>Clicks</span></div>'+
-    list.map(function(t,i){
-      var sl=t.slNo||t.sl_no||t.id||i+1;
-      return '<div class="adm-row tr-tools">'+
-        '<span class="rank'+(i<3?' t3':'')+'">'+sl+'</span>'+
-        '<div><div class="row-name">'+(t.name||'—')+'</div><div class="row-sub">'+(t.url||'')+'</div></div>'+
-        '<span><span class="badge-c">'+(t.category||'—')+'</span></span>'+
-        '<span style="font-size:12px;color:var(--m2)">'+(t.pricing||'—')+'</span>'+
-        '<span style="font-size:13px;font-weight:700;color:var(--gold)">'+(t.clicks||0)+'</span>'+
-      '</div>';
-    }).join('');
-}
-
-/* ── CHANGED: renderAdmUsers now shows Biometric column ── */
-function renderAdmUsers(list){
-  $('adm-user-count').textContent=list.length+' users';
-  if(!list.length){$('adm-users').innerHTML='<div class="p-4 text-center" style="color:var(--m1)">No users found.</div>';return;}
-  $('adm-users').innerHTML=
-    '<div class="adm-thead th-users"><span>#</span><span>User</span><span>Joined</span><span>Plan</span><span>Biometric</span><span>Credits</span></div>'+
-    list.map(function(u,i){
-      var joined=u.joinDate||u.createdAt||'—';
-      if(joined&&joined.length>10)joined=joined.substring(0,10);
-      var plan=u.plan||u.role||'Student';
-      var credits=Number(u.credits||0);
-
-      /* ── Biometric cell ── */
-      var bioCell;
-      if(u.bioRegistered||u.bioType){
-        var bioIcon=u.bioType==='Face ID'?'😶':'🫆';
-        var bioLabel=u.bioType||'Enrolled';
-        var bioDevice=u.bioDevice?(' · '+u.bioDevice):'';
-        var bioDate=u.bioDate?(u.bioDate.length>10?u.bioDate.substring(0,10):u.bioDate):'';
-        var bioTitle=bioLabel+bioDevice+(bioDate?' · '+bioDate:'');
-        bioCell='<span title="'+bioTitle+'"><span class="badge-c grn" style="gap:3px;max-width:100%;overflow:hidden;text-overflow:ellipsis">'+bioIcon+' '+bioLabel+'</span>'+(bioDate?'<div style="font-size:10px;color:var(--m1);margin-top:2px">'+bioDate+'</div>':'')+'</span>';
-      }else{
-        bioCell='<span style="color:var(--m1);font-size:11px">—</span>';
-      }
-
-      return '<div class="adm-row tr-users">'+
-        '<span class="rank'+(i<3?' t3':'')+'">'+( i+1)+'</span>'+
-        '<div><div class="row-name">'+(u.name||'—')+'</div><div class="row-sub">'+(u.email||'')+'</div></div>'+
-        '<span style="font-size:11px;color:var(--m2)">'+joined+'</span>'+
-        '<span><span class="badge-c'+(plan.toLowerCase()==='admin'?' red':'')+'">'+(plan)+'</span></span>'+
-        bioCell+
-        '<div>'+
-          '<span class="badge-c'+(credits<=10?' red':'')+'" id="cv-'+i+'" style="font-size:12px">⚡ '+credits+'</span>'+
-          '<div class="credit-edit" id="ce-'+i+'">'+
-            '<input type="number" id="ci-'+i+'" value="'+credits+'" min="0">'+
-            '<button class="save-c" onclick="saveCreditRow('+i+',\''+encodeURIComponent(u.email||'')+'\')">✓</button>'+
-            '<button class="cancel-c" onclick="cancelCreditRow('+i+')">✕</button>'+
-          '</div>'+
-          '<button class="adm-act-btn" style="margin-top:4px;font-size:11px" onclick="editCreditRow('+i+')"><i class="bi bi-pencil"></i> Edit</button>'+
-        '</div>'+
-      '</div>';
-    }).join('');
+    renderAdmStats();
+  }).catch(function(){$('adm-tools').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load tools</div>';});
 }
 
 function filterAdmTools(q){
   if(!q){renderAdmTools(_admAllTools);return;}
-  var f=q.toLowerCase();
-  renderAdmTools(_admAllTools.filter(function(t){return (t.name||'').toLowerCase().includes(f)||(t.category||'').toLowerCase().includes(f);}));
-}
-function filterAdmUsers(q){
-  if(!q){renderAdmUsers(_admAllUsers);return;}
-  var f=q.toLowerCase();
-  renderAdmUsers(_admAllUsers.filter(function(u){return (u.name||'').toLowerCase().includes(f)||(u.email||'').toLowerCase().includes(f);}));
+  var ql=q.toLowerCase();
+  var f=_admAllTools.filter(function(t){
+    return (t.name||'').toLowerCase().includes(ql)||(t.category||'').toLowerCase().includes(ql);
+  });
+  renderAdmTools(f);
 }
 
-function editCreditRow(i){
-  $('ce-'+i).style.display='flex';
-  $('cv-'+i).style.display='none';
-}
-function cancelCreditRow(i){
-  $('ce-'+i).style.display='none';
-  $('cv-'+i).style.display='';
-}
-function saveCreditRow(i,encEmail){
-  var email=decodeURIComponent(encEmail);
-  var val=parseInt($('ci-'+i).value,10);
-  if(isNaN(val)||val<0){toast('Invalid credit value','err');return;}
-  gsr('setCredits',{email:email,credits:val}).then(function(r){
-    if(r.success){
-      toast('Credits updated for '+email,'ok');
-      $('cv-'+i).textContent='⚡ '+val;
-      $('cv-'+i).className='badge-c'+(val<=10?' red':'');
-      cancelCreditRow(i);
-      /* update local cache */
-      _admAllUsers.forEach(function(u){if(u.email===email)u.credits=val;});
-      renderLowCredits();
-    }else{toast(r.message||'Failed','err');}
-  }).catch(function(e){toast(e.message,'err');});
-}
-
-function renderLowCredits(){
-  var low=_admAllUsers.filter(function(u){return Number(u.credits||0)<=10;});
-  var el=$('adm-low-credits');
-  if(!low.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No users with low credits. 🎉</div>';return;}
-  el.innerHTML=
-    '<div class="adm-thead th-users"><span>#</span><span>User</span><span>Joined</span><span>Plan</span><span>Biometric</span><span>Credits</span></div>'+
-    low.map(function(u,i){
-      var credits=Number(u.credits||0);
-      var joined=u.joinDate||u.createdAt||'—';if(joined&&joined.length>10)joined=joined.substring(0,10);
-      var plan=u.plan||u.role||'Student';
-      var bioCell=u.bioRegistered||u.bioType
-        ?'<span class="badge-c grn" style="font-size:10px">'+(u.bioType==='Face ID'?'😶':'🫆')+' '+(u.bioType||'Bio')+'</span>'
-        :'<span style="color:var(--m1);font-size:11px">—</span>';
-      return '<div class="adm-row tr-users">'+
-        '<span class="rank t3">'+(i+1)+'</span>'+
-        '<div><div class="row-name">'+(u.name||'—')+'</div><div class="row-sub">'+(u.email||'')+'</div></div>'+
-        '<span style="font-size:11px;color:var(--m2)">'+joined+'</span>'+
-        '<span><span class="badge-c'+(plan.toLowerCase()==='admin'?' red':'')+'">'+(plan)+'</span></span>'+
-        bioCell+
-        '<span class="badge-c red">⚡ '+credits+'</span>'+
-      '</div>';
+function renderAdmTools(tools){
+  var el=$('adm-tools');
+  if(!tools.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No tools found</div>';return;}
+  el.innerHTML='<div class="adm-thead th-tools"><span>#</span><span>Tool</span><span>Category</span><span>Pricing</span><span>Clicks</span></div>'
+    +tools.map(function(t,i){
+      var sl=t.slNo||t.sl_no||(i+1);
+      var free=(t.pricing||'').toLowerCase()==='free';
+      return '<div class="adm-row tr-tools">'
+        +'<span class="rank'+(sl<=3?' t3':'')+'">'+sl+'</span>'
+        +'<div><div class="row-name">'+esc(t.name||'—')+'</div><div class="row-sub">'+esc(t.url||'')+'</div></div>'
+        +'<span><span class="badge-c">'+esc(t.category||'—')+'</span></span>'
+        +'<span><span class="badge-c '+(free?'grn':'')+'">'+esc(t.pricing||'—')+'</span></span>'
+        +'<span style="font-size:13px;font-weight:700;color:var(--m2)">'+(t.clicks||0)+'</span>'
+        +'</div>';
     }).join('');
 }
 
-/* ── Credit bulk panel ── */
-var _admLookupTimer=null;
-function admLookupUser(val){
-  clearTimeout(_admLookupTimer);
-  $('bulk-user-preview').textContent='';
-  if(!val||val.length<3)return;
-  _admLookupTimer=setTimeout(function(){
-    var match=_admAllUsers.filter(function(u){return (u.email||'').toLowerCase().includes(val.toLowerCase())||(u.name||'').toLowerCase().includes(val.toLowerCase());});
-    if(match.length){
-      var u=match[0];
-      var bioInfo=u.bioRegistered||u.bioType?(' · 🫆 '+(u.bioType||'Bio Enrolled')):'';
-      $('bulk-user-preview').innerHTML='<span style="color:var(--grn)">✓ Found: </span>'+(u.name||u.email)+' — ⚡ '+(u.credits||0)+' credits'+bioInfo;
-      $('bulk-email').value=u.email||val;
-      $('bulk-credits').value=u.credits||0;
-    }else{
-      $('bulk-user-preview').innerHTML='<span style="color:var(--red)">✗ No user found with that email/name.</span>';
-    }
-  },400);
+/* ── Admin Users ── */
+function loadAdmUsers(){
+  $('adm-users').innerHTML='<div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading users…</div>';
+  gsr('getUsers',{}).then(function(r){
+    _admAllUsers=Array.isArray(r.users)?r.users:(Array.isArray(r)?r:[]);
+    $('adm-user-count').textContent=_admAllUsers.length+' users';
+    renderAdmUsers(_admAllUsers);
+    renderAdmStats();
+    renderLowCredits();
+    // Also refresh bio panel if active
+    if($('adm-panel-biometrics').classList.contains('on'))renderAdmBio();
+  }).catch(function(){$('adm-users').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load users</div>';});
 }
+
+function filterAdmUsers(q){
+  if(!q){renderAdmUsers(_admAllUsers);return;}
+  var ql=q.toLowerCase();
+  var f=_admAllUsers.filter(function(u){
+    return (u.name||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql);
+  });
+  renderAdmUsers(f);
+}
+
+function renderAdmUsers(users){
+  var el=$('adm-users');
+  if(!users.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No users found</div>';return;}
+  // Get bio registry for cross-reference
+  var bioReg=getBioRegistry();
+  var bioEmails=bioReg.map(function(b){return b.email;});
+  el.innerHTML='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Actions</span></div>'
+    +users.map(function(u,i){
+      var hasBio=bioEmails.includes(u.email);
+      return '<div class="adm-row tr-users">'
+        +'<span class="rank">'+(i+1)+'</span>'
+        +'<div>'
+          +'<div class="row-name">'+esc(u.name||'—')+'</div>'
+          +'<div class="row-sub">'+esc(u.email||'')+(u.mobile?' · '+esc(u.mobile):'')+'</div>'
+        +'</div>'
+        +'<span><div class="row-name" style="font-size:12px">'+esc(u.institution||'—')+'</div><div class="row-sub">'+esc(u.qualification||'')+'</div></span>'
+        +'<span>'
+          +'<div id="cdisp-'+i+'" style="font-size:14px;font-weight:700;color:'+(Number(u.credits||0)<=10?'var(--red)':'var(--grn)')+'">'+Number(u.credits||0)+'</div>'
+          +'<div class="credit-edit" id="cedit-'+i+'">'
+            +'<input type="number" id="cinp-'+i+'" value="'+Number(u.credits||0)+'" min="0" style="width:60px">'
+            +'<button class="save-c" onclick="saveCredit(\''+esc(u.email)+'\','+i+')">✓</button>'
+            +'<button class="cancel-c" onclick="cancelCredit('+i+')">✕</button>'
+          +'</div>'
+        +'</span>'
+        +'<span>'
+          +(hasBio
+            ?'<span class="badge-c blue"><i class="bi bi-fingerprint"></i> Enrolled</span>'
+            :'<span class="bio-id-none">None</span>')
+        +'</span>'
+        +'<span style="display:flex;gap:5px;flex-wrap:wrap">'
+          +'<button class="adm-act-btn" onclick="editCredit('+i+')"><i class="bi bi-pencil"></i> Edit</button>'
+          +(hasBio?'<button class="adm-act-btn danger" onclick="adminRevokeBio(\''+esc(u.email)+'\')" title="Revoke biometric"><i class="bi bi-shield-x"></i></button>':'')
+        +'</span>'
+        +'</div>';
+    }).join('');
+}
+
+/* ── Admin Stats ── */
+function renderAdmStats(){
+  var tools=_admAllTools.length,users=_admAllUsers.length;
+  var totalCredits=_admAllUsers.reduce(function(s,u){return s+Number(u.credits||0);},0);
+  var bioCount=getBioRegistry().length;
+  $('adm-stats').innerHTML=
+    stat('🧰','Tools',tools)+
+    stat('👤','Users',users)+
+    stat('⚡','Total Credits',totalCredits)+
+    stat('🔐','Biometric Users',bioCount);
+}
+function stat(ico,lbl,val){
+  return '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">'+ico+'</div><div><div class="stat-lbl">'+lbl+'</div><div class="stat-val">'+val+'</div></div></div></div>';
+}
+
+/* ── Low Credits ── */
+function renderLowCredits(){
+  var low=_admAllUsers.filter(function(u){return Number(u.credits||0)<=10;});
+  var el=$('adm-low-credits');
+  if(!low.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:13px">✓ All users have sufficient credits</div>';return;}
+  el.innerHTML='<div class="adm-thead th-users" style="grid-template-columns:28px 1fr 60px 80px;"><span>#</span><span>User</span><span>Credits</span><span>Action</span></div>'
+    +low.map(function(u,i){
+      return '<div class="adm-row" style="grid-template-columns:28px 1fr 60px 80px;align-items:center">'
+        +'<span class="rank">'+(i+1)+'</span>'
+        +'<div><div class="row-name">'+esc(u.name||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
+        +'<span style="font-size:14px;font-weight:700;color:var(--red)">'+Number(u.credits||0)+'</span>'
+        +'<span><button class="adm-act-btn" onclick="quickTopup(\''+esc(u.email)+'\')"><i class="bi bi-lightning-charge"></i> Top up</button></span>'
+        +'</div>';
+    }).join('');
+}
+
+/* ── Credit editing ── */
+function editCredit(i){
+  $('cedit-'+i).style.display='flex';
+  $('cdisp-'+i).style.display='none';
+}
+function cancelCredit(i){
+  $('cedit-'+i).style.display='none';
+  $('cdisp-'+i).style.display='block';
+}
+function saveCredit(email,i){
+  var val=Number($('cinp-'+i).value||0);
+  gsr('setCredits',{email:email,credits:val}).then(function(r){
+    if(r.success){
+      $('cdisp-'+i).textContent=val;
+      $('cdisp-'+i).style.color=val<=10?'var(--red)':'var(--grn)';
+      cancelCredit(i);
+      toast('Credits updated for '+email,'ok');
+      var u=_admAllUsers.find(function(x){return x.email===email;});
+      if(u)u.credits=val;
+      renderLowCredits();
+    }else{toast('Failed to update credits','err');}
+  }).catch(function(){toast('Connection error','err');});
+}
+
+function admLookupUser(email){
+  var prev=$('bulk-user-preview');
+  if(!email||!_admAllUsers.length){prev.textContent='';return;}
+  var u=_admAllUsers.find(function(x){return x.email.toLowerCase()===email.toLowerCase();});
+  prev.textContent=u?'Found: '+u.name+' ('+u.credits+' credits)':'User not found in loaded list';
+}
+
 function doSetCredits(){
-  var email=($('bulk-email').value||'').trim().toLowerCase();
-  var credits=parseInt($('bulk-credits').value,10);
-  if(!email){setMsg('bulk-msg','Enter a user email.','');return;}
-  if(isNaN(credits)||credits<0){setMsg('bulk-msg','Enter a valid credit amount.','');return;}
+  var email=($('bulk-email').value||'').trim();
+  var credits=Number($('bulk-credits').value||0);
+  if(!email){setMsg('bulk-msg','Enter an email.','');return;}
+  setMsg('bulk-msg','Saving…','inf');
   gsr('setCredits',{email:email,credits:credits}).then(function(r){
-    if(r.success){setMsg('bulk-msg','Credits set to '+credits+' for '+email,'ok');_admAllUsers.forEach(function(u){if(u.email===email)u.credits=credits;});renderLowCredits();}
-    else{setMsg('bulk-msg',r.message||'Failed.','');}
-  }).catch(function(e){setMsg('bulk-msg',e.message,'');});
+    if(r.success){setMsg('bulk-msg','✓ Credits set to '+credits+' for '+email,'ok');
+      var u=_admAllUsers.find(function(x){return x.email===email;});if(u)u.credits=credits;
+      renderLowCredits();renderAdmStats();
+    }else{setMsg('bulk-msg',r.message||'Failed','');}
+  }).catch(function(){setMsg('bulk-msg','Connection error','');});
 }
 
-/* ── PWA ── */
-var _pwaPrompt=null;
-window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_pwaPrompt=e;$('pwa-topbar-btn').classList.remove('hidden');});
-function triggerPWAInstall(){if(_pwaPrompt){_pwaPrompt.prompt();_pwaPrompt.userChoice.then(function(){_pwaPrompt=null;$('pwa-topbar-btn').classList.add('hidden');});}}
-window.addEventListener('appinstalled',function(){_pwaPrompt=null;$('pwa-topbar-btn').classList.add('hidden');toast('App installed! ✅','ok');});
+function quickTopup(email){
+  gsr('setCredits',{email:email,credits:100}).then(function(r){
+    if(r.success){toast('Topped up '+email+' to 100 credits','ok');
+      var u=_admAllUsers.find(function(x){return x.email===email;});if(u)u.credits=100;
+      renderLowCredits();renderAdmStats();
+    }
+  }).catch(function(){toast('Failed','err');});
+}
 
-/* ── KEYBOARD ESC ── */
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    if($('modal').classList.contains('open'))closeModal();
-    if($('msearch').classList.contains('open'))closeMSearch();
-    if($('fdrawer').classList.contains('open'))closeFDrawer();
+/* ══════════════════════════════════════════
+   ADMIN BIOMETRICS PANEL
+══════════════════════════════════════════ */
+function renderAdmBio(){
+  _admAllBio = getBioRegistry();
+  var el = $('adm-bio-table');
+  $('adm-bio-count').textContent = _admAllBio.length + ' registered';
+
+  if (!_admAllBio.length) {
+    el.innerHTML = '<div class="p-4 text-center"><div style="font-size:36px;opacity:.3;margin-bottom:10px">🔐</div><div style="color:var(--m1);font-size:13px">No biometric registrations found on this device/browser.<br>Users register biometrics from the sign-in page.</div></div>';
+    return;
   }
+
+  el.innerHTML =
+    '<div class="adm-thead th-bio"><span>#</span><span>User</span><span>Type</span><span>Registered</span><span>Cred. ID (ref)</span><span>Actions</span></div>'
+    + _admAllBio.map(function(b, i) {
+      var dateStr = b.registeredAt ? new Date(b.registeredAt).toLocaleDateString() : '—';
+      var timeStr = b.registeredAt ? new Date(b.registeredAt).toLocaleTimeString() : '';
+      var typeIcon = b.type === 'fingerprint' ? '🫆' : b.type === 'face' ? '😶' : '🔐';
+      return '<div class="adm-row tr-bio">'
+        + '<span class="rank' + (i < 3 ? ' t3' : '') + '">' + (i + 1) + '</span>'
+        + '<div>'
+          + '<div class="row-name">' + esc(b.email || '—') + '</div>'
+          + '<div class="row-sub" title="' + esc(b.device || '') + '">' + esc((b.device || '').substring(0, 40)) + (b.device && b.device.length > 40 ? '…' : '') + '</div>'
+        + '</div>'
+        + '<span><span class="badge-c blue">' + typeIcon + ' ' + esc(b.type || 'platform') + '</span></span>'
+        + '<div><div style="font-size:12px;font-weight:600">' + dateStr + '</div><div class="row-sub">' + timeStr + '</div></div>'
+        + '<span>'
+          + '<span class="bio-id-badge" title="' + esc(b.credIdFull || '') + '"><i class="bi bi-fingerprint"></i> ' + esc(b.credIdShort || '—') + '</span>'
+        + '</span>'
+        + '<span style="display:flex;gap:5px;flex-wrap:wrap">'
+          + '<button class="adm-act-btn" onclick="copyBioId(\'' + esc(b.credIdFull || '') + '\')" title="Copy full credential ID"><i class="bi bi-clipboard"></i> Copy ID</button>'
+          + '<button class="adm-act-btn danger" onclick="adminRevokeBio(\'' + esc(b.email) + '\')" title="Revoke biometric for this user"><i class="bi bi-shield-x"></i> Revoke</button>'
+        + '</span>'
+        + '</div>';
+    }).join('');
+}
+
+function filterAdmBio(q) {
+  var el = $('adm-bio-table');
+  if (!q) { renderAdmBio(); return; }
+  var ql = q.toLowerCase();
+  var f = _admAllBio.filter(function(b) {
+    return (b.email || '').toLowerCase().includes(ql)
+      || (b.credIdShort || '').toLowerCase().includes(ql)
+      || (b.credIdFull || '').toLowerCase().includes(ql);
+  });
+  if (!f.length) { el.innerHTML = '<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No matches found</div>'; return; }
+
+  el.innerHTML =
+    '<div class="adm-thead th-bio"><span>#</span><span>User</span><span>Type</span><span>Registered</span><span>Cred. ID (ref)</span><span>Actions</span></div>'
+    + f.map(function(b, i) {
+      var dateStr = b.registeredAt ? new Date(b.registeredAt).toLocaleDateString() : '—';
+      var timeStr = b.registeredAt ? new Date(b.registeredAt).toLocaleTimeString() : '';
+      var typeIcon = b.type === 'fingerprint' ? '🫆' : b.type === 'face' ? '😶' : '🔐';
+      return '<div class="adm-row tr-bio">'
+        + '<span class="rank">' + (i + 1) + '</span>'
+        + '<div><div class="row-name">' + esc(b.email || '—') + '</div><div class="row-sub">' + esc((b.device || '').substring(0, 40)) + '</div></div>'
+        + '<span><span class="badge-c blue">' + typeIcon + ' ' + esc(b.type || 'platform') + '</span></span>'
+        + '<div><div style="font-size:12px;font-weight:600">' + dateStr + '</div><div class="row-sub">' + timeStr + '</div></div>'
+        + '<span><span class="bio-id-badge" title="' + esc(b.credIdFull || '') + '"><i class="bi bi-fingerprint"></i> ' + esc(b.credIdShort || '—') + '</span></span>'
+        + '<span style="display:flex;gap:5px;flex-wrap:wrap">'
+          + '<button class="adm-act-btn" onclick="copyBioId(\'' + esc(b.credIdFull || '') + '\')"><i class="bi bi-clipboard"></i> Copy ID</button>'
+          + '<button class="adm-act-btn danger" onclick="adminRevokeBio(\'' + esc(b.email) + '\')"><i class="bi bi-shield-x"></i> Revoke</button>'
+        + '</span>'
+        + '</div>';
+    }).join('');
+}
+
+function copyBioId(fullId) {
+  if (!fullId) { toast('No credential ID', 'err'); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(fullId).then(function() { toast('Credential ID copied to clipboard', 'ok'); }).catch(function() { toast('Copy failed', 'err'); });
+  } else {
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = fullId; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Credential ID copied', 'ok'); } catch(e) { toast('Copy failed', 'err'); }
+    document.body.removeChild(ta);
+  }
+}
+
+function adminRevokeBio(email) {
+  if (!confirm('Revoke biometric registration for ' + email + '?\n\nThis removes their biometric data from this browser registry. They can re-register next time they sign in.')) return;
+  removeFromBioRegistry(email);
+  // If revoking current device's own enrolled user
+  if (BIO.bioEmail === email) {
+    localStorage.removeItem(BIO.KEY_CRED);
+    localStorage.removeItem(BIO.KEY_EMAIL);
+    localStorage.removeItem(BIO.KEY_RP);
+    BIO.enrolled = false; BIO.bioEmail = ''; BIO.credId = null;
+    BIO.updateUI();
+  }
+  toast('Biometric revoked for ' + email, 'ok');
+  renderAdmBio();
+  renderAdmStats();
+  // Refresh users panel if it was showing
+  renderAdmUsers(_admAllUsers);
+}
+
+/* ══════════════════════════════════════════
+   PWA
+══════════════════════════════════════════ */
+var _deferredPWA=null;
+function initPWA(){
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();_deferredPWA=e;
+    $('pwa-topbar-btn').classList.remove('hidden');
+  });
+}
+function triggerPWAInstall(){
+  if(_deferredPWA){_deferredPWA.prompt();_deferredPWA.userChoice.then(function(){_deferredPWA=null;$('pwa-topbar-btn').classList.add('hidden');});}
+  else{toast('Open in browser to install as app','inf');}
+}
+
+/* ── Keyboard shortcuts ── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){closeModal();closeMSearch();closeFDrawer();}
 });
 </script>
 </body>
