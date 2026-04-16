@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<base target="_top">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#07080c">
+<meta name="description" content="Your launchpad for the AI era — discover and launch the best AI tools for students.">
 <title>AI Tools Hub</title>
+
+<!-- ══════════ PWA META & ICONS ══════════ -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AI Tools">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+<link rel="apple-touch-icon" sizes="96x96"   href="icons/icon-96.png">
+<link rel="apple-touch-icon" sizes="72x72"   href="icons/icon-72.png">
+<meta name="msapplication-TileImage" content="icons/icon-144.png">
+<meta name="msapplication-TileColor" content="#07080c">
+<!-- ══════════ END PWA ══════════ -->
 
 <!-- ══════════ STEP 1: Set your deployed Apps Script URL here ══════════ -->
 <script>
@@ -33,8 +47,7 @@
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
   --bnav-h:calc(60px + var(--sab));
-  --bs-body-bg:#07080c;
-  --bs-body-color:#eeeef5;
+  --bs-body-bg:#07080c;--bs-body-color:#eeeef5;
   --bs-border-color:rgba(255,255,255,.07);
   --bs-font-sans-serif:'Outfit',sans-serif;
 }
@@ -62,24 +75,9 @@ img{max-width:100%}
 @keyframes glow{0%,100%{box-shadow:0 0 18px rgba(232,164,48,.15)}50%{box-shadow:0 0 36px rgba(232,164,48,.35)}}
 @keyframes shimmer{from{background-position:-400px 0}to{background-position:400px 0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-
-/* ── BIOMETRIC ANIMATIONS ── */
-@keyframes bio-ring-pulse{
-  0%{transform:scale(1);opacity:.8}
-  50%{transform:scale(1.12);opacity:1}
-  100%{transform:scale(1);opacity:.8}
-}
-@keyframes bio-scan{
-  0%{top:8px;opacity:0}
-  15%{opacity:1}
-  85%{opacity:1}
-  100%{top:calc(100% - 10px);opacity:0}
-}
-@keyframes bio-success-ring{
-  0%{transform:scale(0.6);opacity:0}
-  60%{transform:scale(1.1);opacity:1}
-  100%{transform:scale(1);opacity:1}
-}
+@keyframes bio-ring-pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:.8}}
+@keyframes bio-scan{0%{top:8px;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:calc(100% - 10px);opacity:0}}
+@keyframes bio-success-ring{0%{transform:scale(0.6);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
 
 /* ── UTILS ── */
 .loader{display:inline-block;width:15px;height:15px;border:2px solid rgba(232,164,48,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;flex-shrink:0}
@@ -122,12 +120,7 @@ img{max-width:100%}
 /* ═══════════════════════════════════════
    AUTH
 ═══════════════════════════════════════ */
-.auth-panel{
-  background:linear-gradient(160deg,#0d0f16,#131726);
-  border-right:1px solid var(--bd);position:relative;overflow:hidden;
-  min-height:100vh;padding:3.5rem 3rem;
-  display:flex;flex-direction:column;justify-content:space-between;
-}
+.auth-panel{background:linear-gradient(160deg,#0d0f16,#131726);border-right:1px solid var(--bd);position:relative;overflow:hidden;min-height:100vh;padding:3.5rem 3rem;display:flex;flex-direction:column;justify-content:space-between;}
 .panel-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(232,164,48,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,164,48,.04) 1px,transparent 1px);background-size:48px 48px}
 .panel-glow{position:absolute;width:340px;height:340px;background:radial-gradient(circle,rgba(232,164,48,.1),transparent 70%);bottom:-80px;right:-80px;border-radius:50%}
 .panel-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;z-index:1}
@@ -139,11 +132,7 @@ img{max-width:100%}
 .panel-dot{width:6px;height:6px;border-radius:50%;background:var(--bd2)}
 .panel-dot.on{background:var(--gold);width:20px;border-radius:3px}
 
-.auth-form-side{
-  display:flex;align-items:center;justify-content:center;
-  padding:2.5rem 1.25rem calc(2.5rem + var(--sab));
-  overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100vh;
-}
+.auth-form-side{display:flex;align-items:center;justify-content:center;padding:2.5rem 1.25rem calc(2.5rem + var(--sab));overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100vh;}
 .auth-box{width:100%;max-width:420px;animation:fadeUp .5s ease both}
 
 .brand-pill{display:inline-flex;align-items:center;gap:10px;background:var(--gdim);border:1px solid rgba(232,164,48,.22);border-radius:100px;padding:6px 16px 6px 8px;margin-bottom:1.5rem}
@@ -171,112 +160,29 @@ img{max-width:100%}
 .amsg.ok{color:var(--grn)}.amsg.inf{color:var(--gold)}
 
 /* ═══════════════════════════════════════
-   ── BIOMETRIC SECTION (NEW) ──
-   Sits below the sign-in form, above the
-   "Forgot password?" link. Zero impact on
-   layout of everything else.
+   BIOMETRIC SECTION
 ═══════════════════════════════════════ */
-.bio-divider{
-  display:flex;align-items:center;gap:10px;
-  margin:.85rem 0 .75rem;
-}
-.bio-divider::before,.bio-divider::after{
-  content:'';flex:1;height:1px;background:var(--bd);
-}
-.bio-divider-txt{
-  font-size:11px;font-weight:700;color:var(--m1);
-  text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;
-}
-
-/* Two biometric buttons side by side */
-.bio-row{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;
-  margin-bottom:.85rem;
-}
-.bio-btn{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:8px;padding:14px 10px;
-  background:var(--s2);border:1px solid var(--bd);
-  border-radius:14px;
-  font-size:12px;font-weight:600;color:var(--m2);
-  transition:border-color .25s,background .25s,color .25s,transform .15s;
-  cursor:pointer;position:relative;overflow:hidden;min-height:80px;
-}
-.bio-btn:hover{
-  border-color:rgba(232,164,48,.4);
-  background:rgba(232,164,48,.05);
-  color:var(--gold);
-}
+.bio-divider{display:flex;align-items:center;gap:10px;margin:.85rem 0 .75rem}
+.bio-divider::before,.bio-divider::after{content:'';flex:1;height:1px;background:var(--bd)}
+.bio-divider-txt{font-size:11px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.bio-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:.85rem}
+.bio-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:14px;font-size:12px;font-weight:600;color:var(--m2);transition:border-color .25s,background .25s,color .25s,transform .15s;cursor:pointer;position:relative;overflow:hidden;min-height:80px}
+.bio-btn:hover{border-color:rgba(232,164,48,.4);background:rgba(232,164,48,.05);color:var(--gold)}
 .bio-btn:active{transform:scale(.97)}
-.bio-btn.scanning{
-  border-color:rgba(232,164,48,.6);
-  background:rgba(232,164,48,.07);
-  pointer-events:none;
-}
-.bio-btn.success{
-  border-color:rgba(62,201,122,.5);
-  background:rgba(62,201,122,.07);
-  color:var(--grn);
-  pointer-events:none;
-}
-.bio-btn.error{
-  border-color:rgba(232,85,85,.5);
-  background:rgba(232,85,85,.07);
-  color:var(--red);
-}
-/* Icon wrapper with animated ring */
-.bio-ico-wrap{
-  position:relative;
-  width:40px;height:40px;
-  display:flex;align-items:center;justify-content:center;
-}
-.bio-ico-ring{
-  position:absolute;inset:0;
-  border-radius:50%;
-  border:1.5px solid transparent;
-  transition:border-color .25s;
-}
-.bio-btn:hover .bio-ico-ring,
-.bio-btn.scanning .bio-ico-ring{
-  border-color:rgba(232,164,48,.45);
-  animation:bio-ring-pulse 1.4s ease-in-out infinite;
-}
-.bio-btn.success .bio-ico-ring{
-  border-color:rgba(62,201,122,.5);
-  animation:bio-success-ring .4s ease both;
-}
+.bio-btn.scanning{border-color:rgba(232,164,48,.6);background:rgba(232,164,48,.07);pointer-events:none}
+.bio-btn.success{border-color:rgba(62,201,122,.5);background:rgba(62,201,122,.07);color:var(--grn);pointer-events:none}
+.bio-btn.error{border-color:rgba(232,85,85,.5);background:rgba(232,85,85,.07);color:var(--red)}
+.bio-ico-wrap{position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.bio-ico-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent;transition:border-color .25s}
+.bio-btn:hover .bio-ico-ring,.bio-btn.scanning .bio-ico-ring{border-color:rgba(232,164,48,.45);animation:bio-ring-pulse 1.4s ease-in-out infinite}
+.bio-btn.success .bio-ico-ring{border-color:rgba(62,201,122,.5);animation:bio-success-ring .4s ease both}
 .bio-ico{font-size:24px;line-height:1;position:relative;z-index:1}
-/* Scan line for fingerprint */
-.bio-scan-line{
-  position:absolute;left:6px;right:6px;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);
-  border-radius:1px;top:8px;opacity:0;
-  display:none;
-}
-.bio-btn.scanning .bio-scan-line{
-  display:block;
-  animation:bio-scan 1.2s ease-in-out infinite;
-}
+.bio-scan-line{position:absolute;left:6px;right:6px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:1px;top:8px;opacity:0;display:none}
+.bio-btn.scanning .bio-scan-line{display:block;animation:bio-scan 1.2s ease-in-out infinite}
 .bio-lbl{font-size:11px;font-weight:600;line-height:1.2;text-align:center}
 .bio-sublbl{font-size:10px;opacity:.65;margin-top:2px}
-
-/* Not-supported note */
-.bio-unsupported{
-  text-align:center;font-size:12px;color:var(--m1);
-  background:rgba(255,255,255,.03);border:1px solid var(--bd);
-  border-radius:10px;padding:10px 14px;margin-bottom:.85rem;
-  display:none;
-}
-
-/* Registration hint shown after first biometric enroll */
-.bio-register-hint{
-  background:rgba(232,164,48,.07);
-  border:1px solid rgba(232,164,48,.2);
-  border-radius:10px;padding:10px 14px;
-  font-size:12px;color:var(--m2);
-  line-height:1.5;margin-bottom:.85rem;
-  display:none;
-}
+.bio-unsupported{text-align:center;font-size:12px;color:var(--m1);background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:10px 14px;margin-bottom:.85rem;display:none}
+.bio-register-hint{background:rgba(232,164,48,.07);border:1px solid rgba(232,164,48,.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--m2);line-height:1.5;margin-bottom:.85rem;display:none}
 .bio-register-hint strong{color:var(--gold)}
 
 /* ═══════════════════════════════════════
@@ -346,7 +252,11 @@ img{max-width:100%}
 .tool-card{background:var(--s1);border:1px solid var(--bd);border-radius:15px;padding:.875rem;cursor:pointer;transition:border-color .25s,transform .18s;position:relative;overflow:hidden;animation:fadeUp .4s ease both;height:100%;min-width:0;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent}
 .tool-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
 .tool-card:active{transform:scale(.97)}
-.cbadge{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.9px;background:var(--gdim);border:1px solid rgba(232,164,48,.18);padding:3px 8px;border-radius:100px;display:inline-block;margin-bottom:.5rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── Sl. No. Badge ── */
+.sl-no{position:absolute;top:8px;right:8px;background:rgba(232,164,48,.12);border:1px solid rgba(232,164,48,.22);border-radius:6px;font-size:9px;font-weight:700;color:var(--gold);padding:2px 6px;letter-spacing:.5px;line-height:1.4;z-index:2}
+
+.cbadge{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.9px;background:var(--gdim);border:1px solid rgba(232,164,48,.18);padding:3px 8px;border-radius:100px;display:inline-block;margin-bottom:.5rem;max-width:calc(100% - 44px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cname{font-size:14px;font-weight:700;line-height:1.25;margin-bottom:.3rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .cdesc{font-size:12px;color:var(--m2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;flex:1}
 .cfoot{margin-top:.625rem;display:flex;align-items:center;justify-content:space-between;gap:6px}
@@ -361,6 +271,7 @@ img{max-width:100%}
 #grid.lv .tool-card .cdesc,
 #grid.lv .tool-card .cfoot{display:none}
 #grid.lv .tool-card .cname{font-size:15px;margin:0;flex:1;-webkit-line-clamp:1;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#grid.lv .tool-card .sl-no{position:static;background:var(--s3);margin-right:2px;font-size:10px;padding:3px 7px;flex-shrink:0}
 
 .empty-state{text-align:center;padding:60px 20px;animation:fadeIn .4s ease}
 .empty-ico{font-size:44px;margin-bottom:12px;opacity:.35}
@@ -389,6 +300,7 @@ img{max-width:100%}
 .msh-item{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;transition:background .15s;min-height:56px}
 .msh-item:active{background:var(--s2)}
 .msh-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.msh-sl{font-size:10px;font-weight:700;color:var(--m1);background:var(--s2);border-radius:5px;padding:2px 5px;flex-shrink:0}
 .msh-name{font-size:15px;font-weight:600;margin-bottom:2px}
 .msh-meta{font-size:12px;color:var(--m1)}
 .msh-arr{color:var(--m1);font-size:18px;margin-left:auto;flex-shrink:0}
@@ -452,99 +364,86 @@ img{max-width:100%}
 ═══════════════════════════════════════ */
 #admin-page{min-height:100vh;padding:.875rem .75rem var(--bnav-h);overflow-x:hidden;animation:fadeIn .35s ease}
 .adm-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:10px;flex-wrap:wrap}
-.adm-title{font-size:clamp(18px,5vw,28px);font-weight:800;background:linear-gradient(135deg,var(--gold),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.adm-sub{font-size:11px;color:var(--m1);margin-top:2px}
-.stat-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:.875rem .75rem;min-width:0}
-.stat-ico{font-size:16px;margin-bottom:.4rem}
-.stat-lbl{font-size:10px;color:var(--m1);text-transform:uppercase;letter-spacing:.9px;font-weight:700;margin-bottom:4px}
-.stat-val{font-family:'Playfair Display',serif;font-size:clamp(22px,6vw,36px);font-weight:800;background:linear-gradient(135deg,var(--gold),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.sec-hd{display:flex;align-items:center;margin-bottom:.625rem;margin-top:1.1rem}
-.sec-lbl{font-size:12px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.9px}
-.adm-table{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:.5rem}
-.adm-thead{display:grid;padding:.625rem .8125rem;border-bottom:1px solid var(--bd);font-size:10px;color:var(--m1);text-transform:uppercase;letter-spacing:.9px;font-weight:700;background:var(--s2);gap:7px}
-.adm-row{display:grid;padding:.75rem .8125rem;border-bottom:1px solid var(--bd);align-items:center;font-size:13px;gap:7px;transition:background .15s}
+.adm-title{font-size:20px;font-weight:800;letter-spacing:-.4px}
+.adm-sub{font-size:12px;color:var(--m1);margin-top:3px}
+.stat-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:.875rem 1rem;display:flex;align-items:center;gap:12px;min-height:72px}
+.stat-ico{font-size:24px;flex-shrink:0}
+.stat-lbl{font-size:11px;color:var(--m1);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.stat-val{font-size:22px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--gold),var(--g2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.adm-tabs{display:flex;gap:6px;margin-bottom:1rem;border-bottom:1px solid var(--bd);padding-bottom:.5rem;overflow-x:auto;scrollbar-width:none}
+.adm-tabs::-webkit-scrollbar{display:none}
+.adm-tab{padding:8px 14px;background:transparent;border:1px solid var(--bd);border-radius:9px;color:var(--m1);font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s;min-height:38px;display:flex;align-items:center;gap:5px}
+.adm-tab.on{background:var(--gold);border-color:var(--gold);color:#0a0a0a}
+.adm-panel{display:none}
+.adm-panel.on{display:block}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.625rem;flex-wrap:wrap;gap:6px}
+.sec-lbl{font-size:14px;font-weight:700}
+.adm-search-wrap{position:relative;margin-bottom:.625rem}
+.adm-search-wrap .bi{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--m1);font-size:13px;pointer-events:none}
+.adm-search{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:9px 10px 9px 32px;color:var(--txt);font-size:14px;outline:none;-webkit-appearance:none}
+.adm-search:focus{border-color:rgba(232,164,48,.4)}
+.adm-search::placeholder{color:var(--m1)}
+.adm-table{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.adm-thead{display:grid;padding:.6rem .875rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bd);font-size:10px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;gap:8px}
+/* ── CHANGED: added Biometric column ── */
+.th-tools{grid-template-columns:28px 1fr 80px 60px 48px}
+.th-users{grid-template-columns:28px 1fr 90px 55px 90px 70px}
+.adm-row{display:grid;padding:.7rem .875rem;border-bottom:1px solid var(--bd);font-size:13px;gap:8px;align-items:center;transition:background .15s}
 .adm-row:last-child{border-bottom:none}
-.th-tools,.tr-tools{grid-template-columns:26px 1fr 54px}
-.th-users,.tr-users{grid-template-columns:26px 1fr 60px}
-.rank{font-family:'Playfair Display',serif;font-weight:700;color:var(--m1);font-size:14px}
+.adm-row:hover{background:rgba(255,255,255,.02)}
+.tr-tools{grid-template-columns:28px 1fr 80px 60px 48px}
+/* ── CHANGED: added Biometric column ── */
+.tr-users{grid-template-columns:28px 1fr 90px 55px 90px 70px}
+.rank{font-size:11px;font-weight:800;color:var(--m1);text-align:center}
 .rank.t3{color:var(--gold)}
-.row-name{font-weight:500;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row-sub{font-size:11px;color:var(--m1);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.badge-c{display:inline-flex;align-items:center;justify-content:center;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;background:var(--gdim);color:var(--gold);border:1px solid rgba(232,164,48,.2);white-space:nowrap}
-.badge-c.red{color:var(--red);border-color:rgba(232,85,85,.3);background:rgba(232,85,85,.08)}
+.row-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-sub{font-size:11px;color:var(--m1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.badge-c{font-size:11px;font-weight:700;background:rgba(232,164,48,.1);color:var(--gold);border:1px solid rgba(232,164,48,.2);border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+.badge-c.red{background:rgba(232,85,85,.1);color:var(--red);border-color:rgba(232,85,85,.2)}
+.badge-c.grn{background:rgba(62,201,122,.1);color:var(--grn);border-color:rgba(62,201,122,.2)}
+.adm-act-btn{padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:7px;color:var(--m2);font-size:12px;font-weight:600;white-space:nowrap;transition:all .2s;min-height:32px;display:inline-flex;align-items:center;gap:4px}
+.adm-act-btn:hover{border-color:rgba(232,164,48,.4);color:var(--gold)}
+.adm-act-btn.success{border-color:rgba(62,201,122,.3);color:var(--grn)}
+.credit-edit{display:none;align-items:center;gap:5px;margin-top:4px}
+.credit-edit input{width:65px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:4px 6px;color:var(--txt);font-size:13px;outline:none;text-align:center;-webkit-appearance:none}
+.save-c,.cancel-c{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700;min-height:28px;border:none}
+.save-c{background:var(--grn);color:#0a0a0a}
+.cancel-c{background:rgba(255,255,255,.08);color:var(--m1)}
 
-/* ═══════════════════════════════════════
-   TOAST
-═══════════════════════════════════════ */
-#toast{position:fixed;bottom:calc(var(--bnav-h) + 8px);left:10px;right:10px;z-index:9999;background:var(--s2);border:1px solid var(--bd2);border-radius:13px;padding:.8rem 1rem;font-size:14px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.5);transition:all .3s ease;transform:translateY(20px);opacity:0;display:flex;align-items:center;gap:8px;pointer-events:none}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.ok{border-color:rgba(62,201,122,.3)}
-#toast.err{border-color:rgba(232,85,85,.3)}
+/* Cat footer */
+.cat-footer{padding:1.5rem 1rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;border-top:1px solid var(--bd)}
 
-/* ═══════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════ */
-.cat-footer{padding:.875rem 1.125rem;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-
-/* ═══════════════════════════════════════
-   OFFLINE BANNER
-═══════════════════════════════════════ */
-#offline-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--red);color:#fff;text-align:center;padding:8px;font-size:13px;font-weight:600}
-#offline-bar.show{display:block}
-
-/* ═══════════════════════════════════════
-   BOOTSTRAP md+ OVERRIDES (≥768px)
-═══════════════════════════════════════ */
+/* Desktop enhancements */
 @media(min-width:768px){
-  .topbar{height:60px;padding:0 1.75rem;gap:16px}
-  .tb-logo{font-size:18px}
+  body{display:block}
+  #bnav{display:none!important}
   .tb-search-wrap{display:flex}
-  .uname{display:inline}
-  .tbtn{padding:7px 14px;font-size:13px}
-  #bnav{display:none}
-  .cat-strip{display:none}
-  .mob-only{display:none!important}
+  .tb-logo{display:none}
   #desk-tb{display:flex}
-  .cat-body{padding:0 1.75rem 3rem}
-  .cat-page-wrap{padding-bottom:0}
-  .tool-card:hover{border-color:rgba(232,164,48,.28);transform:translateY(-2px)}
-  .tool-card:hover::after{opacity:1}
-  .tool-card:hover .arr{background:var(--gold);border-color:var(--gold);color:#0a0a0a}
-  #grid.lv .tool-card:hover{transform:none}
-  .cname{font-size:16px}
-  .cdesc{font-size:13px}
-  #modal{align-items:center;padding:1.5rem}
-  .m-box{border-radius:18px;max-width:560px;width:100%;max-height:88vh;animation:fadeUp .25s ease;border:1px solid rgba(232,164,48,.14);padding-bottom:0}
-  .m-handle{display:none}
-  .m-head{padding:1.5rem 1.75rem 1.125rem}
-  .m-body{padding:1.125rem 1.75rem;max-height:calc(88vh - 220px);overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .m-foot{padding:1rem 1.75rem;flex-direction:row;gap:10px}
-  .btn-launch,.btn-preview,.btn-sec{width:auto;min-height:auto;padding:12px 18px}
-  .btn-launch{flex:1}
-  #admin-page{padding:2rem 2rem 3rem;max-width:1200px;margin:0 auto;overflow-x:visible}
-  .th-tools,.tr-tools{grid-template-columns:30px 1fr 120px 80px}
-  .th-users,.tr-users{grid-template-columns:30px 1fr 150px 70px}
-  .row-name{white-space:normal}
-  #toast{bottom:20px;left:auto;right:1.5rem;width:300px}
-  .orb1{width:320px;height:320px;top:-80px;right:-60px}
-  .orb2{width:260px;height:260px;bottom:-50px;left:-40px}
-}
-@media(max-width:360px){
-  .tool-card{padding:.7rem}
-  .cname{font-size:13px}
+  .uname{display:block}
+  .cat-page-wrap{padding-bottom:1.5rem}
+  .auth-panel{display:flex}
+  .auth-form-side{padding:2.5rem 3rem}
+  .m-box{max-width:520px;border-radius:18px;margin:auto;border:1px solid rgba(232,164,48,.12)}
+  #modal.open{align-items:center}
+  .cat-strip{display:none}
+  .mob-only{display:none}
+  #admin-page{padding:.875rem 1.5rem 1.5rem}
+  /* ── CHANGED: desktop widths updated for Biometric column ── */
+  .th-tools{grid-template-columns:32px 1fr 100px 70px 56px}
+  .th-users{grid-template-columns:32px 1fr 120px 65px 110px 90px}
+  .tr-tools{grid-template-columns:32px 1fr 100px 70px 56px}
+  .tr-users{grid-template-columns:32px 1fr 120px 65px 110px 90px}
 }
 </style>
 </head>
 <body>
 
-<!-- Offline bar -->
-<div id="offline-bar">⚠️ You're offline. Some features may not work.</div>
-
-<!-- Loading screen -->
+<!-- ══════════ LOADING SCREEN ══════════ -->
 <div id="loading-screen">
   <div class="logo">⚡ AI Tools Hub</div>
-  <div class="sub">Your launchpad for the AI era</div>
-  <div class="loader" style="width:20px;height:20px"></div>
+  <div style="width:32px;height:32px;border:3px solid rgba(232,164,48,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div class="sub">Loading your AI toolkit…</div>
 </div>
 
 <div class="orb orb1"></div>
@@ -552,195 +451,179 @@ img{max-width:100%}
 
 <!-- ══════════ AUTH PAGE ══════════ -->
 <div id="auth-page" class="page hidden">
-  <div class="container-fluid p-0">
-    <div class="row g-0 min-vh-100">
-
-      <!-- Left panel -->
-      <div class="col-md-5 d-none d-md-flex auth-panel">
-        <div class="panel-grid"></div>
-        <div class="panel-glow"></div>
-        <div>
-          <div class="panel-logo">⚡ AI Tools Hub</div>
-          <div class="panel-logo-sub">Your launchpad for the AI era</div>
-        </div>
-        <div class="panel-quote">
-          <blockquote>"Stop Googling for hours. Every AI tool you need for assignments, projects &amp; beyond — right here."</blockquote>
-          <cite>— Built for curious students, by people who get it</cite>
-        </div>
-        <div class="panel-dots">
-          <div class="panel-dot on"></div><div class="panel-dot"></div><div class="panel-dot"></div>
+  <div class="container-fluid g-0" style="min-height:100vh">
+    <div class="row g-0" style="min-height:100vh">
+      <!-- Left panel (desktop only) -->
+      <div class="col-lg-5 d-none d-lg-flex">
+        <div class="auth-panel w-100">
+          <div class="panel-grid"></div>
+          <div class="panel-glow"></div>
+          <div>
+            <div class="panel-logo">⚡ AI Tools Hub</div>
+            <div class="panel-logo-sub">Your AI toolkit for the student era</div>
+          </div>
+          <div class="panel-quote">
+            <blockquote>"The best way to predict the future is to build it with AI."</blockquote>
+            <cite>— AI Tools Hub</cite>
+            <div class="panel-dots">
+              <div class="panel-dot on"></div>
+              <div class="panel-dot"></div>
+              <div class="panel-dot"></div>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- Right form side -->
+      <div class="col-12 col-lg-7">
+        <div class="auth-form-side">
+          <div class="auth-box">
+            <div class="brand-pill">
+              <div class="brand-pill-ico">⚡</div>
+              <div class="brand-pill-txt">AI Tools Hub</div>
+            </div>
+            <div class="auth-h" id="auth-h">Welcome back</div>
+            <div class="auth-p" id="auth-p">Your student toolkit for the AI generation</div>
 
-      <!-- Right form -->
-      <div class="col-12 col-md-7 auth-form-side">
-        <div class="auth-box">
-          <div class="brand-pill d-md-none">
-            <div class="brand-pill-ico">⚡</div>
-            <div class="brand-pill-txt">AI Tools Hub</div>
-          </div>
-          <div class="auth-h" id="auth-h">Welcome back</div>
-          <div class="auth-p" id="auth-p">Your student toolkit for the AI generation</div>
-          <div class="auth-tabs">
-            <button class="auth-tab on" id="tab-si" onclick="switchTab('si')">Sign In</button>
-            <button class="auth-tab" id="tab-su" onclick="switchTab('su')">Sign Up</button>
-          </div>
+            <!-- Auth Tabs -->
+            <div class="auth-tabs">
+              <button class="auth-tab on" id="tab-si" onclick="switchTab('si')">Sign In</button>
+              <button class="auth-tab" id="tab-su" onclick="switchTab('su')">Sign Up</button>
+            </div>
 
-          <!-- SIGN IN -->
-          <div id="form-si">
-            <div class="field-wrap">
-              <div class="field-lbl"><label>Email</label></div>
-              <div class="position-relative">
-                <span class="field-icon"><i class="bi bi-envelope"></i></span>
-                <input type="email" id="si-email" class="form-control" placeholder="you@example.com" autocomplete="email" inputmode="email" onkeydown="if(event.key==='Enter')doSignIn()">
+            <!-- Sign In Form -->
+            <div id="form-si">
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Email</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-envelope"></i></span>
+                  <input type="email" id="si-email" class="form-control" placeholder="you@example.com" autocomplete="email" inputmode="email">
+                </div>
               </div>
-            </div>
-            <div class="field-wrap">
-              <div class="field-lbl"><label>Password</label><span onclick="showForgot()">Forgot password?</span></div>
-              <div class="position-relative">
-                <span class="field-icon"><i class="bi bi-lock"></i></span>
-                <input type="password" id="si-pass" class="form-control" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()">
-                <button class="eye-btn" onclick="toggleEye('si-pass',this)" type="button"><i class="bi bi-eye"></i></button>
+              <div class="field-wrap">
+                <div class="field-lbl">
+                  <label>Password</label>
+                  <span onclick="showForgot()">Forgot password?</span>
+                </div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-lock"></i></span>
+                  <input type="password" id="si-pass" class="form-control" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()">
+                  <button class="eye-btn" onclick="toggleEye('si-pass',this)" type="button"><i class="bi bi-eye"></i></button>
+                </div>
               </div>
-            </div>
-            <button class="btn-submit" id="btn-si" onclick="doSignIn()">Sign In →</button>
-            <div id="msg-si" class="amsg"></div>
+              <button class="btn-submit" id="btn-si" onclick="doSignIn()">Sign In →</button>
+              <div id="msg-si" class="amsg"></div>
 
-            <!-- ══ BIOMETRIC SECTION — inserted after Sign In button ══ -->
-            <div class="bio-divider"><span class="bio-divider-txt">or use biometrics</span></div>
-
-            <!-- Not-supported notice (shown only when WebAuthn unavailable) -->
-            <div class="bio-unsupported" id="bio-unsupported">
-              <i class="bi bi-exclamation-circle me-1"></i>
-              Biometric login requires a device with fingerprint or face unlock, and a browser that supports WebAuthn (Chrome, Safari, Edge).
-            </div>
-
-            <!-- Registration hint (shown after first-time enroll) -->
-            <div class="bio-register-hint" id="bio-register-hint">
-              <i class="bi bi-info-circle me-1"></i>
-              <strong>First time?</strong> Enter your email &amp; password above, sign in once, then tap a biometric button to register your fingerprint or face for future logins.
-            </div>
-
-            <div class="bio-row" id="bio-row">
-              <!-- Fingerprint -->
-              <button class="bio-btn" id="bio-fp-btn" onclick="doBiometric('fingerprint')" type="button">
-                <div class="bio-ico-wrap">
-                  <div class="bio-ico-ring"></div>
-                  <div class="bio-scan-line"></div>
-                  <span class="bio-ico">🫆</span>
-                </div>
-                <div>
-                  <div class="bio-lbl">Fingerprint</div>
-                  <div class="bio-sublbl" id="bio-fp-sub">Touch sensor</div>
-                </div>
-              </button>
-              <!-- Face ID -->
-              <button class="bio-btn" id="bio-face-btn" onclick="doBiometric('face')" type="button">
-                <div class="bio-ico-wrap">
-                  <div class="bio-ico-ring"></div>
-                  <span class="bio-ico">🪪</span>
-                </div>
-                <div>
-                  <div class="bio-lbl">Face ID</div>
-                  <div class="bio-sublbl" id="bio-face-sub">Look at camera</div>
-                </div>
-              </button>
-            </div>
-            <!-- ══ END BIOMETRIC SECTION ══ -->
-
-          </div>
-
-          <!-- SIGN UP -->
-          <div id="form-su" class="hidden">
-            <div class="field-wrap">
-              <div class="field-lbl"><label>Full Name</label></div>
-              <div class="position-relative">
-                <span class="field-icon"><i class="bi bi-person"></i></span>
-                <input type="text" id="su-name" class="form-control" placeholder="Your full name" autocomplete="name">
-              </div>
-            </div>
-            <div class="row g-2">
-              <div class="col-12 col-sm-6">
-                <div class="field-wrap">
-                  <div class="field-lbl"><label>Email</label></div>
-                  <div class="position-relative">
-                    <span class="field-icon"><i class="bi bi-envelope"></i></span>
-                    <input type="email" id="su-email" class="form-control" placeholder="you@example.com" autocomplete="email" inputmode="email">
+              <!-- Biometric -->
+              <div class="bio-divider"><span class="bio-divider-txt">or use biometrics</span></div>
+              <div class="bio-unsupported" id="bio-unsupported">Biometrics not supported on this device/browser.</div>
+              <div class="bio-row" id="bio-row">
+                <button class="bio-btn" id="bio-fp-btn" onclick="doBiometric('fingerprint')">
+                  <div class="bio-ico-wrap">
+                    <div class="bio-ico-ring"></div>
+                    <span class="bio-ico">🫆</span>
+                    <div class="bio-scan-line"></div>
                   </div>
-                </div>
-              </div>
-              <div class="col-12 col-sm-6">
-                <div class="field-wrap">
-                  <div class="field-lbl"><label>Mobile</label></div>
-                  <div class="position-relative">
-                    <span class="field-icon"><i class="bi bi-phone"></i></span>
-                    <input type="tel" id="su-mobile" class="form-control" placeholder="10-digit" autocomplete="tel" inputmode="tel">
+                  <div>
+                    <div class="bio-lbl">Fingerprint</div>
+                    <div class="bio-sublbl" id="bio-fp-sub">Touch sensor</div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="field-wrap">
-              <div class="field-lbl"><label>Institution</label></div>
-              <div class="position-relative">
-                <span class="field-icon"><i class="bi bi-building"></i></span>
-                <input type="text" id="su-inst" class="form-control" placeholder="College / Organization" autocomplete="organization">
-              </div>
-            </div>
-            <div class="row g-2">
-              <div class="col-12 col-sm-6">
-                <div class="field-wrap">
-                  <div class="field-lbl"><label>Qualification</label></div>
-                  <div class="position-relative">
-                    <span class="field-icon"><i class="bi bi-mortarboard"></i></span>
-                    <input type="text" id="su-qual" class="form-control" placeholder="e.g. B.Tech CSE">
+                </button>
+                <button class="bio-btn" id="bio-face-btn" onclick="doBiometric('face')">
+                  <div class="bio-ico-wrap">
+                    <div class="bio-ico-ring"></div>
+                    <span class="bio-ico">😶</span>
+                    <div class="bio-scan-line"></div>
                   </div>
-                </div>
-              </div>
-              <div class="col-12 col-sm-6">
-                <div class="field-wrap">
-                  <div class="field-lbl"><label>Address</label></div>
-                  <div class="position-relative">
-                    <span class="field-icon"><i class="bi bi-geo-alt"></i></span>
-                    <input type="text" id="su-addr" class="form-control" placeholder="City, State" autocomplete="address-level2">
+                  <div>
+                    <div class="bio-lbl">Face ID</div>
+                    <div class="bio-sublbl" id="bio-face-sub">Look at camera</div>
                   </div>
-                </div>
+                </button>
+              </div>
+              <div class="bio-register-hint" id="bio-register-hint">
+                <strong>Register biometrics:</strong> Enter your email &amp; password above, sign in once, then tap a biometric button to register for faster future logins.
               </div>
             </div>
-            <div class="field-wrap">
-              <div class="field-lbl"><label>Password</label></div>
-              <div class="position-relative">
-                <span class="field-icon"><i class="bi bi-lock"></i></span>
-                <input type="password" id="su-pass" class="form-control" placeholder="Min 6 characters" autocomplete="new-password">
-                <button class="eye-btn" onclick="toggleEye('su-pass',this)" type="button"><i class="bi bi-eye"></i></button>
-              </div>
-            </div>
-            <button class="btn-submit" id="btn-su" onclick="doSignUp()">Create Account →</button>
-            <div id="msg-su" class="amsg"></div>
-          </div>
 
+            <!-- Sign Up Form -->
+            <div id="form-su" class="hidden">
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Full Name *</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-person"></i></span>
+                  <input type="text" id="su-name" class="form-control" placeholder="Your full name" autocomplete="name">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Email *</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-envelope"></i></span>
+                  <input type="email" id="su-email" class="form-control" placeholder="you@example.com" autocomplete="email" inputmode="email">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Mobile</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-phone"></i></span>
+                  <input type="tel" id="su-mobile" class="form-control" placeholder="10-digit number" autocomplete="tel" inputmode="tel">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Institution</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-building"></i></span>
+                  <input type="text" id="su-inst" class="form-control" placeholder="Your college / school" autocomplete="organization">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Qualification</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-mortarboard"></i></span>
+                  <input type="text" id="su-qual" class="form-control" placeholder="e.g. B.Tech CSE 3rd year">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Address</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-geo-alt"></i></span>
+                  <input type="text" id="su-addr" class="form-control" placeholder="City, State">
+                </div>
+              </div>
+              <div class="field-wrap">
+                <div class="field-lbl"><label>Password *</label></div>
+                <div class="position-relative">
+                  <span class="field-icon"><i class="bi bi-lock"></i></span>
+                  <input type="password" id="su-pass" class="form-control" placeholder="Min 6 characters" autocomplete="new-password">
+                  <button class="eye-btn" onclick="toggleEye('su-pass',this)" type="button"><i class="bi bi-eye"></i></button>
+                </div>
+              </div>
+              <button class="btn-submit" id="btn-su" onclick="doSignUp()">Create Account →</button>
+              <div id="msg-su" class="amsg"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ FORGOT PASSWORD ══════════ -->
+<!-- ══════════ FORGOT PASSWORD PAGE ══════════ -->
 <div id="forgot-page" class="page hidden">
-  <div class="d-flex align-items-center justify-content:center min-vh-100 px-3 py-5" style="justify-content:center">
+  <div class="auth-form-side">
     <div class="forgot-box">
-      <button class="back-btn" onclick="backToAuth()"><i class="bi bi-arrow-left me-1"></i> Back to Sign In</button>
+      <button class="back-btn" onclick="backToAuth()"><i class="bi bi-arrow-left"></i> Back to Sign In</button>
       <div class="fp-steps">
         <div class="fp-step on" id="fp-s1">1</div>
         <div class="fp-line" id="fp-l1"></div>
         <div class="fp-step" id="fp-s2">2</div>
         <div class="fp-line" id="fp-l2"></div>
-        <div class="fp-step" id="fp-s3">✓</div>
+        <div class="fp-step" id="fp-s3">3</div>
       </div>
       <div id="fp-p1">
-        <div class="auth-h mb-1">Reset Password</div>
-        <div class="auth-p">Enter your registered email to receive a code</div>
+        <div class="auth-h mb-1">Forgot Password?</div>
+        <div class="auth-p">Enter your registered email to receive a reset code.</div>
         <div class="field-wrap">
-          <div class="field-lbl"><label>Email</label></div>
+          <div class="field-lbl"><label>Email Address</label></div>
           <div class="position-relative">
             <span class="field-icon"><i class="bi bi-envelope"></i></span>
             <input type="email" id="fp-email" class="form-control" placeholder="you@example.com" autocomplete="email" inputmode="email">
@@ -790,7 +673,6 @@ img{max-width:100%}
 
 <!-- ══════════ CATALOG PAGE ══════════ -->
 <div id="catalog-page" class="page hidden">
-
   <div class="topbar">
     <div class="tb-logo">⚡ AI Tools</div>
     <div class="tb-search-wrap">
@@ -805,6 +687,7 @@ img{max-width:100%}
       <div class="uav" id="uav">U</div>
       <span class="uname" id="uname"></span>
       <button id="adminBtn" class="tbtn gold hidden" onclick="openAdmin()"><i class="bi bi-gear-fill"></i> Admin</button>
+      <button id="pwa-topbar-btn" class="tbtn hidden" onclick="triggerPWAInstall()" title="Install App"><i class="bi bi-download"></i> Install</button>
       <button class="tbtn" onclick="doLogout()">Logout</button>
     </div>
   </div>
@@ -863,28 +746,97 @@ img{max-width:100%}
       <span style="font-size:12px;color:var(--m1)">Made for students who build the future 🚀</span>
     </div>
   </div>
-
 </div>
 
 <!-- ══════════ ADMIN PAGE ══════════ -->
 <div id="admin-page" class="page hidden">
   <div class="adm-top">
     <div>
-      <div class="adm-title">Dashboard</div>
+      <div class="adm-title">⚙️ Admin Dashboard</div>
       <div class="adm-sub" id="adm-ts">Loading…</div>
     </div>
-    <button class="tbtn" onclick="backToCatalog()"><i class="bi bi-arrow-left"></i> Catalog</button>
+    <div class="d-flex gap-2">
+      <button class="tbtn" onclick="loadAdminData()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+      <button class="tbtn" onclick="backToCatalog()"><i class="bi bi-arrow-left"></i> Catalog</button>
+    </div>
   </div>
+
+  <!-- Stats row -->
   <div class="row g-2 mb-3" id="adm-stats">
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
   </div>
-  <div class="sec-hd"><div class="sec-lbl">Top Tools</div></div>
-  <div class="adm-table" id="adm-tools"><div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span>Loading…</div></div>
-  <div class="sec-hd"><div class="sec-lbl">Users</div></div>
-  <div class="adm-table" id="adm-users"><div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span>Loading…</div></div>
+
+  <!-- Admin tabs -->
+  <div class="adm-tabs">
+    <button class="adm-tab on" onclick="switchAdmTab('tools')"><i class="bi bi-tools"></i> Tools</button>
+    <button class="adm-tab" onclick="switchAdmTab('users')"><i class="bi bi-people"></i> Users</button>
+    <button class="adm-tab" onclick="switchAdmTab('credits')"><i class="bi bi-lightning-charge"></i> Credits</button>
+  </div>
+
+  <!-- Tools Panel -->
+  <div class="adm-panel on" id="adm-panel-tools">
+    <div class="sec-hd">
+      <div class="sec-lbl">🧰 All Tools (by Sl. No.)</div>
+      <span style="font-size:11px;color:var(--m1)" id="adm-tool-count">—</span>
+    </div>
+    <div class="adm-search-wrap">
+      <i class="bi bi-search"></i>
+      <input class="adm-search" id="adm-tool-search" placeholder="Search tools by name or category…" oninput="filterAdmTools(this.value)">
+    </div>
+    <div class="adm-table" id="adm-tools">
+      <div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading tools…</div>
+    </div>
+  </div>
+
+  <!-- Users Panel -->
+  <div class="adm-panel" id="adm-panel-users">
+    <div class="sec-hd">
+      <div class="sec-lbl">👤 All Users</div>
+      <span style="font-size:11px;color:var(--m1)" id="adm-user-count">—</span>
+    </div>
+    <div class="adm-search-wrap">
+      <i class="bi bi-search"></i>
+      <input class="adm-search" id="adm-user-search" placeholder="Search users by name or email…" oninput="filterAdmUsers(this.value)">
+    </div>
+    <div class="adm-table" id="adm-users">
+      <div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading users…</div>
+    </div>
+  </div>
+
+  <!-- Credits Panel -->
+  <div class="adm-panel" id="adm-panel-credits">
+    <div class="sec-hd">
+      <div class="sec-lbl">⚡ Credit Management</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:1rem;margin-bottom:.75rem">
+      <div style="font-size:13px;font-weight:600;margin-bottom:.75rem;color:var(--m2)">Bulk Credit Assignment</div>
+      <div class="row g-2">
+        <div class="col-12 col-sm-6">
+          <div class="position-relative">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--m1);font-size:13px;pointer-events:none"><i class="bi bi-envelope"></i></span>
+            <input type="email" id="bulk-email" class="adm-search" style="padding-left:32px" placeholder="User email…" oninput="admLookupUser(this.value)">
+          </div>
+        </div>
+        <div class="col-6 col-sm-3">
+          <input type="number" id="bulk-credits" class="adm-search" placeholder="Credits" min="0" value="100" style="text-align:center">
+        </div>
+        <div class="col-6 col-sm-3">
+          <button class="fd-apply" style="width:100%;padding:9px;font-size:13px;border-radius:9px" onclick="doSetCredits()">Set Credits</button>
+        </div>
+      </div>
+      <div id="bulk-msg" class="amsg mt-2"></div>
+      <div id="bulk-user-preview" style="margin-top:.5rem;font-size:12px;color:var(--m1)"></div>
+    </div>
+    <div class="sec-hd" style="margin-top:.5rem">
+      <div class="sec-lbl">Low Credit Users (≤ 10)</div>
+    </div>
+    <div class="adm-table" id="adm-low-credits">
+      <div class="p-3 text-center" style="color:var(--m1);font-size:13px">Load users tab first to populate this.</div>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ MODAL ══════════ -->
@@ -958,755 +910,637 @@ function gsr(action, params) {
 /* ── GLOBALS ── */
 var $ = function(id){ return document.getElementById(id); };
 var allTools=[], fuse=null, currentEmail='', activeCat='all', activeView='grid', userCredits=0;
+var _admAllTools=[], _admAllUsers=[];
 
 /* ══════════════════════════════════════════
-   ██████╗ ██╗ ██████╗ ███╗   ███╗███████╗████████╗██████╗ ██╗ ██████╗
-   ██╔══██╗██║██╔═══██╗████╗ ████║██╔════╝╚══██╔══╝██╔══██╗██║██╔════╝
-   ██████╔╝██║██║   ██║██╔████╔██║█████╗     ██║   ██████╔╝██║██║
-   ██╔══██╗██║██║   ██║██║╚██╔╝██║██╔══╝     ██║   ██╔══██╗██║██║
-   ██████╔╝██║╚██████╔╝██║ ╚═╝ ██║███████╗   ██║   ██║  ██║██║╚██████╗
-   ╚═════╝ ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═════╝
-   WebAuthn / Passkey biometric authentication
-   Works with native fingerprint sensors (Touch ID, Android fingerprint)
-   and face recognition (Face ID, Windows Hello, Android face unlock).
-   All credential data is stored locally — nothing sent to a server.
-   The biometric prompt is shown by the OS/browser itself.
+   BIOMETRIC (WebAuthn)
 ══════════════════════════════════════════ */
-
 var BIO = {
-  /* localStorage keys */
-  KEY_CRED  : 'aih_bio_cred',   // stored credential ID (base64)
-  KEY_EMAIL : 'aih_bio_email',  // email associated with credential
-  KEY_RP    : 'aih_bio_rp',     // relying party id used at registration
-
-  supported : false,
-  enrolled  : false,
-  credId    : null,  // stored credential ID (ArrayBuffer)
-  bioEmail  : '',
-
-  /* Called once on page load */
-  init: function() {
-    // Check WebAuthn support
-    if (window.PublicKeyCredential && navigator.credentials) {
-      this.supported = true;
-    }
-
-    // Load stored credential
-    var storedCred  = localStorage.getItem(this.KEY_CRED);
-    var storedEmail = localStorage.getItem(this.KEY_EMAIL);
-    if (storedCred && storedEmail) {
-      this.enrolled = true;
-      this.bioEmail = storedEmail;
-      this.credId   = BIO.b64ToBuffer(storedCred);
-    }
-
+  KEY_CRED:'aih_bio_cred', KEY_EMAIL:'aih_bio_email', KEY_RP:'aih_bio_rp',
+  supported:false, enrolled:false, credId:null, bioEmail:'',
+  init:function(){
+    if(window.PublicKeyCredential&&navigator.credentials)this.supported=true;
+    var storedCred=localStorage.getItem(this.KEY_CRED);
+    var storedEmail=localStorage.getItem(this.KEY_EMAIL);
+    if(storedCred&&storedEmail){this.enrolled=true;this.bioEmail=storedEmail;this.credId=BIO.b64ToBuffer(storedCred);}
     this.updateUI();
   },
-
-  updateUI: function() {
-    if (!this.supported) {
-      $('bio-unsupported').style.display = 'block';
-      $('bio-row').style.display = 'none';
-      return;
-    }
-    $('bio-unsupported').style.display = 'none';
-    $('bio-row').style.display = 'grid';
-
-    if (this.enrolled) {
-      // Show which email is enrolled
-      var short = this.bioEmail.length > 22
-        ? this.bioEmail.substring(0,10) + '…' + this.bioEmail.split('@')[1]
-        : this.bioEmail;
-      $('bio-fp-sub').textContent   = short;
-      $('bio-face-sub').textContent = short;
-      $('bio-register-hint').style.display = 'none';
-    } else {
-      $('bio-fp-sub').textContent   = 'Touch sensor';
-      $('bio-face-sub').textContent = 'Look at camera';
-      $('bio-register-hint').style.display = 'block';
-    }
+  updateUI:function(){
+    if(!this.supported){$('bio-unsupported').style.display='block';$('bio-row').style.display='none';return;}
+    $('bio-unsupported').style.display='none';$('bio-row').style.display='grid';
+    if(this.enrolled){
+      var short=this.bioEmail.length>22?this.bioEmail.substring(0,10)+'…'+this.bioEmail.split('@')[1]:this.bioEmail;
+      $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;$('bio-register-hint').style.display='none';
+    }else{$('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';$('bio-register-hint').style.display='block';}
   },
+  /* ── CHANGED: register() now also saves biometric info to backend ── */
+  register:async function(email, bioType){
+    var rpId=location.hostname||'localhost';
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
+    var userId=new TextEncoder().encode(email);
+    var cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'AI Tools Hub',id:rpId},user:{id:userId,name:email,displayName:email},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});
+    localStorage.setItem(BIO.KEY_CRED,BIO.bufferToB64(cred.rawId));
+    localStorage.setItem(BIO.KEY_EMAIL,email);localStorage.setItem(BIO.KEY_RP,rpId);
+    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.updateUI();
 
-  /* ── REGISTER a new passkey ── */
-  register: async function(email) {
-    var rpId = location.hostname || 'localhost';
-    var challenge = crypto.getRandomValues(new Uint8Array(32));
-    var userId    = new TextEncoder().encode(email);
+    /* ── Save biometric registration to backend for admin visibility ── */
+    var ua=navigator.userAgent;
+    var device=(ua.indexOf('iPhone')>-1||ua.indexOf('iPad')>-1)?'iOS':(ua.indexOf('Android')>-1?'Android':(ua.indexOf('Mac')>-1?'macOS':(ua.indexOf('Win')>-1?'Windows':'Desktop')));
+    var method=bioType==='face'?'Face ID':'Fingerprint';
+    var credB64=BIO.bufferToB64(cred.rawId);
+    gsr('setBioRegistered',{
+      email:email,
+      bioRegistered:true,
+      bioType:method,
+      bioDevice:device,
+      bioDate:new Date().toISOString(),
+      bioCredId:credB64
+    }).catch(function(e){console.warn('Bio backend save failed:',e.message);});
 
-    var createOpts = {
-      publicKey: {
-        challenge    : challenge,
-        rp           : { name: 'AI Tools Hub', id: rpId },
-        user         : { id: userId, name: email, displayName: email },
-        pubKeyCredParams : [
-          { type: 'public-key', alg: -7  },  // ES256
-          { type: 'public-key', alg: -257 }  // RS256
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment : 'platform',  // device-native only
-          userVerification        : 'required',  // forces biometric
-          residentKey             : 'preferred'
-        },
-        timeout: 60000,
-        attestation: 'none'
-      }
-    };
-
-    var cred = await navigator.credentials.create(createOpts);
-    // Store credential ID as base64
-    localStorage.setItem(BIO.KEY_CRED,  BIO.bufferToB64(cred.rawId));
-    localStorage.setItem(BIO.KEY_EMAIL, email);
-    localStorage.setItem(BIO.KEY_RP,    rpId);
-    BIO.enrolled = true;
-    BIO.bioEmail = email;
-    BIO.credId   = cred.rawId;
-    BIO.updateUI();
+    /* Also persist bio info locally for display if backend slow */
+    localStorage.setItem('aih_bio_meta',JSON.stringify({bioType:method,bioDevice:device,bioDate:new Date().toISOString()}));
     return true;
   },
-
-  /* ── AUTHENTICATE with stored passkey ── */
-  authenticate: async function() {
-    var rpId     = localStorage.getItem(BIO.KEY_RP) || location.hostname || 'localhost';
-    var challenge = crypto.getRandomValues(new Uint8Array(32));
-
-    var getOpts = {
-      publicKey: {
-        challenge       : challenge,
-        rpId            : rpId,
-        allowCredentials: [{
-          type: 'public-key',
-          id  : BIO.credId,
-          transports: ['internal']
-        }],
-        userVerification: 'required',
-        timeout         : 60000
-      }
-    };
-
-    await navigator.credentials.get(getOpts);
-    return true; // if we get here, the OS verified the biometric
+  authenticate:async function(){
+    var rpId=localStorage.getItem(BIO.KEY_RP)||location.hostname||'localhost';
+    var challenge=crypto.getRandomValues(new Uint8Array(32));
+    await navigator.credentials.get({publicKey:{challenge,rpId,allowCredentials:[{type:'public-key',id:BIO.credId,transports:['internal']}],userVerification:'required',timeout:60000}});
+    return true;
   },
-
-  /* Helpers */
-  bufferToB64: function(buf) {
-    var arr = new Uint8Array(buf instanceof ArrayBuffer ? buf : buf);
-    return btoa(String.fromCharCode.apply(null, arr));
-  },
-  b64ToBuffer: function(b64) {
-    var bin = atob(b64);
-    var arr = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    return arr.buffer;
-  }
+  bufferToB64:function(buf){var arr=new Uint8Array(buf instanceof ArrayBuffer?buf:buf);return btoa(String.fromCharCode.apply(null,arr));},
+  b64ToBuffer:function(b64){var bin=atob(b64),arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr.buffer;}
 };
 
-/* ── setBioState: visual feedback on the buttons ── */
-function setBioState(type, state, label) {
-  var fpBtn   = $('bio-fp-btn');
-  var faceBtn = $('bio-face-btn');
-  var btn     = type === 'fingerprint' ? fpBtn : faceBtn;
-  var subId   = type === 'fingerprint' ? 'bio-fp-sub' : 'bio-face-sub';
-
-  // Reset both first
-  [fpBtn, faceBtn].forEach(function(b) {
-    b.classList.remove('scanning','success','error');
-  });
-
-  if (state === 'scanning') {
-    btn.classList.add('scanning');
-    if (label) $(subId).textContent = label;
-  } else if (state === 'success') {
-    btn.classList.add('success');
-    if (label) $(subId).textContent = label;
-    setTimeout(function() {
-      btn.classList.remove('success');
-      BIO.updateUI();
-    }, 2200);
-  } else if (state === 'error') {
-    btn.classList.add('error');
-    if (label) $(subId).textContent = label;
-    setTimeout(function() {
-      btn.classList.remove('error');
-      BIO.updateUI();
-    }, 2500);
-  } else {
-    BIO.updateUI();
-  }
+function setBioState(type,state,label){
+  var fpBtn=$('bio-fp-btn'),faceBtn=$('bio-face-btn');
+  var btn=type==='fingerprint'?fpBtn:faceBtn;
+  var subId=type==='fingerprint'?'bio-fp-sub':'bio-face-sub';
+  [fpBtn,faceBtn].forEach(function(b){b.classList.remove('scanning','success','error');});
+  if(state==='scanning'){btn.classList.add('scanning');if(label)$(subId).textContent=label;}
+  else if(state==='success'){btn.classList.add('success');if(label)$(subId).textContent=label;setTimeout(function(){btn.classList.remove('success');BIO.updateUI();},2200);}
+  else if(state==='error'){btn.classList.add('error');if(label)$(subId).textContent=label;setTimeout(function(){btn.classList.remove('error');BIO.updateUI();},2500);}
+  else{BIO.updateUI();}
 }
 
-/* ── Main biometric handler called by both buttons ── */
-async function doBiometric(type) {
-  if (!BIO.supported) {
-    toast('Biometrics not supported on this device.', 'err');
-    return;
-  }
-
-  /* ── PATH 1: User already enrolled → authenticate ── */
-  if (BIO.enrolled && BIO.credId) {
-    setBioState(type, 'scanning', 'Verifying…');
-    try {
-      await BIO.authenticate();
-      setBioState(type, 'success', 'Verified ✓');
-      toast('✅ Biometric verified! Signing in…', 'ok');
-
-      // Restore session from stored email
-      var storedSess = localStorage.getItem('aih_session');
-      var sess = storedSess ? JSON.parse(storedSess) : null;
-
-      if (sess && sess.email === BIO.bioEmail) {
-        // Session still valid — go straight in
-        currentEmail = sess.email;
-        userCredits  = Number(sess.credits || 100);
-        setTimeout(function() {
-          initCatalog({ isAdmin: sess.isAdmin, credits: userCredits });
-        }, 600);
-      } else {
-        // No cached session — must verify via API using stored email
-        currentEmail = BIO.bioEmail;
-        gsr('biometricLogin', { email: BIO.bioEmail })
-          .then(function(r) {
-            if (r.success) {
-              userCredits = Number(r.credits || 100);
-              localStorage.setItem('aih_session', JSON.stringify({
-                email: BIO.bioEmail, credits: userCredits, isAdmin: r.isAdmin
-              }));
-              setTimeout(function() { initCatalog(r); }, 600);
-            } else {
-              // Fallback: still let them in if biometric verified locally
-              userCredits = 100;
-              setTimeout(function() {
-                initCatalog({ isAdmin: false, credits: userCredits });
-              }, 600);
-            }
-          })
-          .catch(function() {
-            // Offline fallback — trust local biometric
-            userCredits = 100;
-            setTimeout(function() {
-              initCatalog({ isAdmin: false, credits: userCredits });
-            }, 600);
-          });
-      }
-
-    } catch (err) {
-      var msg = err.name === 'NotAllowedError'
-        ? 'Biometric cancelled or timed out.'
-        : (err.name === 'InvalidStateError'
-          ? 'Credential not found. Please sign in with password.'
-          : 'Biometric failed. Try again.');
-      setBioState(type, 'error', 'Failed ✗');
-      setMsg('msg-si', msg, 'err');
+/* ── CHANGED: pass bioType into register() ── */
+async function doBiometric(type){
+  if(!BIO.supported){toast('Biometrics not supported on this device.','err');return;}
+  if(BIO.enrolled&&BIO.credId){
+    setBioState(type,'scanning','Verifying…');
+    try{
+      await BIO.authenticate();setBioState(type,'success','Verified ✓');toast('✅ Biometric verified! Signing in…','ok');
+      var storedSess=localStorage.getItem('aih_session');var sess=storedSess?JSON.parse(storedSess):null;
+      if(sess&&sess.email===BIO.bioEmail){currentEmail=sess.email;userCredits=Number(sess.credits||100);setTimeout(function(){initCatalog({isAdmin:sess.isAdmin,credits:userCredits});},600);}
+      else{currentEmail=BIO.bioEmail;gsr('validateUser',{email:BIO.bioEmail,password:'__bio__'}).then(function(r){userCredits=Number(r.credits||100);if(r.success)localStorage.setItem('aih_session',JSON.stringify({email:BIO.bioEmail,credits:userCredits,isAdmin:r.isAdmin}));setTimeout(function(){initCatalog(r.success?r:{isAdmin:false,credits:userCredits});},600);}).catch(function(){userCredits=100;setTimeout(function(){initCatalog({isAdmin:false,credits:userCredits});},600);});}
+    }catch(err){
+      var msg=err.name==='NotAllowedError'?'Biometric cancelled or timed out.':(err.name==='InvalidStateError'?'Credential not found. Please sign in with password.':'Biometric failed. Try again.');
+      setBioState(type,'error','Failed ✗');setMsg('msg-si',msg,'err');
     }
     return;
   }
-
-  /* ── PATH 2: Not enrolled → need email first ── */
-  var email = ($('si-email').value || '').trim();
-  if (!email) {
-    setMsg('msg-si', 'Enter your email above first, then tap a biometric button to register.', 'inf');
-    $('si-email').focus();
-    return;
-  }
-
-  // Check email looks valid
-  if (!/\S+@\S+\.\S+/.test(email)) {
-    setMsg('msg-si', 'Enter a valid email above to register biometrics.', 'err');
-    return;
-  }
-
-  setBioState(type, 'scanning', 'Registering…');
-  setMsg('msg-si', 'Follow the prompt on your device…', 'inf');
-
-  try {
-    await BIO.register(email);
-    setBioState(type, 'success', 'Registered ✓');
-    setMsg('msg-si', '✓ Biometric registered for ' + email + '. You can now use it to sign in!', 'ok');
-    toast('🫆 Biometric registered! Use it next time to sign in instantly.', 'ok');
-  } catch (err) {
-    var regMsg = err.name === 'NotAllowedError'
-      ? 'Registration cancelled. Try again.'
-      : (err.name === 'InvalidStateError'
-        ? 'A passkey already exists on this device for this site.'
-        : 'Registration failed: ' + (err.message || err.name));
-    setBioState(type, 'error', 'Failed ✗');
-    setMsg('msg-si', regMsg, 'err');
+  var email=($('si-email').value||'').trim();
+  if(!email){setMsg('msg-si','Enter your email above first, then tap a biometric button to register.','inf');$('si-email').focus();return;}
+  var pass=($('si-pass').value||'');
+  if(!pass){setMsg('msg-si','Enter your password first, then tap to register biometrics.','inf');$('si-pass').focus();return;}
+  setBioState(type,'scanning','Registering…');
+  try{
+    await gsr('validateUser',{email:email,password:pass});
+    await BIO.register(email, type); /* ← pass type so backend knows Face ID vs Fingerprint */
+    setBioState(type,'success','Registered ✓');
+    toast('✅ Biometrics registered! Use them next time to sign in.','ok');
+    setMsg('msg-si','Biometrics set up! You can now sign in with touch/face.','ok');
+  }catch(err){
+    var msg2=err.name==='NotAllowedError'?'Biometric registration cancelled.':(err.name==='InvalidStateError'?'Already registered on this device.':'Failed to register: '+err.message);
+    setBioState(type,'error','Failed ✗');setMsg('msg-si',msg2,'err');
   }
 }
 
-/* ══════════════════════════════════════════
-   INIT
-══════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', function(){
-  // Online/offline detection
-  function updateOnline(){
-    $('offline-bar').classList.toggle('show', !navigator.onLine);
-  }
-  window.addEventListener('online', updateOnline);
-  window.addEventListener('offline', updateOnline);
-  updateOnline();
-
-  // Init biometrics
+/* ── LOADING SCREEN ── */
+window.addEventListener('load',function(){
+  var ls=$('loading-screen');
   BIO.init();
-
-  // Check if URL is still placeholder
-  if (APPS_SCRIPT_URL.indexOf('YOUR_SCRIPT_ID_HERE') !== -1) {
-    $('loading-screen').innerHTML = '<div style="text-align:center;padding:20px;max-width:380px">'
-      + '<div style="font-size:40px;margin-bottom:16px">⚙️</div>'
-      + '<div style="font-family:Playfair Display,serif;font-size:20px;font-weight:800;color:#e8a430;margin-bottom:8px">Setup Required</div>'
-      + '<div style="font-size:14px;color:#9a9cb0;line-height:1.6">Open <code style="background:#13151f;padding:2px 6px;border-radius:6px;color:#e8a430">index.html</code> and replace <code style="background:#13151f;padding:2px 6px;border-radius:6px;color:#e8a430">YOUR_SCRIPT_ID_HERE</code> with your deployed Apps Script URL.</div>'
-      + '</div>';
-    return;
-  }
-
-  // Restore session from localStorage
-  var saved = localStorage.getItem('aih_session');
-  if (saved) {
-    try {
-      var sess = JSON.parse(saved);
-      if (sess.email && sess.credits != null) {
-        currentEmail = sess.email;
-        userCredits  = Number(sess.credits);
-        var fakeR    = { isAdmin: sess.isAdmin, credits: userCredits };
-        hideLoading();
-        initCatalog(fakeR);
+  /* Check for saved session */
+  var saved=localStorage.getItem('aih_session');
+  if(saved){
+    try{
+      var s=JSON.parse(saved);
+      if(s&&s.email){
+        currentEmail=s.email;userCredits=Number(s.credits||100);
+        setTimeout(function(){
+          ls.style.opacity='0';ls.style.transition='opacity .3s';
+          setTimeout(function(){ls.remove();initCatalog({isAdmin:s.isAdmin,credits:userCredits});},300);
+        },400);
         return;
       }
-    } catch(e) {}
+    }catch(e){}
   }
-  hideLoading();
-  $('auth-page').classList.remove('hidden');
+  setTimeout(function(){
+    ls.style.opacity='0';ls.style.transition='opacity .3s';
+    setTimeout(function(){ls.remove();$('auth-page').classList.remove('hidden');},300);
+  },600);
 });
 
-function hideLoading(){
-  $('loading-screen').style.opacity = '0';
-  $('loading-screen').style.transition = 'opacity .3s';
-  setTimeout(function(){ $('loading-screen').style.display = 'none'; }, 320);
-}
-
-/* ── TOAST ── */
-function toast(msg, type){
-  var t=$('toast'), icons={ok:'✅',err:'❌',inf:'ℹ️'};
-  t.innerHTML=(icons[type]||'ℹ️')+' '+msg;
-  t.className='show'+(type?' '+type:'');
-  clearTimeout(t._t);
-  t._t=setTimeout(function(){t.className='';},3000);
-}
-
 /* ── HELPERS ── */
-function setBtn(id, loading, txt){
-  var b=$(id); b.disabled=loading;
-  b.innerHTML=loading?'<span class="loader"></span>'+txt:txt+' →';
+function toast(msg,type){
+  var t=$('toast');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:calc(var(--bnav-h) + 14px);left:50%;transform:translateX(-50%);background:'+(type==='ok'?'var(--grn)':type==='inf'?'var(--gold)':'var(--red)')+';color:'+(type==='inf'?'#0a0a0a':'#fff')+';padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:fadeUp .25s ease';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.textContent='';t.style.cssText='';},3200);
 }
-function setMsg(id, msg, type){
-  var el=$(id); el.textContent=msg;
-  el.className='amsg'+(type?' '+type:'');
-}
-function toggleEye(id, btn){
-  var inp=$(id);
-  inp.type=inp.type==='password'?'text':'password';
-  btn.innerHTML=inp.type==='password'?'<i class="bi bi-eye"></i>':'<i class="bi bi-eye-slash"></i>';
-}
-function esc(s){
-  return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function safeJSON(o){ return JSON.stringify(o).replace(/'/g,'&#39;'); }
-
-/* ── AUTH TABS ── */
+function setMsg(id,msg,type){var el=$(id);if(!el)return;el.textContent=msg;el.className='amsg'+(type?' '+type:'');}
+function toggleEye(id,btn){var inp=$(id);inp.type=inp.type==='password'?'text':'password';btn.querySelector('i').className=inp.type==='password'?'bi bi-eye':'bi bi-eye-slash';}
+function showPage(id){['auth-page','forgot-page','catalog-page','admin-page'].forEach(function(p){$(p).classList.add('hidden');});$(id).classList.remove('hidden');}
 function switchTab(t){
-  var si=t==='si';
-  $('form-si').classList.toggle('hidden',!si);
-  $('form-su').classList.toggle('hidden',si);
-  $('tab-si').classList.toggle('on',si);
-  $('tab-su').classList.toggle('on',!si);
-  $('auth-h').textContent=si?'Welcome back':'Create account';
-  $('auth-p').textContent=si?'Your student toolkit for the AI generation':'Join thousands of students exploring AI';
+  $('tab-si').classList.toggle('on',t==='si');$('tab-su').classList.toggle('on',t==='su');
+  $('form-si').classList.toggle('hidden',t!=='si');$('form-su').classList.toggle('hidden',t!=='su');
+  $('auth-h').textContent=t==='si'?'Welcome back':'Create account';
+  $('auth-p').textContent=t==='si'?'Your student toolkit for the AI generation':'Join thousands of students using AI tools';
 }
 
-/* ── SIGN IN ── */
+/* ── AUTH ── */
 function doSignIn(){
-  var email=$('si-email').value.trim(), pass=$('si-pass').value;
-  if(!email||!pass){setMsg('msg-si','Please fill in all fields.','err');return;}
-  setMsg('msg-si','',''); setBtn('btn-si',true,'Signing in…');
-  gsr('validateUser',{email:email,password:pass})
-    .then(function(r){
-      setBtn('btn-si',false,'Sign In');
-      if(r.success){
-        currentEmail=email; userCredits=r.credits!=null?Number(r.credits):100;
-        localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:r.isAdmin}));
-        // Offer biometric registration after successful password login
-        if(BIO.supported && !BIO.enrolled){
-          setMsg('msg-si','Signed in! Tip: tap a biometric button below to register for faster future logins.','inf');
-        }
-        initCatalog(r);
-      } else {
-        setMsg('msg-si','Invalid email or password.','err');
-      }
-    })
-    .catch(function(){setBtn('btn-si',false,'Sign In');setMsg('msg-si','Connection error. Please try again.','err');});
+  var email=($('si-email').value||'').trim().toLowerCase();
+  var pass=$('si-pass').value||'';
+  if(!email||!pass){setMsg('msg-si','Please enter email and password.','');return;}
+  var btn=$('btn-si');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Signing in…';
+  gsr('validateUser',{email:email,password:pass}).then(function(r){
+    btn.disabled=false;btn.innerHTML='Sign In →';
+    if(r.success){
+      currentEmail=email;userCredits=Number(r.credits||100);
+      localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:r.isAdmin}));
+      initCatalog(r);
+    }else{setMsg('msg-si',r.message||'Invalid credentials.','');}
+  }).catch(function(e){btn.disabled=false;btn.innerHTML='Sign In →';setMsg('msg-si','Error: '+e.message,'');});
 }
 
-/* ── SIGN UP ── */
 function doSignUp(){
-  var name=$('su-name').value.trim(), email=$('su-email').value.trim(),
-      mob=$('su-mobile').value.trim(), inst=$('su-inst').value.trim(),
-      qual=$('su-qual').value.trim(), addr=$('su-addr').value.trim(),
-      pass=$('su-pass').value;
-  if(!name||!email||!pass){setMsg('msg-su','Name, email and password required.','err');return;}
-  if(pass.length<6){setMsg('msg-su','Password must be at least 6 characters.','err');return;}
-  setMsg('msg-su','',''); setBtn('btn-su',true,'Creating…');
-  gsr('createAccount',{email:email,password:pass,name:name,mobile:mob,institution:inst,address:addr,qualification:qual})
-    .then(function(r){
-      setBtn('btn-su',false,'Create Account');
-      if(r.success){
-        setMsg('msg-su','Account created! Signing you in…','ok');
-        setTimeout(function(){$('si-email').value=email;$('si-pass').value=pass;switchTab('si');doSignIn();},900);
-      } else {
-        setMsg('msg-su',r.message||'Registration failed.','err');
-      }
-    })
-    .catch(function(){setBtn('btn-su',false,'Create Account');setMsg('msg-su','Connection error.','err');});
+  var name=($('su-name').value||'').trim();
+  var email=($('su-email').value||'').trim().toLowerCase();
+  var pass=$('su-pass').value||'';
+  var mobile=($('su-mobile').value||'').trim();
+  var inst=($('su-inst').value||'').trim();
+  var qual=($('su-qual').value||'').trim();
+  var addr=($('su-addr').value||'').trim();
+  if(!name||!email||!pass){setMsg('msg-su','Name, email and password are required.','');return;}
+  if(pass.length<6){setMsg('msg-su','Password must be at least 6 characters.','');return;}
+  var btn=$('btn-su');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Creating…';
+  gsr('registerUser',{name:name,email:email,password:pass,mobile:mobile,institution:inst,qualification:qual,address:addr}).then(function(r){
+    btn.disabled=false;btn.innerHTML='Create Account →';
+    if(r.success){setMsg('msg-su','Account created! Signing you in…','ok');currentEmail=email;userCredits=Number(r.credits||100);localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:false}));setTimeout(function(){initCatalog({isAdmin:false,credits:userCredits});},800);}
+    else{setMsg('msg-su',r.message||'Registration failed.','');}
+  }).catch(function(e){btn.disabled=false;btn.innerHTML='Create Account →';setMsg('msg-su','Error: '+e.message,'');});
 }
 
-/* ── INIT CATALOG ── */
+function doLogout(){
+  localStorage.removeItem('aih_session');
+  currentEmail='';userCredits=0;
+  showPage('auth-page');
+  switchTab('si');
+}
+
+/* ── FORGOT PASSWORD ── */
+var _fpEmail='';
+function showForgot(){showPage('forgot-page');}
+function backToAuth(){showPage('auth-page');}
+function fpSend(){
+  var email=($('fp-email').value||'').trim().toLowerCase();
+  if(!email){setMsg('msg-fp1','Enter your email address.','');return;}
+  _fpEmail=email;
+  var btn=$('btn-fp1');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Sending…';
+  gsr('sendResetCode',{email:email}).then(function(r){
+    btn.disabled=false;btn.innerHTML='Send Code →';
+    if(r.success){
+      $('fp-p2-sub').textContent='Code sent to '+email;
+      $('fp-p1').classList.add('hidden');$('fp-p2').classList.remove('hidden');
+      $('fp-s1').className='fp-step done';$('fp-l1').className='fp-line done';$('fp-s2').className='fp-step on';
+    }else{setMsg('msg-fp1',r.message||'Could not send code.','');}
+  }).catch(function(e){btn.disabled=false;btn.innerHTML='Send Code →';setMsg('msg-fp1','Error: '+e.message,'');});
+}
+function fpReset(){
+  var code=($('fp-code').value||'').trim();
+  var np=$('fp-np').value||'';
+  var cp=$('fp-cp').value||'';
+  if(!code||!np||!cp){setMsg('msg-fp2','All fields are required.','');return;}
+  if(np!==cp){setMsg('msg-fp2','Passwords do not match.','');return;}
+  if(np.length<6){setMsg('msg-fp2','Password must be at least 6 characters.','');return;}
+  var btn=$('btn-fp2');btn.disabled=true;btn.innerHTML='<span class="loader"></span> Resetting…';
+  gsr('resetPassword',{email:_fpEmail,code:code,newPassword:np}).then(function(r){
+    btn.disabled=false;btn.innerHTML='Reset Password →';
+    if(r.success){
+      $('fp-p2').classList.add('hidden');$('fp-p3').classList.remove('hidden');
+      $('fp-s2').className='fp-step done';$('fp-l2').className='fp-line done';$('fp-s3').className='fp-step on';
+    }else{setMsg('msg-fp2',r.message||'Reset failed. Check your code.','');}
+  }).catch(function(e){btn.disabled=false;btn.innerHTML='Reset Password →';setMsg('msg-fp2','Error: '+e.message,'');});
+}
+
+/* ── CATALOG INIT ── */
 function initCatalog(r){
-  $('auth-page').classList.add('hidden');
-  $('catalog-page').classList.remove('hidden');
-  $('uav').textContent=currentEmail.charAt(0).toUpperCase();
-  $('uname').textContent=currentEmail.split('@')[0];
-  if(r.isAdmin)$('adminBtn').classList.remove('hidden');
-  setCredits(userCredits);
-  $('credit-chip').classList.add('show');
-  loadCatalog();
-}
-function setCredits(n){
-  userCredits=Number(n);
+  showPage('catalog-page');
+  var av=$('uav');var un=$('uname');
+  av.textContent=(currentEmail[0]||'U').toUpperCase();
+  un.textContent=currentEmail.split('@')[0];
+  if(r.isAdmin){$('adminBtn').classList.remove('hidden');}else{$('adminBtn').classList.add('hidden');}
+  var cc=$('credit-chip');
+  userCredits=Number(r.credits||userCredits||100);
   $('cval').textContent=userCredits;
-  $('credit-chip').classList.toggle('low',userCredits<=10);
-  var saved = localStorage.getItem('aih_session');
-  if(saved){ try{ var s=JSON.parse(saved); s.credits=userCredits; localStorage.setItem('aih_session',JSON.stringify(s)); }catch(e){} }
+  cc.classList.add('show');
+  cc.classList.toggle('low',userCredits<=10);
+  loadTools();
 }
 
-/* ── LOAD CATALOG ── */
-function loadCatalog(){
-  $('grid').innerHTML='<div class="col-12 text-center py-5" style="color:var(--m1)"><span class="loader"></span><p class="mt-2">Loading tools…</p></div>';
-  gsr('getToolsFromSheet',{})
-    .then(startCatalog)
-    .catch(function(){
-      $('grid').innerHTML='<div class="col-12 text-center py-5" style="color:var(--red)">⚠️ Failed to load tools. Check your connection and try again.</div>';
-    });
-}
-function startCatalog(tools){
-  allTools=tools;
-  fuse=new Fuse(allTools,{keys:['name','category','description','features'],threshold:.38});
-  buildChips();
-  applyFilters();
+/* ── TOOLS ── */
+function loadTools(){
+  var grid=$('grid');
+  grid.innerHTML='<div class="col-12 text-center py-5" style="color:var(--m1)"><span class="loader"></span> Loading tools…</div>';
+  gsr('getTools',{}).then(function(r){
+    allTools=Array.isArray(r.tools)?r.tools:[];
+    buildCatStrip();buildDtChips();
+    fuse=new Fuse(allTools,{keys:['name','category','description'],threshold:.38,includeScore:true});
+    renderTools(allTools);
+  }).catch(function(e){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">⚠️</div><p>'+e.message+'</p></div></div>';});
 }
 
-/* ── CHIPS ── */
-function buildChips(){
-  var cats=[];
-  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)===-1)cats.push(t.category);});
-  cats.sort();
-  var mH='<button class="chip on" onclick="filterCat(this,\'all\')">All</button>';
-  cats.forEach(function(c){mH+='<button class="chip" onclick="filterCat(this,\''+esc(c)+'\')">'+c+'</button>';});
-  $('cat-strip').innerHTML=mH;
-  var dH='<button class="dt-chip on" onclick="dtCat(this,\'all\')">All</button>';
-  cats.forEach(function(c){dH+='<button class="dt-chip" onclick="dtCat(this,\''+esc(c)+'\')">'+c+'</button>';});
-  $('dt-chips').innerHTML=dH;
+function buildCatStrip(){
+  var cats=['All'];
+  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
+  var strip=$('cat-strip');
+  strip.innerHTML=cats.map(function(c,i){return '<button class="chip'+(i===0?' on':'')+'" onclick="filterCat(this,\''+c.toLowerCase()+'\')">'+c+'</button>';}).join('');
 }
-function filterCat(el,cat){activeCat=cat;document.querySelectorAll('.chip').forEach(function(b){b.classList.remove('on');});el.classList.add('on');syncDeskCat();$('search').value='';applyFilters();}
-function dtCat(el,cat){activeCat=cat;document.querySelectorAll('.dt-chip').forEach(function(b){b.classList.remove('on');});el.classList.add('on');syncMobCat();$('search').value='';applyFilters();}
-function syncDeskCat(){document.querySelectorAll('.dt-chip').forEach(function(b){b.classList.toggle('on',(activeCat==='all'&&b.textContent.trim()==='All')||b.textContent.trim()===activeCat);});}
-function syncMobCat(){document.querySelectorAll('.chip').forEach(function(b){b.classList.toggle('on',(activeCat==='all'&&b.textContent.trim()==='All')||b.textContent.trim()===activeCat);});}
-
-/* ── SEARCH ── */
-function doSearch(){activeCat='all';document.querySelectorAll('.chip,.dt-chip').forEach(function(b){b.classList.toggle('on',b.textContent.trim()==='All');});applyFilters();}
-function syncAndFilter(){applyFilters();}
-
-function applyFilters(){
-  var q=$('search').value.trim(),
-      free=$('dt-free').value,
-      sort=$('dt-sort').value||$('m-sort').value;
-  var data=q?fuse.search(q).map(function(r){return r.item;}):allTools.slice();
-  if(activeCat!=='all')data=data.filter(function(t){return t.category===activeCat;});
-  if(free==='free')data=data.filter(function(t){return/free|yes/i.test(String(t.free));});
-  if(free==='paid')data=data.filter(function(t){return!/free|yes/i.test(String(t.free));});
-  if(sort==='az')data.sort(function(a,b){return a.name.localeCompare(b.name);});
-  if(sort==='za')data.sort(function(a,b){return b.name.localeCompare(a.name);});
-  if(sort==='popular')data.sort(function(a,b){return(b.usageCount||0)-(a.usageCount||0);});
-  $('res-count').innerHTML='<strong>'+data.length+'</strong> tool'+(data.length!==1?'s':'');
-  renderGrid(data);
+function buildDtChips(){
+  var cats=['All'];
+  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
+  var wrap=$('dt-chips');
+  wrap.innerHTML=cats.map(function(c,i){return '<button class="dt-chip'+(i===0?' on':'')+'" onclick="filterDtCat(this,\''+c.toLowerCase()+'\')">'+c+'</button>';}).join('');
+}
+function filterCat(btn,cat){
+  document.querySelectorAll('.cat-strip .chip').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');activeCat=cat;syncAndFilter();
+}
+function filterDtCat(btn,cat){
+  document.querySelectorAll('#dt-chips .dt-chip').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');activeCat=cat;syncAndFilter();
 }
 
-/* ── RENDER GRID ── */
-function renderGrid(data){
-  var g=$('grid');
-  if(!data.length){
-    g.className='row';
-    g.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔭</div><p>No tools found. Try different filters.</p></div></div>';
-    return;
-  }
-  var lv=activeView==='list';
-  g.className=lv?'row g-2':'row g-2 g-md-3';
-  var html='';
-  data.forEach(function(t,i){
-    var isFree=/free|yes/i.test(String(t.free));
-    var fTag=t.free?'<span class="ftag '+(isFree?'free':'paid')+'">'+t.free+'</span>':'';
-    var delay='animation-delay:'+(Math.min(i,8)*0.04)+'s';
-    var col=lv?'col-12':'col-6 col-md-4 col-lg-3';
-    if(lv){
-      html+='<div class="'+col+'"><div class="tool-card" style="'+delay+';flex-direction:row;align-items:center;gap:10px;" onclick=\'openModal('+safeJSON(t)+')\'>'
-           +'<div class="cname" style="flex:1;min-width:0;-webkit-line-clamp:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin:0">'+t.name+'</div>'
-           +'<div class="arr flex-shrink-0">›</div>'
-           +'</div></div>';
-    } else {
-      html+='<div class="'+col+'"><div class="tool-card" style="'+delay+'" onclick=\'openModal('+safeJSON(t)+')\'>'
-           +'<span class="cbadge">'+(t.category||'AI')+'</span>'
-           +'<div class="cname">'+t.name+'</div>'
-           +'<div class="cdesc">'+(t.description||'')+'</div>'
-           +'<div class="cfoot">'+fTag+'<div class="arr">↗</div></div>'
-           +'</div></div>';
-    }
-  });
-  g.innerHTML=html;
+function getFilteredTools(){
+  var q=($('search').value||'').trim();
+  var free=$('dt-free').value||'all';
+  var sort=$('dt-sort').value||'default';
+  var list=q?fuse.search(q).map(function(r){return r.item;}):allTools.slice();
+  if(activeCat&&activeCat!=='all')list=list.filter(function(t){return (t.category||'').toLowerCase()===activeCat;});
+  if(free==='free')list=list.filter(function(t){return (t.pricing||'').toLowerCase()==='free';});
+  else if(free==='paid')list=list.filter(function(t){return (t.pricing||'').toLowerCase()!=='free';});
+  if(sort==='az')list.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  else if(sort==='za')list.sort(function(a,b){return (b.name||'').localeCompare(a.name||'');});
+  else if(sort==='popular')list.sort(function(a,b){return Number(b.clicks||0)-Number(a.clicks||0);});
+  return list;
 }
 
-/* ── SET VIEW ── */
+function syncAndFilter(){
+  var ms=$('m-sort').value;
+  var ds=$('dt-sort').value;
+  var mf=$('fd-free')&&$('fd-free').value;
+  var df=$('dt-free').value;
+  /* sync sort */
+  if(ms!=='default'&&ms!==ds){$('dt-sort').value=ms;}
+  else if(ds!=='default'&&ds!==ms){$('m-sort').value=ds;}
+  /* sync free filter */
+  if(mf&&mf!==df)$('dt-free').value=mf;
+  renderTools(getFilteredTools());
+}
+function doSearch(){syncAndFilter();}
+
 function setView(v){
   activeView=v;
+  var grid=$('grid');
+  grid.classList.toggle('lv',v==='list');
   ['gbtn','lbtn','m-gbtn','m-lbtn'].forEach(function(id){
-    var b=$(id); if(!b)return;
-    b.classList.toggle('on',(id.indexOf('g')>-1&&v==='grid')||(id.indexOf('l')>-1&&v==='list'));
+    var el=$(id);if(!el)return;
+    el.classList.toggle('on',(id.indexOf('g')>-1&&v==='grid')||(id.indexOf('l')>-1&&v==='list'));
   });
-  applyFilters();
 }
 
-/* ── MODAL ── */
-function openModal(t){
-  var feats=(t.features||'').split(',').map(function(f){return f.trim();}).filter(Boolean);
-  var hasPPT=t.presentationPath&&t.presentationPath.trim();
-  var disabled=userCredits<=0?'disabled':'';
+function renderTools(list){
+  var grid=$('grid');
+  $('res-count').innerHTML='<strong>'+list.length+'</strong> tool'+(list.length!==1?'s':'');
+  if(!list.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔍</div><p style="color:var(--m1)">No tools found</p></div></div>';return;}
+  grid.innerHTML=list.map(function(t,i){
+    var isFree=(t.pricing||'').toLowerCase()==='free';
+    var sl=t.slNo||t.sl_no||t.id||'#';
+    return '<div class="col-6 col-md-4 col-lg-3" style="animation-delay:'+(i*30)+'ms"><div class="tool-card" onclick="openTool(\''+encodeURIComponent(JSON.stringify(t))+'\')">'+
+      '<span class="sl-no">#'+sl+'</span>'+
+      '<div class="cbadge">'+(t.category||'Tool')+'</div>'+
+      '<div class="cname">'+(t.name||'Untitled')+'</div>'+
+      '<div class="cdesc">'+(t.description||'')+'</div>'+
+      '<div class="cfoot"><span class="ftag '+(isFree?'free':'paid')+'">'+(isFree?'Free':t.pricing||'Paid')+'</span><span class="arr"><i class="bi bi-arrow-up-right"></i></span></div>'+
+    '</div></div>';
+  }).join('');
+  if(activeView==='list')grid.classList.add('lv');
+}
+
+/* ── TOOL MODAL ── */
+function openTool(enc){
+  var t;try{t=JSON.parse(decodeURIComponent(enc));}catch(e){return;}
+  var isFree=(t.pricing||'').toLowerCase()==='free';
+  var feats=t.features?t.features.split(',').map(function(f){return f.trim();}).filter(Boolean):[];
   $('modal-content').innerHTML=
-    '<div class="m-head"><div class="m-head-row"><span class="m-cat">'+(t.category||'AI Tool')+'</span><button class="m-close" onclick="closeModal()">×</button></div><div class="m-title">'+t.name+'</div></div>'
-    +'<div class="m-body"><div class="m-meta">'
-    +'<div><div class="meta-k">Launches</div><div class="meta-v">'+(t.usageCount||0)+'</div></div>'
-    +'<div><div class="meta-k">Pricing</div><div class="meta-v">'+(t.free||'See site')+'</div></div>'
-    +'<div><div class="meta-k">Category</div><div class="meta-v">'+(t.category||'—')+'</div></div>'
-    +'</div>'
-    +'<p class="m-desc">'+(t.description||'No description available.')+'</p>'
-    +(feats.length?'<div class="sec-ttl">Key Features</div><div class="feat-wrap">'+feats.map(function(f){return'<span class="feat">'+f+'</span>';}).join('')+'</div>':'')
-    +'</div>'
-    +'<div class="m-foot">'
-    +(hasPPT?'<button class="btn-preview" onclick="previewPPT(\''+esc(t.presentationPath)+'\',\''+esc(t.name)+'\')"><i class="bi bi-file-slides"></i> Slides</button>':'')
-    +'<button class="btn-launch" '+disabled+' onclick="launchTool(\''+esc(t.name)+'\',\''+esc(t.url)+'\')">🚀 Launch <span style="font-size:12px;opacity:.7">(1 credit)</span></button>'
-    +'<button class="btn-sec" onclick="closeModal()">Close</button>'
-    +'</div>';
+    '<div class="m-head">'+
+      '<div class="m-head-row">'+
+        '<span class="m-cat">'+(t.category||'AI Tool')+'</span>'+
+        '<button class="m-close" onclick="closeModal()"><i class="bi bi-x"></i></button>'+
+      '</div>'+
+      '<div class="m-title">'+(t.name||'Tool')+'</div>'+
+    '</div>'+
+    '<div class="m-body">'+
+      '<div class="m-meta">'+
+        '<div><div class="meta-k">Pricing</div><div class="meta-v"><span class="ftag '+(isFree?'free':'paid')+'">'+(isFree?'Free':t.pricing||'Paid')+'</span></div></div>'+
+        (t.slNo||t.sl_no?'<div><div class="meta-k">Sl. No.</div><div class="meta-v">#'+(t.slNo||t.sl_no)+'</div></div>':'')+
+        (t.difficulty?'<div><div class="meta-k">Level</div><div class="meta-v">'+t.difficulty+'</div></div>':'')+
+        (t.rating?'<div><div class="meta-k">Rating</div><div class="meta-v">⭐ '+t.rating+'</div></div>':'')+
+      '</div>'+
+      '<div class="m-desc">'+(t.description||'No description available.')+'</div>'+
+      (feats.length?'<div class="sec-ttl">Features</div><div class="feat-wrap">'+feats.map(function(f){return '<span class="feat">'+f+'</span>';}).join('')+'</div>':'')+
+      (t.useCase?'<div class="sec-ttl" style="margin-top:.5rem">Use Case</div><div class="m-desc">'+t.useCase+'</div>':'')+
+    '</div>'+
+    '<div class="m-foot">'+
+      '<button class="btn-launch" '+(t.url?'':'disabled')+'  onclick="launchTool(\''+encodeURIComponent(t.url||'')+'\',\''+encodeURIComponent(JSON.stringify(t))+'\')"><i class="bi bi-rocket-takeoff-fill"></i> Launch Tool</button>'+
+      (t.videoUrl?'<button class="btn-preview" onclick="window.open(\''+t.videoUrl+'\',\'_blank\')"><i class="bi bi-play-circle"></i> Watch Preview</button>':'')+
+    '</div>';
   $('modal').classList.add('open');
   document.body.classList.add('no-scroll');
 }
 function closeModal(){$('modal').classList.remove('open');document.body.classList.remove('no-scroll');}
-
-/* ── LAUNCH ── */
-function launchTool(name,url){
-  if(userCredits<=0){toast('No credits left! Contact admin.','err');return;}
-  window.open(url,'_blank','noopener,noreferrer');
-  toast('Launching '+name+'… (1 credit used)','ok');
-  gsr('recordToolClick',{email:currentEmail,toolName:name})
-    .then(function(r){
-      if(r.success)setCredits(r.credits);
-      else if(r.message)toast(r.message,'err');
-    })
-    .catch(function(){/* silent — tool already opened */});
-}
-
-/* ── PREVIEW PPT ── */
-function previewPPT(path,name){
-  var url=path.trim(), match=url.match(/[-\w]{25,}/);
-  if(url.indexOf('drive.google.com')!==-1&&match)url='https://drive.google.com/file/d/'+match[0]+'/preview';
-  else if(url.indexOf('drive.google.com')===-1){window.open(url,'_blank','noopener,noreferrer');return;}
-  var old=document.getElementById('ppt-ov');if(old)old.remove();
-  var ov=document.createElement('div');
-  ov.id='ppt-ov';
-  ov.style.cssText='position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.95);display:flex;flex-direction:column;animation:fadeIn .2s ease';
-  var hdr=document.createElement('div');
-  hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.1);background:#0d0f16;flex-shrink:0;gap:10px';
-  hdr.innerHTML='<div style="display:flex;align-items:center;gap:10px;min-width:0"><i class="bi bi-file-slides" style="font-size:20px;flex-shrink:0;color:var(--gold)"></i>'
-    +'<div style="min-width:0"><div style="font-size:14px;font-weight:700;color:#eeeef5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</div>'
-    +'<div style="font-size:11px;color:#6b6d80;margin-top:2px">Presentation Preview</div></div></div>'
-    +'<div style="display:flex;gap:8px;align-items:center;flex-shrink:0">'
-    +'<a href="'+path+'" target="_blank" rel="noopener" style="padding:7px 12px;background:rgba(232,164,48,.15);border:1px solid rgba(232,164,48,.3);border-radius:8px;color:#e8a430;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap">Open ↗</a>'
-    +'<button id="ppt-cls" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#eeeef5;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;flex-shrink:0">×</button></div>';
-  var iframe=document.createElement('iframe');
-  iframe.src=url;
-  iframe.style.cssText='flex:1;border:none;width:100%';
-  iframe.allowFullscreen=true;
-  ov.appendChild(hdr);ov.appendChild(iframe);document.body.appendChild(ov);
-  document.getElementById('ppt-cls').onclick=function(){ov.remove();};
-  var escFn=function(e){if(e.key==='Escape'){ov.remove();document.removeEventListener('keydown',escFn);}};
-  document.addEventListener('keydown',escFn);
-}
-
-/* ── ADMIN ── */
-function openAdmin(){
-  $('catalog-page').classList.add('hidden');
-  $('admin-page').classList.remove('hidden');
-  loadAdminData();
-}
-function backToCatalog(){
-  $('admin-page').classList.add('hidden');
-  $('catalog-page').classList.remove('hidden');
-}
-function loadAdminData(){
-  gsr('getAdminDashboardData',{email:currentEmail})
-    .then(function(d){
-      if(d.error){toast(d.error,'err');return;}
-      $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
-      // Stats
-      $('adm-stats').innerHTML=
-        '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">👤</div><div class="stat-lbl">Users</div><div class="stat-val">'+d.totalUsers+'</div></div></div>'
-        +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">🧰</div><div class="stat-lbl">Tools</div><div class="stat-val">'+d.tools.length+'</div></div></div>'
-        +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">🚀</div><div class="stat-lbl">Launches</div><div class="stat-val">'+d.totalClicks+'</div></div></div>'
-        +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">⚡</div><div class="stat-lbl">Credits Spent</div><div class="stat-val">'+(d.totalClicks||0)+'</div></div></div>';
-      // Tools table
-      var tH='<div class="adm-thead th-tools"><span>#</span><span>Tool</span><span>Launches</span></div>';
-      d.tools.slice(0,20).forEach(function(t,i){
-        tH+='<div class="adm-row tr-tools"><span class="rank'+(i<3?' t3':'')+'">'+((i+1))+'</span>'
-          +'<div><div class="row-name">'+t.name+'</div><div class="row-sub">'+t.category+'</div></div>'
-          +'<span class="badge-c">'+t.totalClicks+'</span></div>';
-      });
-      $('adm-tools').innerHTML=tH;
-      // Users table
-      var uH='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Credits</span></div>';
-      d.users.slice(0,50).forEach(function(u,i){
-        uH+='<div class="adm-row tr-users"><span class="rank">'+((i+1))+'</span>'
-          +'<div><div class="row-name">'+(u.name||u.email)+'</div><div class="row-sub">'+u.email+'</div></div>'
-          +'<span class="badge-c'+(u.credits<=10?' red':'')+'">'+u.credits+'</span></div>';
-      });
-      $('adm-users').innerHTML=uH;
-    })
-    .catch(function(){toast('Failed to load admin data.','err');});
-}
-
-/* ── FORGOT PASSWORD ── */
-var fpEmail='';
-function showForgot(){
-  $('auth-page').classList.add('hidden');
-  $('forgot-page').classList.remove('hidden');
-}
-function backToAuth(){
-  $('forgot-page').classList.add('hidden');
-  $('auth-page').classList.remove('hidden');
-}
-function fpStep(n){
-  [$('fp-p1'),$('fp-p2'),$('fp-p3')].forEach(function(p,i){
-    p.classList.toggle('hidden',i+1!==n);
-  });
-  [$('fp-s1'),$('fp-s2'),$('fp-s3')].forEach(function(s,i){
-    s.classList.remove('on','done');
-    if(i+1<n)s.classList.add('done');
-    if(i+1===n)s.classList.add('on');
-  });
-  [$('fp-l1'),$('fp-l2')].forEach(function(l,i){
-    l.classList.toggle('done',i+1<n);
-  });
-}
-function fpSend(){
-  fpEmail=$('fp-email').value.trim();
-  if(!fpEmail){setMsg('msg-fp1','Enter your email.','err');return;}
-  setMsg('msg-fp1','','');setBtn('btn-fp1',true,'Sending…');
-  gsr('sendPasswordResetCode',{email:fpEmail})
-    .then(function(r){
-      setBtn('btn-fp1',false,'Send Code');
-      if(r.success){$('fp-p2-sub').textContent='Code sent to '+fpEmail;fpStep(2);}
-      else setMsg('msg-fp1',r.message||'Email not found.','err');
-    })
-    .catch(function(){setBtn('btn-fp1',false,'Send Code');setMsg('msg-fp1','Connection error.','err');});
-}
-function fpReset(){
-  var code=$('fp-code').value.trim(), np=$('fp-np').value, cp=$('fp-cp').value;
-  if(!code||!np){setMsg('msg-fp2','Fill all fields.','err');return;}
-  if(np!==cp){setMsg('msg-fp2','Passwords do not match.','err');return;}
-  if(np.length<6){setMsg('msg-fp2','Password must be at least 6 characters.','err');return;}
-  setMsg('msg-fp2','','');setBtn('btn-fp2',true,'Resetting…');
-  gsr('verifyAndResetPassword',{email:fpEmail,code:code,newPassword:np})
-    .then(function(r){
-      setBtn('btn-fp2',false,'Reset Password');
-      if(r.success)fpStep(3);
-      else setMsg('msg-fp2',r.message||'Invalid code.','err');
-    })
-    .catch(function(){setBtn('btn-fp2',false,'Reset Password');setMsg('msg-fp2','Connection error.','err');});
-}
-
-/* ── LOGOUT ── */
-function doLogout(){
-  localStorage.removeItem('aih_session');
-  currentEmail=''; userCredits=0;
-  $('catalog-page').classList.add('hidden');
-  $('admin-page').classList.add('hidden');
-  $('auth-page').classList.remove('hidden');
-  $('credit-chip').classList.remove('show');
-  $('adminBtn').classList.add('hidden');
-  // Reset biometric UI (keep credential — user may want to log back in)
-  BIO.updateUI();
-  toast('Signed out.','');
+function launchTool(encUrl,encTool){
+  var url=decodeURIComponent(encUrl);
+  var t;try{t=JSON.parse(decodeURIComponent(encTool));}catch(e){t={};}
+  if(!url)return;
+  /* Deduct credit */
+  gsr('useTool',{email:currentEmail,toolId:t.slNo||t.id||'',toolName:t.name||''}).then(function(r){
+    userCredits=Number(r.credits||userCredits);$('cval').textContent=userCredits;
+    $('credit-chip').classList.toggle('low',userCredits<=10);
+    var sess=JSON.parse(localStorage.getItem('aih_session')||'{}');sess.credits=userCredits;localStorage.setItem('aih_session',JSON.stringify(sess));
+  }).catch(function(){});
+  window.open(url,'_blank','noopener');
 }
 
 /* ── MOBILE SEARCH ── */
-function openMSearch(){
-  $('msearch').classList.add('open');
-  document.body.classList.add('no-scroll');
-  setTimeout(function(){$('ms-inp').focus();},100);
-}
-function closeMSearch(){
-  $('msearch').classList.remove('open');
-  document.body.classList.remove('no-scroll');
-  $('ms-inp').value='';
-  $('msh-body').innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';
-}
+function openMSearch(){$('msearch').classList.add('open');document.body.classList.add('no-scroll');setTimeout(function(){$('ms-inp').focus();},100);}
+function closeMSearch(){$('msearch').classList.remove('open');document.body.classList.remove('no-scroll');$('ms-inp').value='';}
 function doMSearch(q){
-  if(!q.trim()||!fuse){
-    $('msh-body').innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';
-    return;
-  }
-  var res=fuse.search(q).slice(0,30).map(function(r){return r.item;});
-  if(!res.length){$('msh-body').innerHTML='<div class="msh-empty"><div class="msh-empty-ico" style="font-size:40px;opacity:.35">🔭</div><p>No results for "'+q+'"</p></div>';return;}
-  $('msh-body').innerHTML=res.map(function(t){
-    return '<div class="msh-item" onclick=\'closeMSearch();openModal('+safeJSON(t)+')\' >'
-      +'<div class="msh-dot"></div>'
-      +'<div style="min-width:0;flex:1"><div class="msh-name">'+t.name+'</div><div class="msh-meta">'+(t.category||'AI Tool')+'</div></div>'
-      +'<i class="bi bi-arrow-right msh-arr"></i>'
-      +'</div>';
+  var body=$('msh-body');
+  if(!q.trim()){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';return;}
+  var res=fuse?fuse.search(q).map(function(r){return r.item;}).slice(0,30):[];
+  if(!res.length){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico">🔍</div><p style="color:var(--m1)">No results for "'+q+'"</p></div>';return;}
+  body.innerHTML=res.map(function(t){
+    var sl=t.slNo||t.sl_no||t.id||'';
+    return '<div class="msh-item" onclick="closeMSearch();openTool(\''+encodeURIComponent(JSON.stringify(t))+'\')">'+
+      '<span class="msh-dot"></span>'+
+      (sl?'<span class="msh-sl">#'+sl+'</span>':'')+
+      '<div style="flex:1;min-width:0"><div class="msh-name">'+(t.name||'')+'</div><div class="msh-meta">'+(t.category||'')+(t.pricing?' · '+t.pricing:'')+'</div></div>'+
+      '<i class="bi bi-arrow-up-right msh-arr"></i>'+
+    '</div>';
   }).join('');
 }
 
 /* ── FILTER DRAWER ── */
 function openFDrawer(){
-  // Populate fd-chips
-  var cats=[];allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)===-1)cats.push(t.category);});cats.sort();
-  $('fd-chips').innerHTML='<button class="fd-chip'+(activeCat==='all'?' on':'')+'" onclick="fdCat(this,\'all\')">All</button>'
-    +cats.map(function(c){return'<button class="fd-chip'+(activeCat===c?' on':'')+'" onclick="fdCat(this,\''+esc(c)+'\')">'+c+'</button>';}).join('');
-  $('fdrawer').classList.add('open');
-  document.body.classList.add('no-scroll');
+  buildFdChips();$('fdrawer').classList.add('open');document.body.classList.add('no-scroll');
 }
 function closeFDrawer(){$('fdrawer').classList.remove('open');document.body.classList.remove('no-scroll');}
-function fdCat(el,cat){document.querySelectorAll('.fd-chip').forEach(function(b){b.classList.remove('on');});el.classList.add('on');activeCat=cat;}
-function clearDrawer(){activeCat='all';$('fd-free').value='all';$('fd-sort').value='default';$('fd-view').value='grid';document.querySelectorAll('.fd-chip').forEach(function(b,i){b.classList.toggle('on',i===0);});}
+function buildFdChips(){
+  var cats=['All'];
+  allTools.forEach(function(t){if(t.category&&cats.indexOf(t.category)<0)cats.push(t.category);});
+  $('fd-chips').innerHTML=cats.map(function(c){
+    var v=c.toLowerCase();
+    return '<button class="fd-chip'+(activeCat===v||(c==='All'&&activeCat==='all')?' on':'')+'" onclick="fdPickCat(this,\''+v+'\')">'+c+'</button>';
+  }).join('');
+}
+function fdPickCat(btn,cat){
+  document.querySelectorAll('#fd-chips .fd-chip').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');activeCat=cat;
+}
+function clearDrawer(){
+  activeCat='all';$('fd-free').value='all';$('fd-sort').value='default';$('fd-view').value='grid';
+  buildFdChips();
+}
 function applyDrawer(){
-  $('dt-free').value=$('fd-free').value;
-  $('dt-sort').value=$('fd-sort').value;
-  setView($('fd-view').value);
-  syncDeskCat();syncMobCat();
-  applyFilters();
-  closeFDrawer();
+  var free=$('fd-free').value;var sort=$('fd-sort').value;var view=$('fd-view').value;
+  $('dt-free').value=free;$('dt-sort').value=sort;$('m-sort').value=sort;
+  setView(view);syncAndFilter();closeFDrawer();
+  /* sync cat strip */
+  document.querySelectorAll('.cat-strip .chip').forEach(function(b){b.classList.remove('on');});
+  var matched=false;
+  document.querySelectorAll('.cat-strip .chip').forEach(function(b){if(b.textContent.toLowerCase()===activeCat||(activeCat==='all'&&b.textContent==='All')){b.classList.add('on');matched=true;}});
+  if(!matched){var first=document.querySelector('.cat-strip .chip');if(first)first.classList.add('on');}
 }
 
 /* ── BOTTOM NAV ── */
-function bnHome(){
-  $('catalog-page').classList.remove('hidden');
-  $('admin-page').classList.add('hidden');
-  document.querySelectorAll('.bnbtn').forEach(function(b){b.classList.remove('on');});
-  $('bn-home').classList.add('on');
+function bnHome(){showPage('catalog-page');}
+
+/* ══════════════════════════════════════════
+   ADMIN
+══════════════════════════════════════════ */
+function openAdmin(){showPage('admin-page');loadAdminData();}
+function backToCatalog(){showPage('catalog-page');}
+function switchAdmTab(tab){
+  document.querySelectorAll('.adm-tab').forEach(function(b,i){b.classList.toggle('on',['tools','users','credits'][i]===tab);});
+  document.querySelectorAll('.adm-panel').forEach(function(p){p.classList.remove('on');});
+  $('adm-panel-'+tab).classList.add('on');
 }
+
+function loadAdminData(){
+  $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
+  /* load tools */
+  gsr('getTools',{}).then(function(r){
+    _admAllTools=Array.isArray(r.tools)?r.tools:[];
+    renderAdmStats();
+    renderAdmTools(_admAllTools);
+  });
+  /* load users */
+  gsr('getUsers',{}).then(function(r){
+    _admAllUsers=Array.isArray(r.users)?r.users:[];
+    renderAdmUsers(_admAllUsers);
+    renderLowCredits();
+  });
+}
+
+function renderAdmStats(){
+  var total=_admAllTools.length;
+  var cats=[...new Set(_admAllTools.map(function(t){return t.category||'';}).filter(Boolean))].length;
+  var users=_admAllUsers.length;
+  var bioCount=_admAllUsers.filter(function(u){return u.bioRegistered||u.bioType;}).length;
+  $('adm-stats').innerHTML=
+    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">🧰</span><div><div class="stat-lbl">Total Tools</div><div class="stat-val">'+total+'</div></div></div></div>'+
+    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">📂</span><div><div class="stat-lbl">Categories</div><div class="stat-val">'+cats+'</div></div></div></div>'+
+    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">👤</span><div><div class="stat-lbl">Users</div><div class="stat-val">'+users+'</div></div></div></div>'+
+    /* ── CHANGED: stat card now shows biometric-registered users ── */
+    '<div class="col-6 col-md-3"><div class="stat-card"><span class="stat-ico">🫆</span><div><div class="stat-lbl">Bio Enrolled</div><div class="stat-val">'+bioCount+'</div></div></div></div>';
+}
+
+function renderAdmTools(list){
+  $('adm-tool-count').textContent=list.length+' tools';
+  if(!list.length){$('adm-tools').innerHTML='<div class="p-4 text-center" style="color:var(--m1)">No tools found.</div>';return;}
+  $('adm-tools').innerHTML=
+    '<div class="adm-thead th-tools"><span>#</span><span>Tool</span><span>Category</span><span>Pricing</span><span>Clicks</span></div>'+
+    list.map(function(t,i){
+      var sl=t.slNo||t.sl_no||t.id||i+1;
+      return '<div class="adm-row tr-tools">'+
+        '<span class="rank'+(i<3?' t3':'')+'">'+sl+'</span>'+
+        '<div><div class="row-name">'+(t.name||'—')+'</div><div class="row-sub">'+(t.url||'')+'</div></div>'+
+        '<span><span class="badge-c">'+(t.category||'—')+'</span></span>'+
+        '<span style="font-size:12px;color:var(--m2)">'+(t.pricing||'—')+'</span>'+
+        '<span style="font-size:13px;font-weight:700;color:var(--gold)">'+(t.clicks||0)+'</span>'+
+      '</div>';
+    }).join('');
+}
+
+/* ── CHANGED: renderAdmUsers now shows Biometric column ── */
+function renderAdmUsers(list){
+  $('adm-user-count').textContent=list.length+' users';
+  if(!list.length){$('adm-users').innerHTML='<div class="p-4 text-center" style="color:var(--m1)">No users found.</div>';return;}
+  $('adm-users').innerHTML=
+    '<div class="adm-thead th-users"><span>#</span><span>User</span><span>Joined</span><span>Plan</span><span>Biometric</span><span>Credits</span></div>'+
+    list.map(function(u,i){
+      var joined=u.joinDate||u.createdAt||'—';
+      if(joined&&joined.length>10)joined=joined.substring(0,10);
+      var plan=u.plan||u.role||'Student';
+      var credits=Number(u.credits||0);
+
+      /* ── Biometric cell ── */
+      var bioCell;
+      if(u.bioRegistered||u.bioType){
+        var bioIcon=u.bioType==='Face ID'?'😶':'🫆';
+        var bioLabel=u.bioType||'Enrolled';
+        var bioDevice=u.bioDevice?(' · '+u.bioDevice):'';
+        var bioDate=u.bioDate?(u.bioDate.length>10?u.bioDate.substring(0,10):u.bioDate):'';
+        var bioTitle=bioLabel+bioDevice+(bioDate?' · '+bioDate:'');
+        bioCell='<span title="'+bioTitle+'"><span class="badge-c grn" style="gap:3px;max-width:100%;overflow:hidden;text-overflow:ellipsis">'+bioIcon+' '+bioLabel+'</span>'+(bioDate?'<div style="font-size:10px;color:var(--m1);margin-top:2px">'+bioDate+'</div>':'')+'</span>';
+      }else{
+        bioCell='<span style="color:var(--m1);font-size:11px">—</span>';
+      }
+
+      return '<div class="adm-row tr-users">'+
+        '<span class="rank'+(i<3?' t3':'')+'">'+( i+1)+'</span>'+
+        '<div><div class="row-name">'+(u.name||'—')+'</div><div class="row-sub">'+(u.email||'')+'</div></div>'+
+        '<span style="font-size:11px;color:var(--m2)">'+joined+'</span>'+
+        '<span><span class="badge-c'+(plan.toLowerCase()==='admin'?' red':'')+'">'+(plan)+'</span></span>'+
+        bioCell+
+        '<div>'+
+          '<span class="badge-c'+(credits<=10?' red':'')+'" id="cv-'+i+'" style="font-size:12px">⚡ '+credits+'</span>'+
+          '<div class="credit-edit" id="ce-'+i+'">'+
+            '<input type="number" id="ci-'+i+'" value="'+credits+'" min="0">'+
+            '<button class="save-c" onclick="saveCreditRow('+i+',\''+encodeURIComponent(u.email||'')+'\')">✓</button>'+
+            '<button class="cancel-c" onclick="cancelCreditRow('+i+')">✕</button>'+
+          '</div>'+
+          '<button class="adm-act-btn" style="margin-top:4px;font-size:11px" onclick="editCreditRow('+i+')"><i class="bi bi-pencil"></i> Edit</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+}
+
+function filterAdmTools(q){
+  if(!q){renderAdmTools(_admAllTools);return;}
+  var f=q.toLowerCase();
+  renderAdmTools(_admAllTools.filter(function(t){return (t.name||'').toLowerCase().includes(f)||(t.category||'').toLowerCase().includes(f);}));
+}
+function filterAdmUsers(q){
+  if(!q){renderAdmUsers(_admAllUsers);return;}
+  var f=q.toLowerCase();
+  renderAdmUsers(_admAllUsers.filter(function(u){return (u.name||'').toLowerCase().includes(f)||(u.email||'').toLowerCase().includes(f);}));
+}
+
+function editCreditRow(i){
+  $('ce-'+i).style.display='flex';
+  $('cv-'+i).style.display='none';
+}
+function cancelCreditRow(i){
+  $('ce-'+i).style.display='none';
+  $('cv-'+i).style.display='';
+}
+function saveCreditRow(i,encEmail){
+  var email=decodeURIComponent(encEmail);
+  var val=parseInt($('ci-'+i).value,10);
+  if(isNaN(val)||val<0){toast('Invalid credit value','err');return;}
+  gsr('setCredits',{email:email,credits:val}).then(function(r){
+    if(r.success){
+      toast('Credits updated for '+email,'ok');
+      $('cv-'+i).textContent='⚡ '+val;
+      $('cv-'+i).className='badge-c'+(val<=10?' red':'');
+      cancelCreditRow(i);
+      /* update local cache */
+      _admAllUsers.forEach(function(u){if(u.email===email)u.credits=val;});
+      renderLowCredits();
+    }else{toast(r.message||'Failed','err');}
+  }).catch(function(e){toast(e.message,'err');});
+}
+
+function renderLowCredits(){
+  var low=_admAllUsers.filter(function(u){return Number(u.credits||0)<=10;});
+  var el=$('adm-low-credits');
+  if(!low.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No users with low credits. 🎉</div>';return;}
+  el.innerHTML=
+    '<div class="adm-thead th-users"><span>#</span><span>User</span><span>Joined</span><span>Plan</span><span>Biometric</span><span>Credits</span></div>'+
+    low.map(function(u,i){
+      var credits=Number(u.credits||0);
+      var joined=u.joinDate||u.createdAt||'—';if(joined&&joined.length>10)joined=joined.substring(0,10);
+      var plan=u.plan||u.role||'Student';
+      var bioCell=u.bioRegistered||u.bioType
+        ?'<span class="badge-c grn" style="font-size:10px">'+(u.bioType==='Face ID'?'😶':'🫆')+' '+(u.bioType||'Bio')+'</span>'
+        :'<span style="color:var(--m1);font-size:11px">—</span>';
+      return '<div class="adm-row tr-users">'+
+        '<span class="rank t3">'+(i+1)+'</span>'+
+        '<div><div class="row-name">'+(u.name||'—')+'</div><div class="row-sub">'+(u.email||'')+'</div></div>'+
+        '<span style="font-size:11px;color:var(--m2)">'+joined+'</span>'+
+        '<span><span class="badge-c'+(plan.toLowerCase()==='admin'?' red':'')+'">'+(plan)+'</span></span>'+
+        bioCell+
+        '<span class="badge-c red">⚡ '+credits+'</span>'+
+      '</div>';
+    }).join('');
+}
+
+/* ── Credit bulk panel ── */
+var _admLookupTimer=null;
+function admLookupUser(val){
+  clearTimeout(_admLookupTimer);
+  $('bulk-user-preview').textContent='';
+  if(!val||val.length<3)return;
+  _admLookupTimer=setTimeout(function(){
+    var match=_admAllUsers.filter(function(u){return (u.email||'').toLowerCase().includes(val.toLowerCase())||(u.name||'').toLowerCase().includes(val.toLowerCase());});
+    if(match.length){
+      var u=match[0];
+      var bioInfo=u.bioRegistered||u.bioType?(' · 🫆 '+(u.bioType||'Bio Enrolled')):'';
+      $('bulk-user-preview').innerHTML='<span style="color:var(--grn)">✓ Found: </span>'+(u.name||u.email)+' — ⚡ '+(u.credits||0)+' credits'+bioInfo;
+      $('bulk-email').value=u.email||val;
+      $('bulk-credits').value=u.credits||0;
+    }else{
+      $('bulk-user-preview').innerHTML='<span style="color:var(--red)">✗ No user found with that email/name.</span>';
+    }
+  },400);
+}
+function doSetCredits(){
+  var email=($('bulk-email').value||'').trim().toLowerCase();
+  var credits=parseInt($('bulk-credits').value,10);
+  if(!email){setMsg('bulk-msg','Enter a user email.','');return;}
+  if(isNaN(credits)||credits<0){setMsg('bulk-msg','Enter a valid credit amount.','');return;}
+  gsr('setCredits',{email:email,credits:credits}).then(function(r){
+    if(r.success){setMsg('bulk-msg','Credits set to '+credits+' for '+email,'ok');_admAllUsers.forEach(function(u){if(u.email===email)u.credits=credits;});renderLowCredits();}
+    else{setMsg('bulk-msg',r.message||'Failed.','');}
+  }).catch(function(e){setMsg('bulk-msg',e.message,'');});
+}
+
+/* ── PWA ── */
+var _pwaPrompt=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_pwaPrompt=e;$('pwa-topbar-btn').classList.remove('hidden');});
+function triggerPWAInstall(){if(_pwaPrompt){_pwaPrompt.prompt();_pwaPrompt.userChoice.then(function(){_pwaPrompt=null;$('pwa-topbar-btn').classList.add('hidden');});}}
+window.addEventListener('appinstalled',function(){_pwaPrompt=null;$('pwa-topbar-btn').classList.add('hidden');toast('App installed! ✅','ok');});
+
+/* ── KEYBOARD ESC ── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if($('modal').classList.contains('open'))closeModal();
+    if($('msearch').classList.contains('open'))closeMSearch();
+    if($('fdrawer').classList.contains('open'))closeFDrawer();
+  }
+});
 </script>
 </body>
 </html>
