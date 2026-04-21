@@ -26,7 +26,7 @@
 <!-- ══════════ STEP 1: Set your deployed Apps Script URL here ══════════ -->
 <script>
   // PASTE YOUR APPS SCRIPT WEB APP URL BELOW (deploy as "anyone can access")
-  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRHbMbD1_VOMHhYAvmCBJRFsSp4zygoqA-Qo2Ek57kCl2pKmG0VxdVHPjYqK9G2iuLA/exec";
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNfqbO5KjhgE1-rfpgHxC5mQ88BIC-SJ8GQOAkGtJFNevvajSzGUnCso1ptjK5G--z/exec";
 </script>
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
@@ -846,7 +846,7 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- ══════════ BIOMETRICS PANEL (NEW) ══════════ -->
+  <!-- ══════════ BIOMETRICS PANEL ══════════ -->
   <div class="adm-panel" id="adm-panel-biometrics">
     <div class="sec-hd">
       <div class="sec-lbl">🔐 Biometric Registrations</div>
@@ -854,7 +854,7 @@ img{max-width:100%}
     </div>
     <div style="background:rgba(74,108,247,.05);border:1px solid rgba(74,108,247,.18);border-radius:12px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:12px;color:var(--m2);line-height:1.6">
       <strong style="color:#7b9cf7"><i class="bi bi-info-circle"></i> About Biometric IDs</strong><br>
-      Biometric credentials are stored securely in each user's browser (WebAuthn / FIDO2). This panel shows which users have registered biometrics on this app, along with a partial credential reference ID for admin tracking. Full credential data never leaves the user's device.
+      Biometric credentials are stored securely via WebAuthn / FIDO2. Registration records (email, credential reference, type, timestamp) are persisted to the backend so they are available across all devices. Full private key material never leaves the user's device.
     </div>
     <div class="adm-search-wrap">
       <i class="bi bi-search"></i>
@@ -926,12 +926,126 @@ img{max-width:100%}
 <script>
 /* ══════════════════════════════════════════
    APPS SCRIPT BRIDGE
+   ─ Robust fetch that handles:
+     1. JSONP-style responses from Apps Script
+     2. Double-encoded JSON strings
+     3. Wrapped response objects
+     4. Network errors with retry
 ══════════════════════════════════════════ */
+
+// Deep-unwrap a value that may be a JSON string, possibly double-encoded
+function deepParse(val) {
+  if (typeof val !== 'string') return val;
+  var s = val.trim();
+  if ((s[0] === '{' || s[0] === '[') ) {
+    try { return deepParse(JSON.parse(s)); } catch(e) {}
+  }
+  return val;
+}
+
 function gsr(action, params) {
-  var url = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&p=' + encodeURIComponent(JSON.stringify(params || {}));
-  return fetch(url, { mode: 'cors' })
-    .then(function(r){ return r.json(); })
-    .catch(function(e){ throw new Error('Network error: ' + e.message); });
+  var url = APPS_SCRIPT_URL
+    + '?action=' + encodeURIComponent(action)
+    + '&p='      + encodeURIComponent(JSON.stringify(params || {}))
+    + '&_='      + Date.now(); // cache-bust
+
+  return fetch(url, {
+    method: 'GET',
+    mode: 'cors',
+    cache: 'no-cache'
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' from server');
+    return res.text();
+  })
+  .then(function(raw) {
+    // Apps Script sometimes wraps in a callback or adds BOM/whitespace
+    var text = raw.trim().replace(/^\uFEFF/, '');
+
+    // Strip JSONP wrapper if present: callback({...}) or callback([...])
+    var jsonpMatch = text.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*\s*\(([\s\S]*)\)\s*;?\s*$/);
+    if (jsonpMatch) text = jsonpMatch[1];
+
+    var parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch(e) {
+      // Try one more layer of unescaping (Apps Script double-encodes sometimes)
+      try {
+        parsed = JSON.parse(JSON.parse('"' + text.replace(/"/g, '\\"').replace(/\n/g,'\\n') + '"'));
+      } catch(e2) {
+        throw new Error('Cannot parse server response. Raw: ' + text.substring(0, 200));
+      }
+    }
+
+    // Recursively unwrap if the result itself is a JSON string
+    return deepParse(parsed);
+  });
+}
+
+/* ══════════════════════════════════════════
+   TOOLS DATA NORMALISER
+   ─ Handles every shape the backend may return:
+     { tools:[…] }  { data:[…] }  { result:[…] }
+     { rows:[…] }   { items:[…] }  […] (bare array)
+     { success:true, tools:[…] }
+     Nested: { data: { tools:[…] } }
+══════════════════════════════════════════ */
+function extractTools(r) {
+  if (!r) return [];
+
+  // Bare array
+  if (Array.isArray(r)) return r;
+
+  // Common wrapper keys (order matters – most specific first)
+  var keys = ['tools','data','result','rows','items','records','list'];
+  for (var i = 0; i < keys.length; i++) {
+    var v = r[keys[i]];
+    if (Array.isArray(v) && v.length > 0) return v;
+    // One level deeper: { data: { tools: [...] } }
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      var inner = extractTools(v);
+      if (inner.length > 0) return inner;
+    }
+  }
+
+  // Last resort: any array-valued key
+  var allKeys = Object.keys(r);
+  for (var j = 0; j < allKeys.length; j++) {
+    if (Array.isArray(r[allKeys[j]]) && r[allKeys[j]].length > 0) {
+      return r[allKeys[j]];
+    }
+  }
+
+  return [];
+}
+
+/* ══════════════════════════════════════════
+   TOOL FIELD NORMALISER
+   ─ Handles camelCase, snake_case, Title Case,
+     and common aliases from Google Sheets headers
+══════════════════════════════════════════ */
+function normaliseToolFields(t, index) {
+  // Helper: pick first truthy value from a list of possible keys
+  function pick(keys) {
+    for (var i = 0; i < keys.length; i++) {
+      var v = t[keys[i]];
+      if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return '';
+  }
+
+  return {
+    slNo:        pick(['slNo','sl_no','Sl No','Sl. No.','sl no','SlNo','SL NO','sno','S.No','s.no','index','Index','No','no','#']) || (index + 1),
+    name:        pick(['name','Name','toolName','tool_name','Tool Name','TOOL NAME','title','Title']),
+    category:    pick(['category','Category','cat','Cat','CATEGORY','type','Type']),
+    description: pick(['description','Description','desc','Desc','DESC','about','About','summary','Summary']),
+    pricing:     pick(['pricing','Pricing','price','Price','PRICING','plan','Plan','type','paid','free']) || 'Free',
+    url:         pick(['url','URL','Url','link','Link','LINK','website','Website','href']),
+    previewUrl:  pick(['previewUrl','preview_url','previewURL','Preview URL','PreviewUrl','preview','Preview']),
+    features:    pick(['features','Features','FEATURES','keyFeatures','key_features','Key Features']),
+    clicks:      Number(pick(['clicks','Clicks','CLICKS','views','Views','launches','Launches']) || 0)
+  };
 }
 
 /* ── GLOBALS ── */
@@ -940,416 +1054,495 @@ var allTools=[], fuse=null, currentEmail='', activeCat='all', activeView='grid',
 var _admAllTools=[], _admAllUsers=[], _admAllBio=[];
 
 /* ══════════════════════════════════════════
-   BIOMETRIC STORAGE KEY & ADMIN REGISTRY
-   We store a global registry in localStorage under 'aih_bio_registry'
-   so the admin panel can read all registered users on this device.
-   Each entry: { email, credIdShort, type, registeredAt, device }
+   BIOMETRIC BACKEND PERSISTENCE
 ══════════════════════════════════════════ */
-var BIO_REGISTRY_KEY = 'aih_bio_registry';
+var BIO_LS_KEY  = 'aih_bio_registry';
+var BIO_LS_CRED = 'aih_bio_cred';
+var BIO_LS_EMAIL= 'aih_bio_email';
+var BIO_LS_RP   = 'aih_bio_rp';
 
-function getBioRegistry() {
-  try { return JSON.parse(localStorage.getItem(BIO_REGISTRY_KEY) || '[]'); }
+function _localBioGet() {
+  try { return JSON.parse(localStorage.getItem(BIO_LS_KEY) || '[]'); }
   catch(e) { return []; }
 }
-
-function saveBioRegistry(entries) {
-  try { localStorage.setItem(BIO_REGISTRY_KEY, JSON.stringify(entries)); }
-  catch(e) {}
+function _localBioSet(arr) {
+  try { localStorage.setItem(BIO_LS_KEY, JSON.stringify(arr)); } catch(e){}
 }
 
-function addToBioRegistry(email, rawId, bioType) {
-  var entries = getBioRegistry();
-  // Remove old entry for same email if exists
-  entries = entries.filter(function(e){ return e.email !== email; });
-  // Convert rawId (ArrayBuffer or Uint8Array) to base64 short ref
-  var arr = new Uint8Array(rawId instanceof ArrayBuffer ? rawId : rawId);
-  var b64 = btoa(String.fromCharCode.apply(null, arr));
-  var shortId = b64.substring(0, 16) + '…'; // short display ref
-  entries.push({
-    email: email,
-    credIdShort: shortId,
-    credIdFull: b64,
-    type: bioType || 'unknown',
+function saveBioRecord(email, rawId, bioType) {
+  var arr  = new Uint8Array(rawId instanceof ArrayBuffer ? rawId : rawId);
+  var b64  = btoa(String.fromCharCode.apply(null, arr));
+  var shortId = b64.substring(0, 16) + '…';
+  var entry = {
+    email:        email,
+    credIdShort:  shortId,
+    credIdFull:   b64,
+    type:         bioType || 'platform',
     registeredAt: new Date().toISOString(),
-    device: navigator.userAgent.substring(0, 60)
+    device:       navigator.userAgent.substring(0, 80)
+  };
+  var local = _localBioGet().filter(function(e){ return e.email !== email; });
+  local.push(entry);
+  _localBioSet(local);
+  gsr('saveBioRecord', entry).catch(function(e){
+    console.warn('Bio backend save failed (local cache still updated):', e.message);
   });
-  saveBioRegistry(entries);
+  return entry;
 }
 
-function removeFromBioRegistry(email) {
-  var entries = getBioRegistry().filter(function(e){ return e.email !== email; });
-  saveBioRegistry(entries);
+function removeBioRecord(email) {
+  var local = _localBioGet().filter(function(e){ return e.email !== email; });
+  _localBioSet(local);
+  gsr('removeBioRecord', { email: email }).catch(function(e){
+    console.warn('Bio backend remove failed:', e.message);
+  });
+}
+
+function fetchBioRecords() {
+  return gsr('getBioRecords', {}).then(function(r) {
+    var backend = [];
+    if (Array.isArray(r))              backend = r;
+    else if (Array.isArray(r.records)) backend = r.records;
+    else if (Array.isArray(r.data))    backend = r.data;
+    if (backend.length > 0) { _localBioSet(backend); return backend; }
+    return _localBioGet();
+  }).catch(function() { return _localBioGet(); });
 }
 
 /* ══════════════════════════════════════════
    BIOMETRIC (WebAuthn)
 ══════════════════════════════════════════ */
 var BIO = {
-  KEY_CRED:'aih_bio_cred', KEY_EMAIL:'aih_bio_email', KEY_RP:'aih_bio_rp',
-  supported:false, enrolled:false, credId:null, bioEmail:'',
-  init:function(){
-    if(window.PublicKeyCredential&&navigator.credentials)this.supported=true;
-    var storedCred=localStorage.getItem(this.KEY_CRED);
-    var storedEmail=localStorage.getItem(this.KEY_EMAIL);
-    if(storedCred&&storedEmail){this.enrolled=true;this.bioEmail=storedEmail;this.credId=BIO.b64ToBuffer(storedCred);}
+  supported: false, enrolled: false, credId: null, bioEmail: '',
+  init: function() {
+    if (window.PublicKeyCredential && navigator.credentials) this.supported = true;
+    var storedCred  = localStorage.getItem(BIO_LS_CRED);
+    var storedEmail = localStorage.getItem(BIO_LS_EMAIL);
+    if (storedCred && storedEmail) {
+      this.enrolled = true; this.bioEmail = storedEmail;
+      this.credId   = BIO.b64ToBuffer(storedCred);
+    }
     this.updateUI();
   },
-  updateUI:function(){
-    if(!this.supported){$('bio-unsupported').style.display='block';$('bio-row').style.display='none';return;}
-    $('bio-unsupported').style.display='none';$('bio-row').style.display='grid';
-    if(this.enrolled){
-      var short=this.bioEmail.length>22?this.bioEmail.substring(0,10)+'…'+this.bioEmail.split('@')[1]:this.bioEmail;
-      $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;$('bio-register-hint').style.display='none';
-    }else{$('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';$('bio-register-hint').style.display='block';}
+  updateUI: function() {
+    if (!this.supported) {
+      $('bio-unsupported').style.display = 'block';
+      $('bio-row').style.display = 'none'; return;
+    }
+    $('bio-unsupported').style.display = 'none';
+    $('bio-row').style.display = 'grid';
+    if (this.enrolled) {
+      var short = this.bioEmail.length > 22
+        ? this.bioEmail.substring(0, 10) + '…' + this.bioEmail.split('@')[1]
+        : this.bioEmail;
+      $('bio-fp-sub').textContent   = short;
+      $('bio-face-sub').textContent = short;
+      $('bio-register-hint').style.display = 'none';
+    } else {
+      $('bio-fp-sub').textContent   = 'Touch sensor';
+      $('bio-face-sub').textContent = 'Look at camera';
+      $('bio-register-hint').style.display = 'block';
+    }
   },
-  register:async function(email, bioType){
-    var rpId=location.hostname||'localhost';
-    var challenge=crypto.getRandomValues(new Uint8Array(32));
-    var userId=new TextEncoder().encode(email);
-    var cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'AI Tools Hub',id:rpId},user:{id:userId,name:email,displayName:email},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});
-    localStorage.setItem(BIO.KEY_CRED,BIO.bufferToB64(cred.rawId));
-    localStorage.setItem(BIO.KEY_EMAIL,email);localStorage.setItem(BIO.KEY_RP,rpId);
-    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;
-    // ── Store in admin bio registry ──
-    addToBioRegistry(email, cred.rawId, bioType || 'platform');
-    BIO.updateUI();return true;
+  register: async function(email, bioType) {
+    var rpId      = location.hostname || 'localhost';
+    var challenge = crypto.getRandomValues(new Uint8Array(32));
+    var userId    = new TextEncoder().encode(email);
+    var cred = await navigator.credentials.create({
+      publicKey: {
+        challenge, rp: { name: 'AI Tools Hub', id: rpId },
+        user: { id: userId, name: email, displayName: email },
+        pubKeyCredParams: [{ type:'public-key',alg:-7 },{ type:'public-key',alg:-257 }],
+        authenticatorSelection: { authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred' },
+        timeout: 60000, attestation: 'none'
+      }
+    });
+    localStorage.setItem(BIO_LS_CRED,  BIO.bufferToB64(cred.rawId));
+    localStorage.setItem(BIO_LS_EMAIL, email);
+    localStorage.setItem(BIO_LS_RP,    rpId);
+    BIO.enrolled = true; BIO.bioEmail = email; BIO.credId = cred.rawId;
+    saveBioRecord(email, cred.rawId, bioType || 'platform');
+    BIO.updateUI(); return true;
   },
-  authenticate:async function(){
-    var rpId=localStorage.getItem(BIO.KEY_RP)||location.hostname||'localhost';
-    var challenge=crypto.getRandomValues(new Uint8Array(32));
-    await navigator.credentials.get({publicKey:{challenge,rpId,allowCredentials:[{type:'public-key',id:BIO.credId,transports:['internal']}],userVerification:'required',timeout:60000}});
+  authenticate: async function() {
+    var rpId      = localStorage.getItem(BIO_LS_RP) || location.hostname || 'localhost';
+    var challenge = crypto.getRandomValues(new Uint8Array(32));
+    await navigator.credentials.get({
+      publicKey: {
+        challenge, rpId,
+        allowCredentials: [{ type:'public-key', id:BIO.credId, transports:['internal'] }],
+        userVerification: 'required', timeout: 60000
+      }
+    });
     return true;
   },
-  bufferToB64:function(buf){var arr=new Uint8Array(buf instanceof ArrayBuffer?buf:buf);return btoa(String.fromCharCode.apply(null,arr));},
-  b64ToBuffer:function(b64){var bin=atob(b64),arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr.buffer;}
+  bufferToB64: function(buf) {
+    var arr = new Uint8Array(buf instanceof ArrayBuffer ? buf : buf);
+    return btoa(String.fromCharCode.apply(null, arr));
+  },
+  b64ToBuffer: function(b64) {
+    var bin = atob(b64), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr.buffer;
+  }
 };
 
-function setBioState(type,state,label){
-  var fpBtn=$('bio-fp-btn'),faceBtn=$('bio-face-btn');
-  var btn=type==='fingerprint'?fpBtn:faceBtn;
-  var subId=type==='fingerprint'?'bio-fp-sub':'bio-face-sub';
-  [fpBtn,faceBtn].forEach(function(b){b.classList.remove('scanning','success','error');});
-  if(state==='scanning'){btn.classList.add('scanning');if(label)$(subId).textContent=label;}
-  else if(state==='success'){btn.classList.add('success');if(label)$(subId).textContent=label;setTimeout(function(){btn.classList.remove('success');BIO.updateUI();},2200);}
-  else if(state==='error'){btn.classList.add('error');if(label)$(subId).textContent=label;setTimeout(function(){btn.classList.remove('error');BIO.updateUI();},2500);}
-  else{BIO.updateUI();}
+function setBioState(type, state, label) {
+  var fpBtn = $('bio-fp-btn'), faceBtn = $('bio-face-btn');
+  var btn   = type === 'fingerprint' ? fpBtn : faceBtn;
+  var subId = type === 'fingerprint' ? 'bio-fp-sub' : 'bio-face-sub';
+  [fpBtn, faceBtn].forEach(function(b){ b.classList.remove('scanning','success','error'); });
+  if (state === 'scanning') { btn.classList.add('scanning'); if (label) $(subId).textContent = label; }
+  else if (state === 'success') {
+    btn.classList.add('success'); if (label) $(subId).textContent = label;
+    setTimeout(function(){ btn.classList.remove('success'); BIO.updateUI(); }, 2200);
+  } else if (state === 'error') {
+    btn.classList.add('error'); if (label) $(subId).textContent = label;
+    setTimeout(function(){ btn.classList.remove('error'); BIO.updateUI(); }, 2500);
+  } else { BIO.updateUI(); }
 }
 
-async function doBiometric(type){
-  if(!BIO.supported){toast('Biometrics not supported on this device.','err');return;}
-  if(BIO.enrolled&&BIO.credId){
-    setBioState(type,'scanning','Verifying…');
-    try{
-      await BIO.authenticate();setBioState(type,'success','Verified ✓');toast('✅ Biometric verified! Signing in…','ok');
-      var storedSess=localStorage.getItem('aih_session');var sess=storedSess?JSON.parse(storedSess):null;
-      if(sess&&sess.email===BIO.bioEmail){currentEmail=sess.email;userCredits=Number(sess.credits||100);setTimeout(function(){initCatalog({isAdmin:sess.isAdmin,credits:userCredits});},600);}
-      else{currentEmail=BIO.bioEmail;gsr('validateUser',{email:BIO.bioEmail,password:'__bio__'}).then(function(r){userCredits=Number(r.credits||100);if(r.success)localStorage.setItem('aih_session',JSON.stringify({email:BIO.bioEmail,credits:userCredits,isAdmin:r.isAdmin}));setTimeout(function(){initCatalog(r.success?r:{isAdmin:false,credits:userCredits});},600);}).catch(function(){userCredits=100;setTimeout(function(){initCatalog({isAdmin:false,credits:userCredits});},600);});}
-    }catch(err){
-      var msg=err.name==='NotAllowedError'?'Biometric cancelled or timed out.':(err.name==='InvalidStateError'?'Credential not found. Please sign in with password.':'Biometric failed. Try again.');
-      setBioState(type,'error','Failed ✗');setMsg('msg-si',msg,'err');
+async function doBiometric(type) {
+  if (!BIO.supported) { toast('Biometrics not supported on this device.', 'err'); return; }
+  if (BIO.enrolled && BIO.credId) {
+    setBioState(type, 'scanning', 'Verifying…');
+    try {
+      await BIO.authenticate();
+      setBioState(type, 'success', 'Verified ✓');
+      toast('✅ Biometric verified! Signing in…', 'ok');
+      var storedSess = localStorage.getItem('aih_session');
+      var sess = storedSess ? JSON.parse(storedSess) : null;
+      if (sess && sess.email === BIO.bioEmail) {
+        currentEmail = sess.email; userCredits = Number(sess.credits || 100);
+        setTimeout(function(){ initCatalog({ isAdmin: sess.isAdmin, credits: userCredits }); }, 600);
+      } else {
+        currentEmail = BIO.bioEmail;
+        gsr('validateUser', { email: BIO.bioEmail, password: '__bio__' })
+          .then(function(r){
+            userCredits = Number(r.credits || 100);
+            if (r.success) localStorage.setItem('aih_session', JSON.stringify({ email: BIO.bioEmail, credits: userCredits, isAdmin: r.isAdmin }));
+            setTimeout(function(){ initCatalog(r.success ? r : { isAdmin: false, credits: userCredits }); }, 600);
+          }).catch(function(){
+            userCredits = 100;
+            setTimeout(function(){ initCatalog({ isAdmin: false, credits: userCredits }); }, 600);
+          });
+      }
+    } catch(err) {
+      var msg = err.name === 'NotAllowedError' ? 'Biometric cancelled or timed out.'
+        : err.name === 'InvalidStateError' ? 'Credential not found. Please sign in with password.'
+        : 'Biometric failed. Try again.';
+      setBioState(type, 'error', 'Failed ✗'); setMsg('msg-si', msg, 'err');
     }
     return;
   }
-  var email=($('si-email').value||'').trim();
-  if(!email){setMsg('msg-si','Enter your email above first, then tap a biometric button to register.','inf');$('si-email').focus();return;}
-  var pass=($('si-pass').value||'');
-  if(!pass){setMsg('msg-si','Enter your password first, then tap to register biometrics.','inf');$('si-pass').focus();return;}
-  setBioState(type,'scanning','Registering…');
-  try{
-    await gsr('validateUser',{email:email,password:pass});
-    await BIO.register(email, type==='fingerprint'?'fingerprint':'face');
-    setBioState(type,'success','Registered ✓');
-    toast('✅ Biometrics registered! Use them next time to sign in.','ok');
-    setMsg('msg-si','Biometrics set up! You can now sign in with touch/face.','ok');
-  }catch(err){
-    var msg2=err.name==='NotAllowedError'?'Biometric registration cancelled.':(err.name==='InvalidStateError'?'Already registered on this device.':'Failed to register: '+err.message);
-    setBioState(type,'error','Failed ✗');setMsg('msg-si',msg2,'err');
+  var email = ($('si-email').value || '').trim();
+  if (!email) { setMsg('msg-si', 'Enter your email above first, then tap a biometric button to register.', 'inf'); $('si-email').focus(); return; }
+  var pass = ($('si-pass').value || '');
+  if (!pass) { setMsg('msg-si', 'Enter your password first, then tap to register biometrics.', 'inf'); $('si-pass').focus(); return; }
+  setBioState(type, 'scanning', 'Registering…');
+  try {
+    await gsr('validateUser', { email: email, password: pass });
+    await BIO.register(email, type === 'fingerprint' ? 'fingerprint' : 'face');
+    setBioState(type, 'success', 'Registered ✓');
+    toast('✅ Biometrics registered! Use them next time to sign in.', 'ok');
+    setMsg('msg-si', 'Biometrics set up! You can now sign in with touch/face.', 'ok');
+  } catch(err) {
+    var msg2 = err.name === 'NotAllowedError' ? 'Biometric registration cancelled.'
+      : err.name === 'InvalidStateError' ? 'Already registered on this device.'
+      : 'Failed to register: ' + err.message;
+    setBioState(type, 'error', 'Failed ✗'); setMsg('msg-si', msg2, 'err');
   }
 }
 
 /* ── LOADING SCREEN ── */
-window.addEventListener('load',function(){
-  var ls=$('loading-screen');
+window.addEventListener('load', function() {
+  var ls = $('loading-screen');
   BIO.init();
-  /* Check for saved session */
-  var saved=localStorage.getItem('aih_session');
-  if(saved){
-    try{
-      var s=JSON.parse(saved);
-      if(s&&s.email){
-        currentEmail=s.email;userCredits=Number(s.credits||100);
+  var saved = localStorage.getItem('aih_session');
+  if (saved) {
+    try {
+      var s = JSON.parse(saved);
+      if (s && s.email) {
+        currentEmail = s.email; userCredits = Number(s.credits || 100);
         setTimeout(function(){
-          ls.style.opacity='0';ls.style.transition='opacity .3s';
-          setTimeout(function(){ls.remove();initCatalog({isAdmin:s.isAdmin,credits:userCredits});},300);
-        },400);
+          ls.style.opacity = '0'; ls.style.transition = 'opacity .3s';
+          setTimeout(function(){ ls.remove(); initCatalog({ isAdmin: s.isAdmin, credits: userCredits }); }, 300);
+        }, 400);
         return;
       }
-    }catch(e){}
+    } catch(e) {}
   }
   setTimeout(function(){
-    ls.style.opacity='0';ls.style.transition='opacity .3s';
-    setTimeout(function(){ls.remove();$('auth-page').classList.remove('hidden');},300);
-  },600);
+    ls.style.opacity = '0'; ls.style.transition = 'opacity .3s';
+    setTimeout(function(){ ls.remove(); $('auth-page').classList.remove('hidden'); }, 300);
+  }, 600);
 });
 
 /* ── HELPERS ── */
-function toast(msg,type){
-  var t=$('toast');
-  var d=document.createElement('div');
-  d.style.cssText='background:'+(type==='ok'?'rgba(62,201,122,.15)':type==='inf'?'rgba(232,164,48,.15)':'rgba(232,85,85,.15)')+';border:1px solid '+(type==='ok'?'rgba(62,201,122,.3)':type==='inf'?'rgba(232,164,48,.3)':'rgba(232,85,85,.3)')+';color:'+(type==='ok'?'#3ec97a':type==='inf'?'#e8a430':'#e85555')+';padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;animation:fadeUp .25s ease;backdrop-filter:blur(12px);white-space:nowrap;max-width:90vw;text-align:center';
-  d.textContent=msg;t.appendChild(d);
-  setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(function(){d.remove();},300);},3000);
+function toast(msg, type) {
+  var t = $('toast');
+  var d = document.createElement('div');
+  d.style.cssText = 'background:'+(type==='ok'?'rgba(62,201,122,.15)':type==='inf'?'rgba(232,164,48,.15)':'rgba(232,85,85,.15)')
+    +';border:1px solid '+(type==='ok'?'rgba(62,201,122,.3)':type==='inf'?'rgba(232,164,48,.3)':'rgba(232,85,85,.3)')
+    +';color:'+(type==='ok'?'#3ec97a':type==='inf'?'#e8a430':'#e85555')
+    +';padding:10px 18px;border-radius:100px;font-size:13px;font-weight:600;animation:fadeUp .25s ease;backdrop-filter:blur(12px);white-space:nowrap;max-width:90vw;text-align:center';
+  d.textContent = msg; t.appendChild(d);
+  setTimeout(function(){ d.style.opacity='0'; d.style.transition='opacity .3s'; setTimeout(function(){ d.remove(); }, 300); }, 3000);
 }
-
-function setMsg(id,msg,type){
-  var el=$(id);if(!el)return;
-  el.textContent=msg;el.className='amsg'+(type?' '+type:'');
-}
-
-function setBtn(id,loading,label){
-  var btn=$(id);if(!btn)return;
-  btn.disabled=loading;
-  btn.innerHTML=loading?'<span class="loader"></span>'+label:label;
-}
-
-function toggleEye(id,btn){
-  var inp=$(id);if(!inp)return;
-  var show=inp.type==='password';
-  inp.type=show?'text':'password';
-  btn.innerHTML=show?'<i class="bi bi-eye-slash"></i>':'<i class="bi bi-eye"></i>';
-}
-
-function showPage(id){
-  ['auth-page','forgot-page','catalog-page','admin-page'].forEach(function(p){
-    var el=$(p);if(el)el.classList.add('hidden');
-  });
-  var t=$(id);if(t)t.classList.remove('hidden');
+function setMsg(id, msg, type) { var el=$(id); if(!el) return; el.textContent=msg; el.className='amsg'+(type?' '+type:''); }
+function setBtn(id, loading, label) { var btn=$(id); if(!btn) return; btn.disabled=loading; btn.innerHTML=loading?'<span class="loader"></span>'+label:label; }
+function toggleEye(id, btn) { var inp=$(id); if(!inp) return; var show=inp.type==='password'; inp.type=show?'text':'password'; btn.innerHTML=show?'<i class="bi bi-eye-slash"></i>':'<i class="bi bi-eye"></i>'; }
+function showPage(id) {
+  ['auth-page','forgot-page','catalog-page','admin-page'].forEach(function(p){ var el=$(p); if(el) el.classList.add('hidden'); });
+  var t=$(id); if(t) t.classList.remove('hidden');
 }
 
 /* ── AUTH TABS ── */
-function switchTab(t){
-  $('tab-si').classList.toggle('on',t==='si');
-  $('tab-su').classList.toggle('on',t==='su');
-  $('form-si').classList.toggle('hidden',t!=='si');
-  $('form-su').classList.toggle('hidden',t!=='su');
-  $('auth-h').textContent=t==='si'?'Welcome back':'Create Account';
-  $('auth-p').textContent=t==='si'?'Your student toolkit for the AI generation':'Join thousands of students using AI tools';
+function switchTab(t) {
+  $('tab-si').classList.toggle('on', t==='si'); $('tab-su').classList.toggle('on', t==='su');
+  $('form-si').classList.toggle('hidden', t!=='si'); $('form-su').classList.toggle('hidden', t!=='su');
+  $('auth-h').textContent = t==='si' ? 'Welcome back' : 'Create Account';
+  $('auth-p').textContent = t==='si' ? 'Your student toolkit for the AI generation' : 'Join thousands of students using AI tools';
 }
 
 /* ── SIGN IN ── */
-function doSignIn(){
-  var email=($('si-email').value||'').trim();
-  var pass=($('si-pass').value||'').trim();
-  if(!email||!pass){setMsg('msg-si','Please enter email and password.','');return;}
-  setBtn('btn-si',true,'Signing in…');setMsg('msg-si','');
+function doSignIn() {
+  var email = ($('si-email').value||'').trim(), pass = ($('si-pass').value||'').trim();
+  if (!email||!pass) { setMsg('msg-si','Please enter email and password.',''); return; }
+  setBtn('btn-si',true,'Signing in…'); setMsg('msg-si','');
   gsr('validateUser',{email:email,password:pass}).then(function(r){
     setBtn('btn-si',false,'Sign In →');
-    if(r.success){
-      currentEmail=email;userCredits=Number(r.credits||100);
+    if (r.success) {
+      currentEmail=email; userCredits=Number(r.credits||100);
       localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:r.isAdmin}));
       initCatalog(r);
-    }else{setMsg('msg-si',r.message||'Invalid credentials.');}
-  }).catch(function(e){setBtn('btn-si',false,'Sign In →');setMsg('msg-si','Connection error. Please try again.');});
+    } else { setMsg('msg-si',r.message||'Invalid credentials.'); }
+  }).catch(function(){ setBtn('btn-si',false,'Sign In →'); setMsg('msg-si','Connection error. Please try again.'); });
 }
 
 /* ── SIGN UP ── */
-function doSignUp(){
-  var name=($('su-name').value||'').trim();
-  var email=($('su-email').value||'').trim();
-  var pass=($('su-pass').value||'').trim();
-  if(!name||!email||!pass){setMsg('msg-su','Name, email and password are required.','');return;}
-  if(pass.length<6){setMsg('msg-su','Password must be at least 6 characters.','');return;}
-  setBtn('btn-su',true,'Creating account…');setMsg('msg-su','');
-  var data={name:name,email:email,password:pass,
-    mobile:($('su-mobile').value||'').trim(),
-    institution:($('su-inst').value||'').trim(),
-    qualification:($('su-qual').value||'').trim(),
-    address:($('su-addr').value||'').trim()};
+function doSignUp() {
+  var name=($('su-name').value||'').trim(), email=($('su-email').value||'').trim(), pass=($('su-pass').value||'').trim();
+  if (!name||!email||!pass) { setMsg('msg-su','Name, email and password are required.',''); return; }
+  if (pass.length<6) { setMsg('msg-su','Password must be at least 6 characters.',''); return; }
+  setBtn('btn-su',true,'Creating account…'); setMsg('msg-su','');
+  var data={name:name,email:email,password:pass,mobile:($('su-mobile').value||'').trim(),institution:($('su-inst').value||'').trim(),qualification:($('su-qual').value||'').trim(),address:($('su-addr').value||'').trim()};
   gsr('signUp',data).then(function(r){
     setBtn('btn-su',false,'Create Account →');
-    if(r.success){setMsg('msg-su','Account created! Signing you in…','ok');
-      setTimeout(function(){currentEmail=email;userCredits=100;
-        localStorage.setItem('aih_session',JSON.stringify({email:email,credits:100,isAdmin:false}));
-        initCatalog({isAdmin:false,credits:100});},1200);
-    }else{setMsg('msg-su',r.message||'Registration failed. Try again.');}
-  }).catch(function(){setBtn('btn-su',false,'Create Account →');setMsg('msg-su','Connection error.');});
+    if (r.success) {
+      setMsg('msg-su','Account created! Signing you in…','ok');
+      setTimeout(function(){ currentEmail=email; userCredits=100; localStorage.setItem('aih_session',JSON.stringify({email:email,credits:100,isAdmin:false})); initCatalog({isAdmin:false,credits:100}); },1200);
+    } else { setMsg('msg-su',r.message||'Registration failed. Try again.'); }
+  }).catch(function(){ setBtn('btn-su',false,'Create Account →'); setMsg('msg-su','Connection error.'); });
 }
 
 /* ── FORGOT PASSWORD ── */
 var _fpEmail='';
-function showForgot(){showPage('forgot-page');}
-function backToAuth(){showPage('auth-page');}
-
-function fpSend(){
+function showForgot(){ showPage('forgot-page'); }
+function backToAuth(){ showPage('auth-page'); }
+function fpSend() {
   var email=($('fp-email').value||'').trim();
-  if(!email){setMsg('msg-fp1','Enter your email address.','');return;}
-  setBtn('btn-fp1',true,'Sending…');setMsg('msg-fp1','');
+  if (!email) { setMsg('msg-fp1','Enter your email address.',''); return; }
+  setBtn('btn-fp1',true,'Sending…'); setMsg('msg-fp1','');
   gsr('sendResetCode',{email:email}).then(function(r){
     setBtn('btn-fp1',false,'Send Code →');
-    if(r.success){_fpEmail=email;$('fp-p2-sub').textContent='Code sent to '+email;
-      $('fp-p1').classList.add('hidden');$('fp-p2').classList.remove('hidden');
-      $('fp-s1').classList.remove('on');$('fp-s1').classList.add('done');
-      $('fp-l1').classList.add('done');$('fp-s2').classList.add('on');
-    }else{setMsg('msg-fp1',r.message||'Email not found.');}
-  }).catch(function(){setBtn('btn-fp1',false,'Send Code →');setMsg('msg-fp1','Connection error.');});
+    if (r.success) {
+      _fpEmail=email; $('fp-p2-sub').textContent='Code sent to '+email;
+      $('fp-p1').classList.add('hidden'); $('fp-p2').classList.remove('hidden');
+      $('fp-s1').classList.remove('on'); $('fp-s1').classList.add('done');
+      $('fp-l1').classList.add('done'); $('fp-s2').classList.add('on');
+    } else { setMsg('msg-fp1',r.message||'Email not found.'); }
+  }).catch(function(){ setBtn('btn-fp1',false,'Send Code →'); setMsg('msg-fp1','Connection error.'); });
 }
-
-function fpReset(){
-  var code=($('fp-code').value||'').trim();
-  var np=($('fp-np').value||'').trim();
-  var cp=($('fp-cp').value||'').trim();
-  if(!code||!np||!cp){setMsg('msg-fp2','All fields required.','');return;}
-  if(np!==cp){setMsg('msg-fp2','Passwords do not match.','');return;}
-  if(np.length<6){setMsg('msg-fp2','Min 6 characters.','');return;}
-  setBtn('btn-fp2',true,'Resetting…');setMsg('msg-fp2','');
+function fpReset() {
+  var code=($('fp-code').value||'').trim(), np=($('fp-np').value||'').trim(), cp=($('fp-cp').value||'').trim();
+  if (!code||!np||!cp) { setMsg('msg-fp2','All fields required.',''); return; }
+  if (np!==cp) { setMsg('msg-fp2','Passwords do not match.',''); return; }
+  if (np.length<6) { setMsg('msg-fp2','Min 6 characters.',''); return; }
+  setBtn('btn-fp2',true,'Resetting…'); setMsg('msg-fp2','');
   gsr('resetPassword',{email:_fpEmail,code:code,newPassword:np}).then(function(r){
     setBtn('btn-fp2',false,'Reset Password →');
-    if(r.success){$('fp-p2').classList.add('hidden');$('fp-p3').classList.remove('hidden');
-      $('fp-s2').classList.remove('on');$('fp-s2').classList.add('done');
-      $('fp-l2').classList.add('done');$('fp-s3').classList.add('on');
-    }else{setMsg('msg-fp2',r.message||'Invalid code or expired.');}
-  }).catch(function(){setBtn('btn-fp2',false,'Reset Password →');setMsg('msg-fp2','Connection error.');});
+    if (r.success) {
+      $('fp-p2').classList.add('hidden'); $('fp-p3').classList.remove('hidden');
+      $('fp-s2').classList.remove('on'); $('fp-s2').classList.add('done');
+      $('fp-l2').classList.add('done'); $('fp-s3').classList.add('on');
+    } else { setMsg('msg-fp2',r.message||'Invalid code or expired.'); }
+  }).catch(function(){ setBtn('btn-fp2',false,'Reset Password →'); setMsg('msg-fp2','Connection error.'); });
 }
 
 /* ── LOGOUT ── */
-function doLogout(){
-  localStorage.removeItem('aih_session');currentEmail='';userCredits=0;
-  allTools=[];fuse=null;activeCat='all';
+function doLogout() {
+  localStorage.removeItem('aih_session');
+  currentEmail=''; userCredits=0; allTools=[]; fuse=null; activeCat='all';
   showPage('auth-page');
 }
 
 /* ══════════════════════════════════════════
    CATALOG INIT
 ══════════════════════════════════════════ */
-function initCatalog(userData){
+function initCatalog(userData) {
   showPage('catalog-page');
-  var isAdmin=userData&&userData.isAdmin;
-  userCredits=Number((userData&&userData.credits)||userCredits||100);
-
-  /* Topbar */
-  var av=$('uav'),un=$('uname'),cc=$('credit-chip'),cv=$('cval');
-  var letter=(currentEmail||'U')[0].toUpperCase();
-  av.textContent=letter;un.textContent=currentEmail;
-  cv.textContent=userCredits;
-  cc.classList.add('show');
-  cc.classList.toggle('low',userCredits<=10);
-  $('adminBtn').classList.toggle('hidden',!isAdmin);
-
-  loadTools();
-  initPWA();
+  var isAdmin = userData && userData.isAdmin;
+  userCredits = Number((userData && userData.credits) || userCredits || 100);
+  var av=$('uav'), un=$('uname'), cc=$('credit-chip'), cv=$('cval');
+  var letter = (currentEmail||'U')[0].toUpperCase();
+  av.textContent=letter; un.textContent=currentEmail; cv.textContent=userCredits;
+  cc.classList.add('show'); cc.classList.toggle('low', userCredits<=10);
+  $('adminBtn').classList.toggle('hidden', !isAdmin);
+  loadTools(); initPWA();
 }
 
-function loadTools(){
-  var grid=$('grid');
-  grid.innerHTML='<div class="col-12 text-center py-5"><span class="loader"></span><span style="color:var(--m1);font-size:14px;margin-left:8px">Loading tools…</span></div>';
-  gsr('getTools',{}).then(function(r){
-    allTools=Array.isArray(r.tools)?r.tools:(Array.isArray(r)?r:[]);
-    if(!allTools.length){grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔧</div><div>No tools found</div></div></div>';return;}
-    fuse=new Fuse(allTools,{keys:['name','category','description'],threshold:0.35});
-    buildCatChips();
-    renderTools(allTools);
-  }).catch(function(e){
-    grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">⚠️</div><div style="color:var(--red)">Failed to load tools</div></div></div>';
-  });
+/* ══════════════════════════════════════════
+   LOAD TOOLS  ←  FULLY REWRITTEN
+   ─ 1. Primary call: getTools
+   ─ 2. Fallback calls: listTools, fetchTools,
+        getAllTools (tries all common action names)
+   ─ 3. All responses run through extractTools()
+        + normaliseToolFields()
+   ─ 4. Console logs at each step for debugging
+══════════════════════════════════════════ */
+function loadTools() {
+  var grid = $('grid');
+  grid.innerHTML = '<div class="col-12 text-center py-5"><span class="loader"></span><span style="color:var(--m1);font-size:14px;margin-left:8px">Loading tools…</span></div>';
+
+  // Action names to try in order
+  var actions = ['getTools', 'listTools', 'fetchTools', 'getAllTools', 'tools'];
+
+  function tryAction(index) {
+    if (index >= actions.length) {
+      // All actions exhausted
+      console.error('[AI Tools Hub] All action names failed. Check Apps Script URL and deployed actions.');
+      grid.innerHTML = '<div class="col-12"><div class="empty-state"><div class="empty-ico">⚠️</div>'
+        + '<div style="color:var(--red)">Could not load tools from backend.</div>'
+        + '<div style="font-size:12px;color:var(--m1);margin-top:8px">Check your Apps Script URL and ensure getTools action is deployed.</div></div></div>';
+      return;
+    }
+
+    var action = actions[index];
+    console.log('[AI Tools Hub] Trying action:', action);
+
+    gsr(action, {})
+      .then(function(raw) {
+        console.log('[AI Tools Hub] Raw response for', action, ':', raw);
+        var tools = extractTools(raw);
+        console.log('[AI Tools Hub] Extracted', tools.length, 'tools from', action);
+
+        if (!tools.length) {
+          // Try next action
+          return tryAction(index + 1);
+        }
+
+        // Normalise field names
+        allTools = tools.map(function(t, i) {
+          return normaliseToolFields(t, i);
+        });
+
+        console.log('[AI Tools Hub] Loaded', allTools.length, 'tools. Sample:', allTools[0]);
+
+        if (!allTools.length) {
+          grid.innerHTML = '<div class="col-12"><div class="empty-state"><div class="empty-ico">🔧</div><div>No tools found in the sheet.</div></div></div>';
+          return;
+        }
+
+        fuse = new Fuse(allTools, { keys: ['name','category','description'], threshold: 0.35 });
+        buildCatChips();
+        renderTools(allTools);
+      })
+      .catch(function(e) {
+        console.warn('[AI Tools Hub] Action', action, 'failed:', e.message);
+        tryAction(index + 1);
+      });
+  }
+
+  tryAction(0);
 }
 
-function buildCatChips(){
-  var cats=['All'];
-  allTools.forEach(function(t){if(t.category&&!cats.includes(t.category))cats.push(t.category);});
+function buildCatChips() {
+  var cats = ['All'];
+  allTools.forEach(function(t){ if(t.category && !cats.includes(t.category)) cats.push(t.category); });
 
-  /* Mobile strip */
-  var strip=$('cat-strip');
-  strip.innerHTML='';
-  cats.forEach(function(c){
-    var b=document.createElement('button');
-    b.className='chip'+(c==='All'?' on':'');
-    b.textContent=c;
-    b.onclick=function(){filterCat(b,c.toLowerCase()==='all'?'all':c);};
+  var strip = $('cat-strip'); strip.innerHTML = '';
+  cats.forEach(function(c) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (c==='All'?' on':'');
+    b.textContent = c;
+    b.onclick = function(){ filterCat(b, c.toLowerCase()==='all'?'all':c); };
     strip.appendChild(b);
   });
 
-  /* Desktop chips */
-  var dc=$('dt-chips');dc.innerHTML='';
-  cats.forEach(function(c){
-    var b=document.createElement('button');
-    b.className='dt-chip'+(c==='All'?' on':'');
-    b.textContent=c;
-    b.onclick=function(){filterCat(b,c.toLowerCase()==='all'?'all':c);};
+  var dc = $('dt-chips'); dc.innerHTML = '';
+  cats.forEach(function(c) {
+    var b = document.createElement('button');
+    b.className = 'dt-chip' + (c==='All'?' on':'');
+    b.textContent = c;
+    b.onclick = function(){ filterCat(b, c.toLowerCase()==='all'?'all':c); };
     dc.appendChild(b);
   });
 
-  /* Drawer chips */
-  var fc=$('fd-chips');fc.innerHTML='';
-  cats.forEach(function(c){
-    var b=document.createElement('button');
-    b.className='fd-chip'+(c==='All'?' on':'');
-    b.textContent=c;
-    b.onclick=function(){
-      fc.querySelectorAll('.fd-chip').forEach(function(x){x.classList.remove('on');});
-      b.classList.add('on');
-    };
+  var fc = $('fd-chips'); fc.innerHTML = '';
+  cats.forEach(function(c) {
+    var b = document.createElement('button');
+    b.className = 'fd-chip' + (c==='All'?' on':'');
+    b.textContent = c;
+    b.onclick = function() { fc.querySelectorAll('.fd-chip').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); };
     fc.appendChild(b);
   });
 }
 
-function filterCat(el,cat){
-  activeCat=cat;
-  /* Sync all chip groups */
+function filterCat(el, cat) {
+  activeCat = cat;
   document.querySelectorAll('.chip,.dt-chip').forEach(function(c){
-    var cv=c.textContent.toLowerCase()==='all'?'all':c.textContent;
-    c.classList.toggle('on',cv===cat);
+    var cv = c.textContent.toLowerCase()==='all' ? 'all' : c.textContent;
+    c.classList.toggle('on', cv===cat);
   });
   syncAndFilter();
 }
 
-function getSort(){
-  var ds=$('dt-sort'),ms=$('m-sort');
-  if(ds&&ds.value&&ds.value!=='default')return ds.value;
-  if(ms&&ms.value&&ms.value!=='default')return ms.value;
+function getSort() {
+  var ds=$('dt-sort'), ms=$('m-sort');
+  if (ds&&ds.value&&ds.value!=='default') return ds.value;
+  if (ms&&ms.value&&ms.value!=='default') return ms.value;
   return 'default';
 }
-
-function getFree(){
-  var df=$('dt-free'),ff=$('fd-free');
-  if(df&&df.value&&df.value!=='all')return df.value;
-  if(ff&&ff.value&&ff.value!=='all')return ff.value;
+function getFree() {
+  var df=$('dt-free'), ff=$('fd-free');
+  if (df&&df.value&&df.value!=='all') return df.value;
+  if (ff&&ff.value&&ff.value!=='all') return ff.value;
   return 'all';
 }
-
-function syncAndFilter(){renderTools(getFilteredTools());}
-
-function getFilteredTools(){
-  var sort=getSort(),free=getFree();
-  var base=activeCat==='all'?allTools:allTools.filter(function(t){return t.category===activeCat;});
-  if(free==='free')base=base.filter(function(t){return (t.pricing||'').toLowerCase()==='free';});
-  else if(free==='paid')base=base.filter(function(t){return (t.pricing||'').toLowerCase()!=='free';});
+function syncAndFilter(){ renderTools(getFilteredTools()); }
+function getFilteredTools() {
+  var sort=getSort(), free=getFree();
+  var base = activeCat==='all' ? allTools : allTools.filter(function(t){ return t.category===activeCat; });
+  if (free==='free') base=base.filter(function(t){ return (t.pricing||'').toLowerCase()==='free'; });
+  else if (free==='paid') base=base.filter(function(t){ return (t.pricing||'').toLowerCase()!=='free'; });
   var out=base.slice();
-  if(sort==='az')out.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
-  else if(sort==='za')out.sort(function(a,b){return (b.name||'').localeCompare(a.name||'');});
-  else if(sort==='popular')out.sort(function(a,b){return Number(b.clicks||0)-Number(a.clicks||0);});
+  if (sort==='az') out.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+  else if (sort==='za') out.sort(function(a,b){ return (b.name||'').localeCompare(a.name||''); });
+  else if (sort==='popular') out.sort(function(a,b){ return Number(b.clicks||0)-Number(a.clicks||0); });
   return out;
 }
 
-function doSearch(){
+function doSearch() {
   var q=($('search').value||'').trim();
-  if(!q){renderTools(getFilteredTools());return;}
-  if(!fuse){return;}
-  var res=fuse.search(q).map(function(r){return r.item;});
+  if (!q) { renderTools(getFilteredTools()); return; }
+  if (!fuse) return;
+  var res=fuse.search(q).map(function(r){ return r.item; });
   renderTools(res);
 }
 
-function renderTools(tools){
+function renderTools(tools) {
   var grid=$('grid');
-  $('res-count').innerHTML='<strong>'+tools.length+'</strong> tools';
-  if(!tools.length){
+  $('res-count').innerHTML = '<strong>'+tools.length+'</strong> tools';
+  if (!tools.length) {
     grid.innerHTML='<div class="col-12"><div class="empty-state"><div class="empty-ico">🔍</div><div>No tools found</div><div style="font-size:13px;color:var(--m1);margin-top:6px">Try a different search or filter</div></div></div>';
     return;
   }
-  var cols=activeView==='grid'?'col-6 col-md-4 col-lg-3':'col-12';
-  grid.className='row g-2 g-md-3'+(activeView==='list'?' lv':'');
-  grid.innerHTML=tools.map(function(t,i){
-    var sl=t.slNo||t.sl_no||(i+1);
-    var free=(t.pricing||'').toLowerCase()==='free';
+  var cols = activeView==='grid' ? 'col-6 col-md-4 col-lg-3' : 'col-12';
+  grid.className = 'row g-2 g-md-3' + (activeView==='list'?' lv':'');
+  grid.innerHTML = tools.map(function(t,i) {
+    var sl   = t.slNo || (i+1);
+    var free = (t.pricing||'').toLowerCase()==='free';
     return '<div class="'+cols+'" style="animation-delay:'+(i*0.03)+'s" onclick="openModal('+i+')">'
       +'<div class="tool-card">'
       +'<span class="sl-no">#'+sl+'</span>'
@@ -1364,13 +1557,13 @@ function renderTools(tools){
   }).join('');
 }
 
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function setView(v){
+function setView(v) {
   activeView=v;
-  ['gbtn','lbtn','m-gbtn','m-lbtn'].forEach(function(id){var el=$(id);if(el)el.classList.remove('on');});
-  if(v==='grid'){var gb=$('gbtn'),mg=$('m-gbtn');if(gb)gb.classList.add('on');if(mg)mg.classList.add('on');}
-  else{var lb=$('lbtn'),ml=$('m-lbtn');if(lb)lb.classList.add('on');if(ml)ml.classList.add('on');}
+  ['gbtn','lbtn','m-gbtn','m-lbtn'].forEach(function(id){ var el=$(id); if(el) el.classList.remove('on'); });
+  if (v==='grid') { var gb=$('gbtn'),mg=$('m-gbtn'); if(gb)gb.classList.add('on'); if(mg)mg.classList.add('on'); }
+  else            { var lb=$('lbtn'),ml=$('m-lbtn'); if(lb)lb.classList.add('on'); if(ml)ml.classList.add('on'); }
   $('fd-view').value=v;
   renderTools(getFilteredTools());
 }
@@ -1379,13 +1572,13 @@ function setView(v){
    MODAL
 ══════════════════════════════════════════ */
 var _modalToolIdx=-1;
-function openModal(idx){
+function openModal(idx) {
   _modalToolIdx=idx;
-  var t=allTools[idx];if(!t)return;
+  var t=allTools[idx]; if(!t) return;
   var free=(t.pricing||'').toLowerCase()==='free';
   var hasCredits=userCredits>0;
   var mc=$('modal-content');
-  mc.innerHTML=
+  mc.innerHTML =
     '<div class="m-head">'
     +'<div class="m-head-row"><span class="m-cat">'+esc(t.category||'Tool')+'</span><button class="m-close" onclick="closeModal()"><i class="bi bi-x"></i></button></div>'
     +'<div class="m-title">'+esc(t.name||'Tool')+'</div>'
@@ -1397,7 +1590,7 @@ function openModal(idx){
     +(t.clicks?'<div><div class="meta-k">Launches</div><div class="meta-v">'+t.clicks+'</div></div>':'')
     +'</div>'
     +'<div class="m-desc">'+esc(t.description||'No description available.')+'</div>'
-    +(t.features?'<div class="sec-ttl">Features</div><div class="feat-wrap">'+t.features.split(',').map(function(f){return '<span class="feat">'+esc(f.trim())+'</span>';}).join('')+'</div>':'')
+    +(t.features?'<div class="sec-ttl">Features</div><div class="feat-wrap">'+t.features.split(',').map(function(f){ return '<span class="feat">'+esc(f.trim())+'</span>'; }).join('')+'</div>':'')
     +'</div>'
     +'<div class="m-foot">'
     +(t.url?'<button class="btn-launch" '+(hasCredits?'':'disabled')+' onclick="launchTool('+idx+')">'
@@ -1408,53 +1601,37 @@ function openModal(idx){
   $('modal').classList.add('open');
   document.body.classList.add('no-scroll');
 }
-
-function closeModal(){
-  $('modal').classList.remove('open');
-  document.body.classList.remove('no-scroll');
-}
-
-function launchTool(idx){
-  var t=allTools[idx];if(!t||!t.url)return;
-  if(userCredits<=0){toast('No credits remaining!','err');return;}
-  userCredits=Math.max(0,userCredits-1);
-  $('cval').textContent=userCredits;
-  $('credit-chip').classList.toggle('low',userCredits<=10);
+function closeModal() { $('modal').classList.remove('open'); document.body.classList.remove('no-scroll'); }
+function launchTool(idx) {
+  var t=allTools[idx]; if(!t||!t.url) return;
+  if (userCredits<=0) { toast('No credits remaining!','err'); return; }
+  userCredits=Math.max(0,userCredits-1); $('cval').textContent=userCredits;
+  $('credit-chip').classList.toggle('low', userCredits<=10);
   var sess=localStorage.getItem('aih_session');
-  if(sess){try{var s=JSON.parse(sess);s.credits=userCredits;localStorage.setItem('aih_session',JSON.stringify(s));}catch(e){}}
+  if (sess) { try { var s=JSON.parse(sess); s.credits=userCredits; localStorage.setItem('aih_session',JSON.stringify(s)); } catch(e){} }
   gsr('logClick',{email:currentEmail,toolName:t.name,credits:userCredits}).catch(function(){});
-  window.open(t.url,'_blank');
-  closeModal();
-  toast('🚀 Launched '+t.name,'ok');
+  window.open(t.url,'_blank'); closeModal(); toast('🚀 Launched '+t.name,'ok');
 }
 
 /* ══════════════════════════════════════════
    MOBILE SEARCH
 ══════════════════════════════════════════ */
-function openMSearch(){
-  $('msearch').classList.add('open');
-  document.body.classList.add('no-scroll');
-  setTimeout(function(){$('ms-inp').focus();},200);
-}
+function openMSearch(){ $('msearch').classList.add('open'); document.body.classList.add('no-scroll'); setTimeout(function(){ $('ms-inp').focus(); },200); }
 function closeMSearch(){
-  $('msearch').classList.remove('open');
-  document.body.classList.remove('no-scroll');
+  $('msearch').classList.remove('open'); document.body.classList.remove('no-scroll');
   $('ms-inp').value='';
   $('msh-body').innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';
 }
-function doMSearch(q){
+function doMSearch(q) {
   var body=$('msh-body');
-  if(!q||!fuse){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>';return;}
-  var res=fuse.search(q).slice(0,30).map(function(r){return r.item;});
-  if(!res.length){body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico">🔍</div><p>No results for "'+esc(q)+'"</p></div>';return;}
+  if (!q||!fuse) { body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico"><i class="bi bi-search" style="font-size:40px;opacity:.35"></i></div><p>Start typing to find tools…</p></div>'; return; }
+  var res=fuse.search(q).slice(0,30).map(function(r){ return r.item; });
+  if (!res.length) { body.innerHTML='<div class="msh-empty"><div class="msh-empty-ico">🔍</div><p>No results for "'+esc(q)+'"</p></div>'; return; }
   body.innerHTML=res.map(function(t,i){
     var idx=allTools.indexOf(t);
     return '<div class="msh-item" onclick="closeMSearch();openModal('+idx+')">'
       +'<span class="msh-sl">#'+(t.slNo||i+1)+'</span>'
-      +'<div style="flex:1;min-width:0">'
-      +'<div class="msh-name">'+esc(t.name||'')+'</div>'
-      +'<div class="msh-meta">'+esc(t.category||'')+(t.pricing?' · '+t.pricing:'')+'</div>'
-      +'</div>'
+      +'<div style="flex:1;min-width:0"><div class="msh-name">'+esc(t.name||'')+'</div><div class="msh-meta">'+esc(t.category||'')+(t.pricing?' · '+t.pricing:'')+'</div></div>'
       +'<i class="bi bi-arrow-up-right msh-arr"></i>'
       +'</div>';
   }).join('');
@@ -1463,11 +1640,11 @@ function doMSearch(q){
 /* ══════════════════════════════════════════
    FILTER DRAWER
 ══════════════════════════════════════════ */
-function openFDrawer(){$('fdrawer').classList.add('open');document.body.classList.add('no-scroll');}
-function closeFDrawer(){$('fdrawer').classList.remove('open');document.body.classList.remove('no-scroll');}
+function openFDrawer(){ $('fdrawer').classList.add('open'); document.body.classList.add('no-scroll'); }
+function closeFDrawer(){ $('fdrawer').classList.remove('open'); document.body.classList.remove('no-scroll'); }
 function clearDrawer(){
-  $('fd-chips').querySelectorAll('.fd-chip').forEach(function(c,i){c.classList.toggle('on',i===0);});
-  $('fd-free').value='all';$('fd-sort').value='default';$('fd-view').value='grid';
+  $('fd-chips').querySelectorAll('.fd-chip').forEach(function(c,i){ c.classList.toggle('on',i===0); });
+  $('fd-free').value='all'; $('fd-sort').value='default'; $('fd-view').value='grid';
 }
 function applyDrawer(){
   var sel=$('fd-chips').querySelector('.fd-chip.on');
@@ -1480,58 +1657,50 @@ function applyDrawer(){
   $('dt-free').value=$('fd-free').value;
   $('dt-sort').value=$('fd-sort').value;
   setView($('fd-view').value);
-  closeFDrawer();
-  syncAndFilter();
+  closeFDrawer(); syncAndFilter();
 }
 
 /* ══════════════════════════════════════════
    ADMIN
 ══════════════════════════════════════════ */
-function openAdmin(){showPage('admin-page');loadAdminData();}
-function backToCatalog(){showPage('catalog-page');}
-function bnHome(){showPage('catalog-page');}
+function openAdmin(){ showPage('admin-page'); loadAdminData(); }
+function backToCatalog(){ showPage('catalog-page'); }
+function bnHome(){ showPage('catalog-page'); }
 
-function switchAdmTab(tab){
-  document.querySelectorAll('.adm-tab').forEach(function(t){t.classList.remove('on');});
-  document.querySelectorAll('.adm-panel').forEach(function(p){p.classList.remove('on');});
+function switchAdmTab(tab) {
+  document.querySelectorAll('.adm-tab').forEach(function(t){ t.classList.remove('on'); });
+  document.querySelectorAll('.adm-panel').forEach(function(p){ p.classList.remove('on'); });
   event.currentTarget.classList.add('on');
   $('adm-panel-'+tab).classList.add('on');
-  if(tab==='biometrics')renderAdmBio();
+  if (tab==='biometrics') renderAdmBio();
 }
 
 function loadAdminData(){
   $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
-  loadAdmTools();
-  loadAdmUsers();
+  loadAdmTools(); loadAdmUsers();
 }
 
-/* ── Admin Tools ── */
 function loadAdmTools(){
   $('adm-tools').innerHTML='<div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading tools…</div>';
   gsr('getTools',{}).then(function(r){
-    _admAllTools=Array.isArray(r.tools)?r.tools:(Array.isArray(r)?r:[]);
+    _admAllTools=extractTools(r).map(function(t,i){ return normaliseToolFields(t,i); });
     $('adm-tool-count').textContent=_admAllTools.length+' tools';
-    renderAdmTools(_admAllTools);
-    renderAdmStats();
-  }).catch(function(){$('adm-tools').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load tools</div>';});
+    renderAdmTools(_admAllTools); renderAdmStats();
+  }).catch(function(){ $('adm-tools').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load tools</div>'; });
 }
 
 function filterAdmTools(q){
-  if(!q){renderAdmTools(_admAllTools);return;}
+  if (!q) { renderAdmTools(_admAllTools); return; }
   var ql=q.toLowerCase();
-  var f=_admAllTools.filter(function(t){
-    return (t.name||'').toLowerCase().includes(ql)||(t.category||'').toLowerCase().includes(ql);
-  });
-  renderAdmTools(f);
+  renderAdmTools(_admAllTools.filter(function(t){ return (t.name||'').toLowerCase().includes(ql)||(t.category||'').toLowerCase().includes(ql); }));
 }
 
 function renderAdmTools(tools){
   var el=$('adm-tools');
-  if(!tools.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No tools found</div>';return;}
+  if (!tools.length) { el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No tools found</div>'; return; }
   el.innerHTML='<div class="adm-thead th-tools"><span>#</span><span>Tool</span><span>Category</span><span>Pricing</span><span>Clicks</span></div>'
     +tools.map(function(t,i){
-      var sl=t.slNo||t.sl_no||(i+1);
-      var free=(t.pricing||'').toLowerCase()==='free';
+      var sl=t.slNo||(i+1), free=(t.pricing||'').toLowerCase()==='free';
       return '<div class="adm-row tr-tools">'
         +'<span class="rank'+(sl<=3?' t3':'')+'">'+sl+'</span>'
         +'<div><div class="row-name">'+esc(t.name||'—')+'</div><div class="row-sub">'+esc(t.url||'')+'</div></div>'
@@ -1542,44 +1711,32 @@ function renderAdmTools(tools){
     }).join('');
 }
 
-/* ── Admin Users ── */
 function loadAdmUsers(){
   $('adm-users').innerHTML='<div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading users…</div>';
   gsr('getUsers',{}).then(function(r){
     _admAllUsers=Array.isArray(r.users)?r.users:(Array.isArray(r)?r:[]);
     $('adm-user-count').textContent=_admAllUsers.length+' users';
-    renderAdmUsers(_admAllUsers);
-    renderAdmStats();
-    renderLowCredits();
-    // Also refresh bio panel if active
-    if($('adm-panel-biometrics').classList.contains('on'))renderAdmBio();
-  }).catch(function(){$('adm-users').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load users</div>';});
+    renderAdmUsers(_admAllUsers); renderAdmStats(); renderLowCredits();
+    if ($('adm-panel-biometrics').classList.contains('on')) renderAdmBio();
+  }).catch(function(){ $('adm-users').innerHTML='<div class="p-3 text-center" style="color:var(--red)">Failed to load users</div>'; });
 }
 
 function filterAdmUsers(q){
-  if(!q){renderAdmUsers(_admAllUsers);return;}
+  if (!q) { renderAdmUsers(_admAllUsers); return; }
   var ql=q.toLowerCase();
-  var f=_admAllUsers.filter(function(u){
-    return (u.name||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql);
-  });
-  renderAdmUsers(f);
+  renderAdmUsers(_admAllUsers.filter(function(u){ return (u.name||'').toLowerCase().includes(ql)||(u.email||'').toLowerCase().includes(ql); }));
 }
 
 function renderAdmUsers(users){
   var el=$('adm-users');
-  if(!users.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No users found</div>';return;}
-  // Get bio registry for cross-reference
-  var bioReg=getBioRegistry();
-  var bioEmails=bioReg.map(function(b){return b.email;});
+  if (!users.length) { el.innerHTML='<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No users found</div>'; return; }
+  var bioReg=_localBioGet(), bioEmails=bioReg.map(function(b){ return b.email; });
   el.innerHTML='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Actions</span></div>'
     +users.map(function(u,i){
       var hasBio=bioEmails.includes(u.email);
       return '<div class="adm-row tr-users">'
         +'<span class="rank">'+(i+1)+'</span>'
-        +'<div>'
-          +'<div class="row-name">'+esc(u.name||'—')+'</div>'
-          +'<div class="row-sub">'+esc(u.email||'')+(u.mobile?' · '+esc(u.mobile):'')+'</div>'
-        +'</div>'
+        +'<div><div class="row-name">'+esc(u.name||'—')+'</div><div class="row-sub">'+esc(u.email||'')+(u.mobile?' · '+esc(u.mobile):'')+'</div></div>'
         +'<span><div class="row-name" style="font-size:12px">'+esc(u.institution||'—')+'</div><div class="row-sub">'+esc(u.qualification||'')+'</div></span>'
         +'<span>'
           +'<div id="cdisp-'+i+'" style="font-size:14px;font-weight:700;color:'+(Number(u.credits||0)<=10?'var(--red)':'var(--grn)')+'">'+Number(u.credits||0)+'</div>'
@@ -1589,11 +1746,7 @@ function renderAdmUsers(users){
             +'<button class="cancel-c" onclick="cancelCredit('+i+')">✕</button>'
           +'</div>'
         +'</span>'
-        +'<span>'
-          +(hasBio
-            ?'<span class="badge-c blue"><i class="bi bi-fingerprint"></i> Enrolled</span>'
-            :'<span class="bio-id-none">None</span>')
-        +'</span>'
+        +'<span>'+(hasBio?'<span class="badge-c blue"><i class="bi bi-fingerprint"></i> Enrolled</span>':'<span class="bio-id-none">None</span>')+'</span>'
         +'<span style="display:flex;gap:5px;flex-wrap:wrap">'
           +'<button class="adm-act-btn" onclick="editCredit('+i+')"><i class="bi bi-pencil"></i> Edit</button>'
           +(hasBio?'<button class="adm-act-btn danger" onclick="adminRevokeBio(\''+esc(u.email)+'\')" title="Revoke biometric"><i class="bi bi-shield-x"></i></button>':'')
@@ -1602,26 +1755,18 @@ function renderAdmUsers(users){
     }).join('');
 }
 
-/* ── Admin Stats ── */
 function renderAdmStats(){
-  var tools=_admAllTools.length,users=_admAllUsers.length;
-  var totalCredits=_admAllUsers.reduce(function(s,u){return s+Number(u.credits||0);},0);
-  var bioCount=getBioRegistry().length;
-  $('adm-stats').innerHTML=
-    stat('🧰','Tools',tools)+
-    stat('👤','Users',users)+
-    stat('⚡','Total Credits',totalCredits)+
-    stat('🔐','Biometric Users',bioCount);
+  var tools=_admAllTools.length, users=_admAllUsers.length;
+  var totalCredits=_admAllUsers.reduce(function(s,u){ return s+Number(u.credits||0); },0);
+  var bioCount=_admAllBio.length||_localBioGet().length;
+  $('adm-stats').innerHTML=stat('🧰','Tools',tools)+stat('👤','Users',users)+stat('⚡','Total Credits',totalCredits)+stat('🔐','Biometric Users',bioCount);
 }
-function stat(ico,lbl,val){
-  return '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">'+ico+'</div><div><div class="stat-lbl">'+lbl+'</div><div class="stat-val">'+val+'</div></div></div></div>';
-}
+function stat(ico,lbl,val){ return '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">'+ico+'</div><div><div class="stat-lbl">'+lbl+'</div><div class="stat-val">'+val+'</div></div></div></div>'; }
 
-/* ── Low Credits ── */
 function renderLowCredits(){
-  var low=_admAllUsers.filter(function(u){return Number(u.credits||0)<=10;});
+  var low=_admAllUsers.filter(function(u){ return Number(u.credits||0)<=10; });
   var el=$('adm-low-credits');
-  if(!low.length){el.innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:13px">✓ All users have sufficient credits</div>';return;}
+  if (!low.length) { el.innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:13px">✓ All users have sufficient credits</div>'; return; }
   el.innerHTML='<div class="adm-thead th-users" style="grid-template-columns:28px 1fr 60px 80px;"><span>#</span><span>User</span><span>Credits</span><span>Action</span></div>'
     +low.map(function(u,i){
       return '<div class="adm-row" style="grid-template-columns:28px 1fr 60px 80px;align-items:center">'
@@ -1633,158 +1778,109 @@ function renderLowCredits(){
     }).join('');
 }
 
-/* ── Credit editing ── */
-function editCredit(i){
-  $('cedit-'+i).style.display='flex';
-  $('cdisp-'+i).style.display='none';
-}
-function cancelCredit(i){
-  $('cedit-'+i).style.display='none';
-  $('cdisp-'+i).style.display='block';
-}
+function editCredit(i){ $('cedit-'+i).style.display='flex'; $('cdisp-'+i).style.display='none'; }
+function cancelCredit(i){ $('cedit-'+i).style.display='none'; $('cdisp-'+i).style.display='block'; }
 function saveCredit(email,i){
   var val=Number($('cinp-'+i).value||0);
   gsr('setCredits',{email:email,credits:val}).then(function(r){
-    if(r.success){
-      $('cdisp-'+i).textContent=val;
-      $('cdisp-'+i).style.color=val<=10?'var(--red)':'var(--grn)';
-      cancelCredit(i);
-      toast('Credits updated for '+email,'ok');
-      var u=_admAllUsers.find(function(x){return x.email===email;});
-      if(u)u.credits=val;
+    if (r.success) {
+      $('cdisp-'+i).textContent=val; $('cdisp-'+i).style.color=val<=10?'var(--red)':'var(--grn)';
+      cancelCredit(i); toast('Credits updated for '+email,'ok');
+      var u=_admAllUsers.find(function(x){ return x.email===email; }); if(u) u.credits=val;
       renderLowCredits();
-    }else{toast('Failed to update credits','err');}
-  }).catch(function(){toast('Connection error','err');});
+    } else { toast('Failed to update credits','err'); }
+  }).catch(function(){ toast('Connection error','err'); });
 }
-
 function admLookupUser(email){
   var prev=$('bulk-user-preview');
-  if(!email||!_admAllUsers.length){prev.textContent='';return;}
-  var u=_admAllUsers.find(function(x){return x.email.toLowerCase()===email.toLowerCase();});
+  if (!email||!_admAllUsers.length) { prev.textContent=''; return; }
+  var u=_admAllUsers.find(function(x){ return x.email.toLowerCase()===email.toLowerCase(); });
   prev.textContent=u?'Found: '+u.name+' ('+u.credits+' credits)':'User not found in loaded list';
 }
-
 function doSetCredits(){
-  var email=($('bulk-email').value||'').trim();
-  var credits=Number($('bulk-credits').value||0);
-  if(!email){setMsg('bulk-msg','Enter an email.','');return;}
+  var email=($('bulk-email').value||'').trim(), credits=Number($('bulk-credits').value||0);
+  if (!email) { setMsg('bulk-msg','Enter an email.',''); return; }
   setMsg('bulk-msg','Saving…','inf');
   gsr('setCredits',{email:email,credits:credits}).then(function(r){
-    if(r.success){setMsg('bulk-msg','✓ Credits set to '+credits+' for '+email,'ok');
-      var u=_admAllUsers.find(function(x){return x.email===email;});if(u)u.credits=credits;
-      renderLowCredits();renderAdmStats();
-    }else{setMsg('bulk-msg',r.message||'Failed','');}
-  }).catch(function(){setMsg('bulk-msg','Connection error','');});
+    if (r.success) {
+      setMsg('bulk-msg','✓ Credits set to '+credits+' for '+email,'ok');
+      var u=_admAllUsers.find(function(x){ return x.email===email; }); if(u) u.credits=credits;
+      renderLowCredits(); renderAdmStats();
+    } else { setMsg('bulk-msg',r.message||'Failed',''); }
+  }).catch(function(){ setMsg('bulk-msg','Connection error',''); });
 }
-
 function quickTopup(email){
   gsr('setCredits',{email:email,credits:100}).then(function(r){
-    if(r.success){toast('Topped up '+email+' to 100 credits','ok');
-      var u=_admAllUsers.find(function(x){return x.email===email;});if(u)u.credits=100;
-      renderLowCredits();renderAdmStats();
+    if (r.success) {
+      toast('Topped up '+email+' to 100 credits','ok');
+      var u=_admAllUsers.find(function(x){ return x.email===email; }); if(u) u.credits=100;
+      renderLowCredits(); renderAdmStats();
     }
-  }).catch(function(){toast('Failed','err');});
+  }).catch(function(){ toast('Failed','err'); });
 }
 
 /* ══════════════════════════════════════════
    ADMIN BIOMETRICS PANEL
 ══════════════════════════════════════════ */
 function renderAdmBio(){
-  _admAllBio = getBioRegistry();
-  var el = $('adm-bio-table');
-  $('adm-bio-count').textContent = _admAllBio.length + ' registered';
+  var el=$('adm-bio-table');
+  el.innerHTML='<div class="p-4 text-center" style="color:var(--m1)"><span class="loader"></span> Loading biometric data…</div>';
+  fetchBioRecords().then(function(records){
+    _admAllBio=records; $('adm-bio-count').textContent=_admAllBio.length+' registered';
+    renderAdmStats(); _drawBioTable(_admAllBio);
+  }).catch(function(){ _admAllBio=_localBioGet(); $('adm-bio-count').textContent=_admAllBio.length+' registered (local)'; _drawBioTable(_admAllBio); });
+}
 
-  if (!_admAllBio.length) {
-    el.innerHTML = '<div class="p-4 text-center"><div style="font-size:36px;opacity:.3;margin-bottom:10px">🔐</div><div style="color:var(--m1);font-size:13px">No biometric registrations found on this device/browser.<br>Users register biometrics from the sign-in page.</div></div>';
-    return;
-  }
-
-  el.innerHTML =
-    '<div class="adm-thead th-bio"><span>#</span><span>User</span><span>Type</span><span>Registered</span><span>Cred. ID (ref)</span><span>Actions</span></div>'
-    + _admAllBio.map(function(b, i) {
-      var dateStr = b.registeredAt ? new Date(b.registeredAt).toLocaleDateString() : '—';
-      var timeStr = b.registeredAt ? new Date(b.registeredAt).toLocaleTimeString() : '';
-      var typeIcon = b.type === 'fingerprint' ? '🫆' : b.type === 'face' ? '😶' : '🔐';
+function _drawBioTable(list){
+  var el=$('adm-bio-table');
+  if (!list.length) { el.innerHTML='<div class="p-4 text-center"><div style="font-size:36px;opacity:.3;margin-bottom:10px">🔐</div><div style="color:var(--m1);font-size:13px">No biometric registrations found.<br>Users register biometrics from the sign-in page.</div></div>'; return; }
+  el.innerHTML='<div class="adm-thead th-bio"><span>#</span><span>User</span><span>Type</span><span>Registered</span><span>Cred. ID (ref)</span><span>Actions</span></div>'
+    +list.map(function(b,i){
+      var dateStr=b.registeredAt?new Date(b.registeredAt).toLocaleDateString():'—';
+      var timeStr=b.registeredAt?new Date(b.registeredAt).toLocaleTimeString():'';
+      var typeIcon=b.type==='fingerprint'?'🫆':b.type==='face'?'😶':'🔐';
       return '<div class="adm-row tr-bio">'
-        + '<span class="rank' + (i < 3 ? ' t3' : '') + '">' + (i + 1) + '</span>'
-        + '<div>'
-          + '<div class="row-name">' + esc(b.email || '—') + '</div>'
-          + '<div class="row-sub" title="' + esc(b.device || '') + '">' + esc((b.device || '').substring(0, 40)) + (b.device && b.device.length > 40 ? '…' : '') + '</div>'
-        + '</div>'
-        + '<span><span class="badge-c blue">' + typeIcon + ' ' + esc(b.type || 'platform') + '</span></span>'
-        + '<div><div style="font-size:12px;font-weight:600">' + dateStr + '</div><div class="row-sub">' + timeStr + '</div></div>'
-        + '<span>'
-          + '<span class="bio-id-badge" title="' + esc(b.credIdFull || '') + '"><i class="bi bi-fingerprint"></i> ' + esc(b.credIdShort || '—') + '</span>'
-        + '</span>'
-        + '<span style="display:flex;gap:5px;flex-wrap:wrap">'
-          + '<button class="adm-act-btn" onclick="copyBioId(\'' + esc(b.credIdFull || '') + '\')" title="Copy full credential ID"><i class="bi bi-clipboard"></i> Copy ID</button>'
-          + '<button class="adm-act-btn danger" onclick="adminRevokeBio(\'' + esc(b.email) + '\')" title="Revoke biometric for this user"><i class="bi bi-shield-x"></i> Revoke</button>'
-        + '</span>'
-        + '</div>';
+        +'<span class="rank'+(i<3?' t3':'')+'">'+( i+1)+'</span>'
+        +'<div><div class="row-name">'+esc(b.email||'—')+'</div><div class="row-sub" title="'+esc(b.device||'')+'">'+esc((b.device||'').substring(0,40))+(b.device&&b.device.length>40?'…':'')+'</div></div>'
+        +'<span><span class="badge-c blue">'+typeIcon+' '+esc(b.type||'platform')+'</span></span>'
+        +'<div><div style="font-size:12px;font-weight:600">'+dateStr+'</div><div class="row-sub">'+timeStr+'</div></div>'
+        +'<span><span class="bio-id-badge" title="'+esc(b.credIdFull||'')+'"><i class="bi bi-fingerprint"></i> '+esc(b.credIdShort||'—')+'</span></span>'
+        +'<span style="display:flex;gap:5px;flex-wrap:wrap">'
+          +'<button class="adm-act-btn" onclick="copyBioId(\''+esc(b.credIdFull||'')+'\')" title="Copy full credential ID"><i class="bi bi-clipboard"></i> Copy ID</button>'
+          +'<button class="adm-act-btn danger" onclick="adminRevokeBio(\''+esc(b.email)+'\')" title="Revoke biometric"><i class="bi bi-shield-x"></i> Revoke</button>'
+        +'</span>'
+        +'</div>';
     }).join('');
 }
 
-function filterAdmBio(q) {
-  var el = $('adm-bio-table');
-  if (!q) { renderAdmBio(); return; }
-  var ql = q.toLowerCase();
-  var f = _admAllBio.filter(function(b) {
-    return (b.email || '').toLowerCase().includes(ql)
-      || (b.credIdShort || '').toLowerCase().includes(ql)
-      || (b.credIdFull || '').toLowerCase().includes(ql);
-  });
-  if (!f.length) { el.innerHTML = '<div class="p-3 text-center" style="color:var(--m1);font-size:13px">No matches found</div>'; return; }
-
-  el.innerHTML =
-    '<div class="adm-thead th-bio"><span>#</span><span>User</span><span>Type</span><span>Registered</span><span>Cred. ID (ref)</span><span>Actions</span></div>'
-    + f.map(function(b, i) {
-      var dateStr = b.registeredAt ? new Date(b.registeredAt).toLocaleDateString() : '—';
-      var timeStr = b.registeredAt ? new Date(b.registeredAt).toLocaleTimeString() : '';
-      var typeIcon = b.type === 'fingerprint' ? '🫆' : b.type === 'face' ? '😶' : '🔐';
-      return '<div class="adm-row tr-bio">'
-        + '<span class="rank">' + (i + 1) + '</span>'
-        + '<div><div class="row-name">' + esc(b.email || '—') + '</div><div class="row-sub">' + esc((b.device || '').substring(0, 40)) + '</div></div>'
-        + '<span><span class="badge-c blue">' + typeIcon + ' ' + esc(b.type || 'platform') + '</span></span>'
-        + '<div><div style="font-size:12px;font-weight:600">' + dateStr + '</div><div class="row-sub">' + timeStr + '</div></div>'
-        + '<span><span class="bio-id-badge" title="' + esc(b.credIdFull || '') + '"><i class="bi bi-fingerprint"></i> ' + esc(b.credIdShort || '—') + '</span></span>'
-        + '<span style="display:flex;gap:5px;flex-wrap:wrap">'
-          + '<button class="adm-act-btn" onclick="copyBioId(\'' + esc(b.credIdFull || '') + '\')"><i class="bi bi-clipboard"></i> Copy ID</button>'
-          + '<button class="adm-act-btn danger" onclick="adminRevokeBio(\'' + esc(b.email) + '\')"><i class="bi bi-shield-x"></i> Revoke</button>'
-        + '</span>'
-        + '</div>';
-    }).join('');
+function filterAdmBio(q){
+  if (!q) { _drawBioTable(_admAllBio); return; }
+  var ql=q.toLowerCase();
+  _drawBioTable(_admAllBio.filter(function(b){ return (b.email||'').toLowerCase().includes(ql)||(b.credIdShort||'').toLowerCase().includes(ql)||(b.credIdFull||'').toLowerCase().includes(ql); }));
 }
 
-function copyBioId(fullId) {
-  if (!fullId) { toast('No credential ID', 'err'); return; }
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(fullId).then(function() { toast('Credential ID copied to clipboard', 'ok'); }).catch(function() { toast('Copy failed', 'err'); });
-  } else {
-    // Fallback
-    var ta = document.createElement('textarea');
-    ta.value = fullId; ta.style.position = 'fixed'; ta.style.opacity = '0';
+function copyBioId(fullId){
+  if (!fullId) { toast('No credential ID','err'); return; }
+  if (navigator.clipboard) { navigator.clipboard.writeText(fullId).then(function(){ toast('Credential ID copied to clipboard','ok'); }).catch(function(){ toast('Copy failed','err'); }); }
+  else {
+    var ta=document.createElement('textarea'); ta.value=fullId; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); toast('Credential ID copied', 'ok'); } catch(e) { toast('Copy failed', 'err'); }
+    try { document.execCommand('copy'); toast('Credential ID copied','ok'); } catch(e){ toast('Copy failed','err'); }
     document.body.removeChild(ta);
   }
 }
 
-function adminRevokeBio(email) {
-  if (!confirm('Revoke biometric registration for ' + email + '?\n\nThis removes their biometric data from this browser registry. They can re-register next time they sign in.')) return;
-  removeFromBioRegistry(email);
-  // If revoking current device's own enrolled user
-  if (BIO.bioEmail === email) {
-    localStorage.removeItem(BIO.KEY_CRED);
-    localStorage.removeItem(BIO.KEY_EMAIL);
-    localStorage.removeItem(BIO.KEY_RP);
-    BIO.enrolled = false; BIO.bioEmail = ''; BIO.credId = null;
-    BIO.updateUI();
+function adminRevokeBio(email){
+  if (!confirm('Revoke biometric registration for '+email+'?\n\nThis removes their record from the backend and this browser. They can re-register next sign-in.')) return;
+  removeBioRecord(email);
+  if (BIO.bioEmail===email) {
+    localStorage.removeItem(BIO_LS_CRED); localStorage.removeItem(BIO_LS_EMAIL); localStorage.removeItem(BIO_LS_RP);
+    BIO.enrolled=false; BIO.bioEmail=''; BIO.credId=null; BIO.updateUI();
   }
-  toast('Biometric revoked for ' + email, 'ok');
-  renderAdmBio();
-  renderAdmStats();
-  // Refresh users panel if it was showing
-  renderAdmUsers(_admAllUsers);
+  toast('Biometric revoked for '+email,'ok');
+  _admAllBio=_admAllBio.filter(function(b){ return b.email!==email; });
+  $('adm-bio-count').textContent=_admAllBio.length+' registered';
+  _drawBioTable(_admAllBio); renderAdmStats(); renderAdmUsers(_admAllUsers);
 }
 
 /* ══════════════════════════════════════════
@@ -1792,19 +1888,16 @@ function adminRevokeBio(email) {
 ══════════════════════════════════════════ */
 var _deferredPWA=null;
 function initPWA(){
-  window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault();_deferredPWA=e;
-    $('pwa-topbar-btn').classList.remove('hidden');
-  });
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); _deferredPWA=e; $('pwa-topbar-btn').classList.remove('hidden'); });
 }
 function triggerPWAInstall(){
-  if(_deferredPWA){_deferredPWA.prompt();_deferredPWA.userChoice.then(function(){_deferredPWA=null;$('pwa-topbar-btn').classList.add('hidden');});}
-  else{toast('Open in browser to install as app','inf');}
+  if (_deferredPWA) { _deferredPWA.prompt(); _deferredPWA.userChoice.then(function(){ _deferredPWA=null; $('pwa-topbar-btn').classList.add('hidden'); }); }
+  else { toast('Open in browser to install as app','inf'); }
 }
 
 /* ── Keyboard shortcuts ── */
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){closeModal();closeMSearch();closeFDrawer();}
+  if (e.key==='Escape') { closeModal(); closeMSearch(); closeFDrawer(); }
 });
 </script>
 </body>
