@@ -265,13 +265,55 @@ img{max-width:100%}
 .ftag.paid{background:var(--gdim);color:var(--gold);border:1px solid rgba(232,164,48,.15)}
 .arr{width:26px;height:26px;border-radius:50%;border:1px solid var(--bd);background:transparent;display:flex;align-items:center;justify-content:center;color:var(--m1);font-size:13px;flex-shrink:0;transition:all .25s}
 
-/* List view override */
+/* ── LIST VIEW OVERRIDES ──
+   Show sl-no, name, description, category badge AND pricing tag.
+   Hide only the cfoot (arrow row) since we inline the tag instead.
+─────────────────────────────────────────── */
 #grid.lv .tool-card{flex-direction:row;align-items:center;gap:10px;padding:.75rem .875rem;border-radius:12px}
-#grid.lv .tool-card .cbadge,
+
+/* hide the bottom foot (arrow) in list — tag is shown inline */
 #grid.lv .tool-card .cfoot{display:none}
-#grid.lv .tool-card .cdesc{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;color:var(--m1);margin-top:2px;flex:none}
-#grid.lv .tool-card .cname{font-size:15px;margin:0;-webkit-line-clamp:1;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#grid.lv .tool-card .sl-no{position:static;background:var(--s3);margin-right:2px;font-size:10px;padding:3px 7px;flex-shrink:0}
+
+/* keep cbadge visible in list view */
+#grid.lv .tool-card .cbadge{
+  display:inline-block;
+  margin-bottom:0;
+  flex-shrink:0;
+  max-width:none;
+}
+
+/* keep cdesc as a single truncated line */
+#grid.lv .tool-card .cdesc{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  color:var(--m1);
+  margin-top:2px;
+  flex:none;
+}
+
+/* name — single line */
+#grid.lv .tool-card .cname{
+  font-size:15px;
+  margin:0 0 2px 0;
+  -webkit-line-clamp:1;
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* sl-no static inside the row */
+#grid.lv .tool-card .sl-no{
+  position:static;
+  background:var(--s3);
+  margin-right:2px;
+  font-size:10px;
+  padding:3px 7px;
+  flex-shrink:0;
+}
 
 .empty-state{text-align:center;padding:60px 20px;animation:fadeIn .4s ease}
 .empty-ico{font-size:44px;margin-bottom:12px;opacity:.35}
@@ -1144,13 +1186,19 @@ function renderGrid(data){
     var col=lv?'col-12':'col-6 col-md-4 col-lg-3';
     var slNo=t.slNo||'';
     if(lv){
+      /* ── LIST VIEW: sl-no · name+desc (left) · category badge · pricing tag · arrow ── */
       html+='<div class="'+col+'"><div class="tool-card" style="'+delay+'" onclick=\'openModal('+safeJSON(t)+')\'>'
            +'<span class="sl-no">#'+slNo+'</span>'
            +'<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center">'
-           +'<div class="cname" style="margin-bottom:0">'+t.name+'</div>'
+           +'<div class="cname">'+t.name+'</div>'
            +'<div class="cdesc">'+(t.description||'')+'</div>'
            +'</div>'
-           +'<div class="arr flex-shrink-0">›</div></div></div>';
+           +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'
+           +'<span class="cbadge" style="margin-bottom:0">'+(t.category||'AI')+'</span>'
+           +fTag
+           +'</div>'
+           +'<div class="arr flex-shrink-0">›</div>'
+           +'</div></div>';
     }else{
       html+='<div class="'+col+'"><div class="tool-card" style="'+delay+'" onclick=\'openModal('+safeJSON(t)+')\'>'
            +'<span class="sl-no">#'+slNo+'</span>'
@@ -1253,7 +1301,6 @@ function switchAdmTab(tab){
 
 function loadAdminData(){
   $('adm-ts').textContent='Refreshing…';
-  // FIX: send adminEmail (matching the backend parameter name)
   gsr('getAdminDashboardData',{adminEmail:currentEmail})
     .then(function(d){
       if(d.error){toast(d.error,'err');$('adm-ts').textContent='Error: '+d.error;return;}
@@ -1385,7 +1432,6 @@ function cancelEdit(uid){var el=$(uid);if(el)el.style.display='none';}
 function saveUserCredits(email,inpId,valId,editId){
   var newVal=parseInt($(inpId).value,10);
   if(isNaN(newVal)||newVal<0){toast('Enter a valid credit amount.','err');return;}
-  // FIX: use adminEmail parameter name (matches Code.gs adminSetCredits)
   gsr('adminSetCredits',{adminEmail:currentEmail,targetEmail:email,credits:newVal})
     .then(function(r){
       if(r.success){
@@ -1433,7 +1479,6 @@ function doSetCredits(){
   if(!email){setMsg('bulk-msg','Enter a user email.','err');return;}
   if(isNaN(credits)||credits<0){setMsg('bulk-msg','Enter a valid credit amount.','err');return;}
   setMsg('bulk-msg','Saving…','inf');
-  // FIX: correct param name
   gsr('adminSetCredits',{adminEmail:currentEmail,targetEmail:email,credits:credits})
     .then(function(r){
       if(r.success){
@@ -1519,21 +1564,6 @@ function bnHome(){
   $('catalog-page').classList.remove('hidden');$('admin-page').classList.add('hidden');
   document.querySelectorAll('.bnbtn').forEach(function(b){b.classList.remove('on');});$('bn-home').classList.add('on');
 }
-
-/* ── BROWSER HISTORY / BACK BUTTON ── */
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-  var el = document.getElementById(pageId);
-  if(el) el.classList.add('active');
-  history.pushState({ page: pageId }, '', '#' + pageId);
-}
-
-window.onpopstate = function(event) {
-  var pageId = (event.state && event.state.page) ? event.state.page : 'home';
-  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
-  var el = document.getElementById(pageId);
-  if(el) el.classList.add('active');
-};
 </script>
 
 <!-- ══════════ PWA: Service Worker Registration + Install Prompt ══════════ -->
