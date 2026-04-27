@@ -23,11 +23,9 @@
 <meta name="msapplication-TileColor" content="#07080c">
 <!-- ══════════ END PWA ══════════ -->
 
-<!-- ══════════ STEP 1: Set your deployed Apps Script URL here ══════════ -->
 <script>
   var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHRHbMbD1_VOMHhYAvmCBJRFsSp4zygoqA-Qo2Ek57kCl2pKmG0VxdVHPjYqK9G2iuLA/exec";
 </script>
-<!-- ═══════════════════════════════════════════════════════════════════ -->
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -98,8 +96,6 @@ img{max-width:100%}
 @keyframes bio-ring-pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:.8}}
 @keyframes bio-scan{0%{top:8px;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:calc(100% - 10px);opacity:0}}
 @keyframes bio-success-ring{0%{transform:scale(0.6);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:scale(1);opacity:1}}
-
-/* ── CARD HOVER SHIMMER ── */
 @keyframes card-shine{0%{left:-80%}100%{left:130%}}
 
 /* ── UTILS ── */
@@ -286,15 +282,9 @@ img{max-width:100%}
   display:flex;
   flex-direction:column;
   -webkit-tap-highlight-color:transparent;
-  /* smooth transitions for hover glow + border */
-  transition:
-    border-color .3s ease,
-    background .3s ease,
-    transform .2s ease,
-    box-shadow .3s ease;
+  transition:border-color .3s ease,background .3s ease,transform .2s ease,box-shadow .3s ease;
 }
 
-/* Shimmer sweep on hover */
 .tool-card::before{
   content:'';
   position:absolute;
@@ -307,11 +297,8 @@ img{max-width:100%}
   pointer-events:none;
   z-index:1;
 }
-.tool-card:hover::before{
-  animation:card-shine .55s ease forwards;
-}
+.tool-card:hover::before{animation:card-shine .55s ease forwards;}
 
-/* Top accent line — uses JS-set CSS var --cat-clr */
 .tool-card::after{
   content:'';
   position:absolute;
@@ -334,13 +321,15 @@ img{max-width:100%}
 /* ── Sl. No. Badge ── */
 .sl-no{position:absolute;top:8px;right:8px;background:rgba(232,164,48,.12);border:1px solid rgba(232,164,48,.22);border-radius:6px;font-size:10px;font-weight:700;color:var(--gold);padding:2px 6px;letter-spacing:.5px;line-height:1.4;z-index:2}
 
-/* Category badge — colored per category */
+/* Category badge */
 .cbadge{
   font-size:11px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;
-  padding:3px 8px;border-radius:100px;display:inline-block;
-  margin-bottom:.5rem;max-width:calc(100% - 44px);
+  padding:3px 8px;border-radius:100px;
+  display:inline-block;
+  width:fit-content;
+  margin-bottom:.5rem;
+  max-width:calc(100% - 44px);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  /* defaults overridden by JS inline style */
   color:var(--cat-clr,var(--gold));
   background:var(--cat-bg,var(--gdim));
   border:1px solid var(--cat-bd,rgba(232,164,48,.18));
@@ -371,7 +360,13 @@ img{max-width:100%}
 /* ── LIST VIEW OVERRIDE ── */
 #grid.lv .tool-card{flex-direction:row;align-items:center;gap:10px;padding:.75rem .875rem;border-radius:12px}
 #grid.lv .tool-card .cfoot{display:none}
-#grid.lv .tool-card .cbadge{display:inline-block;margin-bottom:4px;max-width:100%}
+/* ↓ THE ONLY CHANGE: fit-content so badge hugs its text in list view */
+#grid.lv .tool-card .cbadge{
+  display:inline-block;
+  width:fit-content;
+  max-width:fit-content;
+  margin-bottom:4px;
+}
 #grid.lv .tool-card .cdesc{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;color:var(--m1);margin-top:2px;flex:none}
 #grid.lv .tool-card .cname{font-size:16px;margin-bottom:2px;-webkit-line-clamp:1;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #grid.lv .tool-card .sl-no{position:static;background:var(--s3);margin-right:2px;font-size:11px;padding:3px 7px;flex-shrink:0}
@@ -553,7 +548,6 @@ img{max-width:100%}
 <div id="auth-page" class="page hidden">
   <div class="container-fluid g-0" style="min-height:100vh">
     <div class="row g-0" style="min-height:100vh">
-      <!-- Left panel (desktop only) -->
       <div class="col-lg-5 d-none d-lg-flex">
         <div class="auth-panel w-100">
           <div class="panel-grid"></div>
@@ -573,7 +567,6 @@ img{max-width:100%}
           </div>
         </div>
       </div>
-      <!-- Right form side -->
       <div class="col-12 col-lg-7">
         <div class="auth-form-side">
           <div class="auth-box">
@@ -584,13 +577,11 @@ img{max-width:100%}
             <div class="auth-h" id="auth-h">Welcome back</div>
             <div class="auth-p" id="auth-p">Your student toolkit for the AI generation</div>
 
-            <!-- Auth Tabs -->
             <div class="auth-tabs">
               <button class="auth-tab on" id="tab-si" onclick="switchTab('si')">Sign In</button>
               <button class="auth-tab" id="tab-su" onclick="switchTab('su')">Sign Up</button>
             </div>
 
-            <!-- Sign In Form -->
             <div id="form-si">
               <div class="field-wrap">
                 <div class="field-lbl"><label>Email</label></div>
@@ -613,7 +604,6 @@ img{max-width:100%}
               <button class="btn-submit" id="btn-si" onclick="doSignIn()">Sign In →</button>
               <div id="msg-si" class="amsg"></div>
 
-              <!-- Biometric -->
               <div class="bio-divider"><span class="bio-divider-txt">or use biometrics</span></div>
               <div class="bio-unsupported" id="bio-unsupported">Biometrics not supported on this device/browser.</div>
               <div class="bio-row" id="bio-row">
@@ -645,7 +635,6 @@ img{max-width:100%}
               </div>
             </div>
 
-            <!-- Sign Up Form -->
             <div id="form-su" class="hidden">
               <div class="field-wrap">
                 <div class="field-lbl"><label>Full Name *</label></div>
@@ -792,7 +781,6 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- Desktop filter toolbar -->
   <div id="desk-tb">
     <span class="dtlbl">Filter:</span>
     <div id="dt-chips"></div>
@@ -815,12 +803,10 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- Mobile category strip -->
   <div class="cat-strip d-md-none" id="cat-strip">
     <button class="chip on" onclick="filterCat(this,'all')">All</button>
   </div>
 
-  <!-- Results bar -->
   <div class="rbar">
     <div id="res-count"><strong>—</strong> tools</div>
     <div class="d-flex gap-2 align-items-center mob-only">
@@ -861,7 +847,6 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- Stats row -->
   <div class="row g-2 mb-3" id="adm-stats">
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
@@ -869,14 +854,12 @@ img{max-width:100%}
     <div class="col-6 col-md-3"><div class="stat-card"><div class="skel" style="height:60px"></div></div></div>
   </div>
 
-  <!-- Admin tabs -->
   <div class="adm-tabs">
     <button class="adm-tab on" onclick="switchAdmTab('tools')"><i class="bi bi-tools"></i> Tools</button>
     <button class="adm-tab" onclick="switchAdmTab('users')"><i class="bi bi-people"></i> Users</button>
     <button class="adm-tab" onclick="switchAdmTab('credits')"><i class="bi bi-lightning-charge"></i> Credits</button>
   </div>
 
-  <!-- Tools Panel -->
   <div class="adm-panel on" id="adm-panel-tools">
     <div class="sec-hd">
       <div class="sec-lbl">🧰 All Tools (by Sl. No.)</div>
@@ -891,7 +874,6 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- Users Panel -->
   <div class="adm-panel" id="adm-panel-users">
     <div class="sec-hd">
       <div class="sec-lbl">👤 All Users</div>
@@ -906,7 +888,6 @@ img{max-width:100%}
     </div>
   </div>
 
-  <!-- Credits Panel -->
   <div class="adm-panel" id="adm-panel-credits">
     <div class="sec-hd">
       <div class="sec-lbl">⚡ Credit Management</div>
@@ -1001,7 +982,6 @@ img{max-width:100%}
    CATEGORY → COLOR MAP
 ══════════════════════════════════════════ */
 var CAT_COLORS = {
-  /* keyword-based matching — lowercased */
   'writing':     {bg:'rgba(99,153,34,.10)',   bd:'rgba(99,153,34,.30)',   clr:'#7dbf3c', glow:'rgba(99,153,34,.22)'},
   'content':     {bg:'rgba(99,153,34,.10)',   bd:'rgba(99,153,34,.30)',   clr:'#7dbf3c', glow:'rgba(99,153,34,.22)'},
   'image':       {bg:'rgba(212,83,126,.10)',  bd:'rgba(212,83,126,.30)',  clr:'#e06fa0', glow:'rgba(212,83,126,.22)'},
@@ -1019,7 +999,7 @@ var CAT_COLORS = {
   'music':       {bg:'rgba(29,158,117,.10)',  bd:'rgba(29,158,117,.30)',  clr:'#28c99a', glow:'rgba(29,158,117,.22)'},
   'speech':      {bg:'rgba(29,158,117,.10)',  bd:'rgba(29,158,117,.30)',  clr:'#28c99a', glow:'rgba(29,158,117,.22)'},
   'voice':       {bg:'rgba(29,158,117,.10)',  bd:'rgba(29,158,117,.30)',  clr:'#28c99a', glow:'rgba(29,158,117,.22)'},
-  'productivity':  {bg:'rgba(186,117,23,.10)',bd:'rgba(186,117,23,.30)', clr:'#e8a430', glow:'rgba(186,117,23,.22)'},
+  'productivity':{bg:'rgba(186,117,23,.10)',  bd:'rgba(186,117,23,.30)',  clr:'#e8a430', glow:'rgba(186,117,23,.22)'},
   'automation':  {bg:'rgba(186,117,23,.10)',  bd:'rgba(186,117,23,.30)',  clr:'#e8a430', glow:'rgba(186,117,23,.22)'},
   'chatbot':     {bg:'rgba(29,100,200,.10)',  bd:'rgba(29,100,200,.30)',  clr:'#4e9cf5', glow:'rgba(29,100,200,.22)'},
   'chat':        {bg:'rgba(29,100,200,.10)',  bd:'rgba(29,100,200,.30)',  clr:'#4e9cf5', glow:'rgba(29,100,200,.22)'},
@@ -1038,16 +1018,13 @@ var CAT_COLORS = {
   'finance':     {bg:'rgba(99,153,34,.10)',   bd:'rgba(99,153,34,.30)',   clr:'#7dbf3c', glow:'rgba(99,153,34,.22)'},
   'security':    {bg:'rgba(232,85,85,.10)',   bd:'rgba(232,85,85,.30)',   clr:'#e85555', glow:'rgba(232,85,85,.22)'},
   'privacy':     {bg:'rgba(232,85,85,.10)',   bd:'rgba(232,85,85,.30)',   clr:'#e85555', glow:'rgba(232,85,85,.22)'},
-  /* default fallback */
   'default':     {bg:'rgba(232,164,48,.08)',  bd:'rgba(232,164,48,.20)',  clr:'#e8a430', glow:'rgba(232,164,48,.18)'}
 };
 
 function getCatColors(category) {
   if (!category) return CAT_COLORS['default'];
   var lc = category.toLowerCase();
-  /* exact match first */
   if (CAT_COLORS[lc]) return CAT_COLORS[lc];
-  /* keyword substring match */
   var keys = Object.keys(CAT_COLORS);
   for (var i = 0; i < keys.length; i++) {
     if (keys[i] !== 'default' && lc.indexOf(keys[i]) !== -1) return CAT_COLORS[keys[i]];
@@ -1299,13 +1276,11 @@ function renderGrid(data){
   var html='';
   data.forEach(function(t,i){
     var cc=getCatColors(t.category);
-    /* inline CSS vars for per-card coloring */
     var cardStyle='animation-delay:'+(Math.min(i,8)*0.04)+'s;'
       +'--cat-bg:'+cc.bg+';'
       +'--cat-bd:'+cc.bd+';'
       +'--cat-clr:'+cc.clr+';'
       +'--cat-glow:'+cc.glow+';';
-    /* badge inline style */
     var badgeStyle='color:'+cc.clr+';background:'+cc.bg+';border-color:'+cc.bd+';';
     var isFree=/free|yes/i.test(String(t.free));
     var fTag=t.free?'<span class="ftag '+(isFree?'free':'paid')+'">'+t.free+'</span>':'';
@@ -1580,7 +1555,6 @@ function quickTopup(email){
     }).catch(function(){toast('Connection error.','err');});
 }
 
-/* Bulk credit form */
 var _lookupTimer=null;
 function admLookupUser(val){
   clearTimeout(_lookupTimer);
