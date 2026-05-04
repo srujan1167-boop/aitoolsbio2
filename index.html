@@ -360,7 +360,6 @@ img{max-width:100%}
 /* ── LIST VIEW OVERRIDE ── */
 #grid.lv .tool-card{flex-direction:row;align-items:center;gap:10px;padding:.75rem .875rem;border-radius:12px}
 #grid.lv .tool-card .cfoot{display:none}
-/* ↓ THE ONLY CHANGE: fit-content so badge hugs its text in list view */
 #grid.lv .tool-card .cbadge{
   display:inline-block;
   width:fit-content;
@@ -484,12 +483,14 @@ img{max-width:100%}
 .adm-table{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:1rem}
 .adm-thead{display:grid;padding:.6rem .875rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;gap:8px}
 .th-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-.th-users{grid-template-columns:28px 1fr 90px 60px 80px}
+/* ── CHANGED: added biometric column ── */
+.th-users{grid-template-columns:28px 1fr 90px 60px 70px 80px}
 .adm-row{display:grid;padding:.7rem .875rem;border-bottom:1px solid var(--bd);font-size:14px;gap:8px;align-items:center;transition:background .15s}
 .adm-row:last-child{border-bottom:none}
 .adm-row:hover{background:rgba(255,255,255,.02)}
 .tr-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-.tr-users{grid-template-columns:28px 1fr 90px 60px 80px}
+/* ── CHANGED: added biometric column ── */
+.tr-users{grid-template-columns:28px 1fr 90px 60px 70px 80px}
 .rank{font-size:12px;font-weight:800;color:var(--m1);text-align:center}
 .rank.t3{color:var(--gold)}
 .row-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -497,6 +498,10 @@ img{max-width:100%}
 .badge-c{font-size:12px;font-weight:700;background:rgba(232,164,48,.1);color:var(--gold);border:1px solid rgba(232,164,48,.2);border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
 .badge-c.red{background:rgba(232,85,85,.1);color:var(--red);border-color:rgba(232,85,85,.2)}
 .badge-c.grn{background:rgba(62,201,122,.1);color:var(--grn);border-color:rgba(62,201,122,.2)}
+/* ── NEW: biometric badge styles ── */
+.badge-bio{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge-bio.yes{background:rgba(62,201,122,.1);color:var(--grn);border:1px solid rgba(62,201,122,.25)}
+.badge-bio.no{background:rgba(107,109,128,.08);color:var(--m1);border:1px solid rgba(107,109,128,.2)}
 .adm-act-btn{padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:7px;color:var(--m2);font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s;min-height:32px;display:inline-flex;align-items:center;gap:4px}
 .adm-act-btn:hover{border-color:rgba(232,164,48,.4);color:var(--gold)}
 .adm-act-btn.success{border-color:rgba(62,201,122,.3);color:var(--grn)}
@@ -526,9 +531,10 @@ img{max-width:100%}
   .mob-only{display:none}
   #admin-page{padding:.875rem 1.5rem 1.5rem}
   .th-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  .th-users{grid-template-columns:32px 1fr 120px 70px 100px}
+  /* ── CHANGED: wider biometric column on desktop ── */
+  .th-users{grid-template-columns:32px 1fr 120px 70px 90px 100px}
   .tr-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  .tr-users{grid-template-columns:32px 1fr 120px 70px 100px}
+  .tr-users{grid-template-columns:32px 1fr 120px 70px 90px 100px}
 }
 </style>
 </head>
@@ -1068,15 +1074,24 @@ var BIO = {
       $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;$('bio-register-hint').style.display='none';
     }else{$('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';$('bio-register-hint').style.display='block';}
   },
+
+  /* ── CHANGED: register now sends credId to the sheet via Apps Script ── */
   register:async function(email){
     var rpId=location.hostname||'localhost';
     var challenge=crypto.getRandomValues(new Uint8Array(32));
     var userId=new TextEncoder().encode(email);
     var cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'AI Tools Hub',id:rpId},user:{id:userId,name:email,displayName:email},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});
-    localStorage.setItem(BIO.KEY_CRED,BIO.bufferToB64(cred.rawId));
+    var credB64=BIO.bufferToB64(cred.rawId);
+    localStorage.setItem(BIO.KEY_CRED,credB64);
     localStorage.setItem(BIO.KEY_EMAIL,email);localStorage.setItem(BIO.KEY_RP,rpId);
-    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.updateUI();return true;
+    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.updateUI();
+    /* ── Store credential ID in the sheet ── */
+    gsr('saveBiometricId',{email:email,bioCredId:credB64}).catch(function(){
+      console.warn('[BIO] Failed to store biometric ID in sheet (non-fatal).');
+    });
+    return true;
   },
+
   authenticate:async function(){
     var rpId=localStorage.getItem(BIO.KEY_RP)||location.hostname||'localhost';
     var challenge=crypto.getRandomValues(new Uint8Array(32));
@@ -1405,11 +1420,13 @@ function loadAdminData(){
       $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
       var totalLaunches=d.totalClicks||0;
       var lowCredUsers=(d.users||[]).filter(function(u){return Number(u.credits||0)<=10;}).length;
+      /* ── CHANGED: added biometric-registered stat ── */
+      var bioUsers=(d.users||[]).filter(function(u){return u.bioCredId&&String(u.bioCredId).trim()!=='';}).length;
       $('adm-stats').innerHTML=
         '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">👤</div><div><div class="stat-lbl">Users</div><div class="stat-val">'+(d.totalUsers||0)+'</div></div></div></div>'
         +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">🧰</div><div><div class="stat-lbl">Tools</div><div class="stat-val">'+((d.tools||[]).length)+'</div></div></div></div>'
         +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">🚀</div><div><div class="stat-lbl">Launches</div><div class="stat-val">'+totalLaunches+'</div></div></div></div>'
-        +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">⚠️</div><div><div class="stat-lbl">Low Credits</div><div class="stat-val">'+lowCredUsers+'</div></div></div></div>';
+        +'<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">🫆</div><div><div class="stat-lbl">Biometric</div><div class="stat-val">'+bioUsers+'</div></div></div></div>';
       _admAllTools=d.tools||[];
       _admAllUsers=d.users||[];
       renderAdmTools(_admAllTools);
@@ -1454,15 +1471,21 @@ function filterAdmTools(q){
   renderAdmTools(filtered);
 }
 
+/* ── CHANGED: renderAdmUsers now includes Biometric column ── */
 function renderAdmUsers(users){
   $('adm-user-count').textContent=users.length+' users';
   var isMD=window.innerWidth>=768;
   var head=isMD
-    ?'<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Actions</span></div>'
-    :'<div class="adm-thead" style="grid-template-columns:24px 1fr 52px 70px"><span>#</span><span>User</span><span>Credits</span><span>Edit</span></div>';
+    ?'<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Actions</span></div>'
+    :'<div class="adm-thead" style="grid-template-columns:24px 1fr 44px 44px 60px"><span>#</span><span>User</span><span>Credits</span><span>Bio</span><span>Edit</span></div>';
   var rows=users.map(function(u,i){
     var credClass=Number(u.credits||0)<=10?' red':Number(u.credits||0)>=200?' grn':'';
     var uid='uedit_'+i;
+    /* ── biometric badge ── */
+    var hasBio=u.bioCredId&&String(u.bioCredId).trim()!=='';
+    var bioBadge=hasBio
+      ?'<span class="badge-bio yes">🫆 Active</span>'
+      :'<span class="badge-bio no">—</span>';
     if(isMD){
       return '<div class="adm-row tr-users" id="row_'+i+'">'
         +'<span class="rank">'+((i+1))+'</span>'
@@ -1476,13 +1499,15 @@ function renderAdmUsers(users){
             +'<button class="cancel-c" onclick="cancelEdit(\''+uid+'\')">✗</button>'
           +'</div>'
         +'</div>'
+        +bioBadge
         +'<button class="adm-act-btn" onclick="toggleCreditEdit(\''+uid+'\')"><i class="bi bi-pencil"></i> Credits</button>'
         +'</div>';
     }else{
-      return '<div class="adm-row" style="grid-template-columns:24px 1fr 52px 70px" id="row_'+i+'">'
+      return '<div class="adm-row" style="grid-template-columns:24px 1fr 44px 44px 60px" id="row_'+i+'">'
         +'<span class="rank">'+((i+1))+'</span>'
         +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
         +'<span class="badge-c'+credClass+'" id="cval_'+i+'">'+(u.credits||0)+'</span>'
+        +(hasBio?'<span style="font-size:16px;text-align:center">🫆</span>':'<span style="font-size:12px;color:var(--m1);text-align:center">—</span>')
         +'<div>'
           +'<button class="adm-act-btn" onclick="toggleCreditEdit(\''+uid+'\')" style="padding:4px 8px;font-size:12px"><i class="bi bi-pencil"></i></button>'
           +'<div class="credit-edit" id="'+uid+'" style="flex-direction:column;gap:3px;margin-top:4px">'
@@ -1507,13 +1532,15 @@ function filterAdmUsers(q){
 function renderLowCredits(users){
   var low=users.filter(function(u){return Number(u.credits||0)<=10;});
   if(!low.length){$('adm-low-credits').innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:14px">✅ All users have sufficient credits.</div>';return;}
-  var h='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Action</span></div>';
+  var h='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Action</span></div>';
   low.forEach(function(u,i){
+    var hasBio=u.bioCredId&&String(u.bioCredId).trim()!=='';
     h+='<div class="adm-row tr-users">'
       +'<span class="rank">'+((i+1))+'</span>'
       +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
       +'<div><div class="row-name" style="font-size:13px">'+esc(u.institution||'—')+'</div></div>'
       +'<span class="badge-c red">'+(u.credits||0)+'</span>'
+      +(hasBio?'<span class="badge-bio yes">🫆 Active</span>':'<span class="badge-bio no">—</span>')
       +'<button class="adm-act-btn success" onclick="quickTopup(\''+esc(u.email)+'\')"><i class="bi bi-plus-circle"></i> Top up</button>'
       +'</div>';
   });
@@ -1688,8 +1715,8 @@ window.onpopstate = function(event) {
       navigator.serviceWorker.register('sw.js', { scope: './' })
         .then(function (reg) {
           console.log('[PWA] SW registered, scope:', reg.scope);
-          reg.addEventListener('updatefound', function () {
-            var newSW = reg.installing;
+          reg.addEventListener('updatefound', function () {      
+            var newSW = reg.installing;                           
             if (!newSW) return;
             newSW.addEventListener('statechange', function () {
               if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
