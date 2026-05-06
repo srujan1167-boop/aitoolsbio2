@@ -204,6 +204,30 @@ img{max-width:100%}
 .bio-register-hint{background:rgba(232,164,48,.07);border:1px solid rgba(232,164,48,.2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--m2);line-height:1.5;margin-bottom:.85rem;display:none}
 .bio-register-hint strong{color:var(--gold)}
 
+/* ── Biometric ID display box on auth page ── */
+.bio-id-display{
+  background:rgba(62,201,122,.05);
+  border:1px solid rgba(62,201,122,.2);
+  border-radius:10px;
+  padding:10px 14px;
+  margin-bottom:.85rem;
+  display:none;
+}
+.bio-id-display-label{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--grn);margin-bottom:4px;display:flex;align-items:center;gap:5px;
+}
+.bio-id-display-value{
+  font-size:11px;font-family:monospace;color:var(--m2);
+  word-break:break-all;line-height:1.5;
+  background:rgba(0,0,0,.25);border-radius:6px;
+  padding:6px 8px;margin-top:4px;
+  cursor:pointer;transition:background .2s;
+  user-select:all;-webkit-user-select:all;
+}
+.bio-id-display-value:hover{background:rgba(0,0,0,.4);}
+.bio-id-display-hint{font-size:11px;color:var(--m1);margin-top:4px;}
+
 /* ═══════════════════════════════════════
    FORGOT PASSWORD
 ═══════════════════════════════════════ */
@@ -483,14 +507,12 @@ img{max-width:100%}
 .adm-table{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:1rem}
 .adm-thead{display:grid;padding:.6rem .875rem;background:rgba(255,255,255,.03);border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;gap:8px}
 .th-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-/* ── CHANGED: added biometric column ── */
-.th-users{grid-template-columns:28px 1fr 90px 60px 70px 80px}
-.adm-row{display:grid;padding:.7rem .875rem;border-bottom:1px solid var(--bd);font-size:14px;gap:8px;align-items:center;transition:background .15s}
+.th-users{grid-template-columns:28px 1fr 90px 60px 1fr 80px}
+.adm-row{display:grid;padding:.7rem .875rem;border-bottom:1px solid var(--bd);font-size:14px;gap:8px;align-items:start;transition:background .15s}
 .adm-row:last-child{border-bottom:none}
 .adm-row:hover{background:rgba(255,255,255,.02)}
 .tr-tools{grid-template-columns:28px 1fr 80px 60px 48px}
-/* ── CHANGED: added biometric column ── */
-.tr-users{grid-template-columns:28px 1fr 90px 60px 70px 80px}
+.tr-users{grid-template-columns:28px 1fr 90px 60px 1fr 80px}
 .rank{font-size:12px;font-weight:800;color:var(--m1);text-align:center}
 .rank.t3{color:var(--gold)}
 .row-name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -498,10 +520,44 @@ img{max-width:100%}
 .badge-c{font-size:12px;font-weight:700;background:rgba(232,164,48,.1);color:var(--gold);border:1px solid rgba(232,164,48,.2);border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
 .badge-c.red{background:rgba(232,85,85,.1);color:var(--red);border-color:rgba(232,85,85,.2)}
 .badge-c.grn{background:rgba(62,201,122,.1);color:var(--grn);border-color:rgba(62,201,122,.2)}
-/* ── NEW: biometric badge styles ── */
-.badge-bio{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge-bio{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:default}
 .badge-bio.yes{background:rgba(62,201,122,.1);color:var(--grn);border:1px solid rgba(62,201,122,.25)}
 .badge-bio.no{background:rgba(107,109,128,.08);color:var(--m1);border:1px solid rgba(107,109,128,.2)}
+
+.bio-id-full-wrap{display:flex;flex-direction:column;gap:3px;}
+.bio-id-full{
+  display:block;
+  font-size:10px;
+  font-family:'Courier New',Courier,monospace;
+  color:var(--grn);
+  word-break:break-all;
+  white-space:pre-wrap;
+  line-height:1.55;
+  background:rgba(62,201,122,.06);
+  border:1px solid rgba(62,201,122,.18);
+  border-radius:6px;
+  padding:5px 7px;
+  max-width:100%;
+  overflow-x:auto;
+  -webkit-user-select:all;
+  user-select:all;
+  cursor:text;
+}
+.bio-id-copy{
+  font-size:10px;
+  color:var(--m1);
+  cursor:pointer;
+  text-decoration:underline;
+  background:none;
+  border:none;
+  padding:0;
+  text-align:left;
+  font-family:'Outfit',sans-serif;
+  width:fit-content;
+  line-height:1.4;
+}
+.bio-id-copy:hover{color:var(--grn);}
+
 .adm-act-btn{padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:7px;color:var(--m2);font-size:13px;font-weight:600;white-space:nowrap;transition:all .2s;min-height:32px;display:inline-flex;align-items:center;gap:4px}
 .adm-act-btn:hover{border-color:rgba(232,164,48,.4);color:var(--gold)}
 .adm-act-btn.success{border-color:rgba(62,201,122,.3);color:var(--grn)}
@@ -531,10 +587,9 @@ img{max-width:100%}
   .mob-only{display:none}
   #admin-page{padding:.875rem 1.5rem 1.5rem}
   .th-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  /* ── CHANGED: wider biometric column on desktop ── */
-  .th-users{grid-template-columns:32px 1fr 120px 70px 90px 100px}
+  .th-users{grid-template-columns:32px 1fr 120px 70px 1fr 100px}
   .tr-tools{grid-template-columns:32px 1fr 100px 70px 56px}
-  .tr-users{grid-template-columns:32px 1fr 120px 70px 90px 100px}
+  .tr-users{grid-template-columns:32px 1fr 120px 70px 1fr 100px}
 }
 </style>
 </head>
@@ -636,6 +691,15 @@ img{max-width:100%}
                   </div>
                 </button>
               </div>
+
+              <div class="bio-id-display" id="bio-id-display">
+                <div class="bio-id-display-label">
+                  <span>🫆</span> Registered Biometric Credential ID
+                </div>
+                <div class="bio-id-display-value" id="bio-id-display-value" title="Click to copy" onclick="copyBioId()"></div>
+                <div class="bio-id-display-hint">This credential is stored on your device &amp; synced to the server. Tap to copy.</div>
+              </div>
+
               <div class="bio-register-hint" id="bio-register-hint">
                 <strong>Register biometrics:</strong> Enter your email &amp; password above, sign in once, then tap a biometric button to register for faster future logins.
               </div>
@@ -911,7 +975,7 @@ img{max-width:100%}
           <input type="number" id="bulk-credits" class="adm-search" placeholder="Credits" min="0" value="100" style="text-align:center">
         </div>
         <div class="col-6 col-sm-3">
-          <button class="fd-apply" style="width:100%;padding:9px;font-size:14px;border-radius:9px" onclick="doSetCredits()">Set Credits</button>
+          <button class="fd-apply" style="width:100%;padding:9px;font-size:14px;border-radius:9px;cursor:pointer" onclick="doSetCredits()">Set Credits</button>
         </div>
       </div>
       <div id="bulk-msg" class="amsg mt-2"></div>
@@ -1058,24 +1122,51 @@ var _admAllTools=[], _admAllUsers=[];
 ══════════════════════════════════════════ */
 var BIO = {
   KEY_CRED:'aih_bio_cred', KEY_EMAIL:'aih_bio_email', KEY_RP:'aih_bio_rp',
-  supported:false, enrolled:false, credId:null, bioEmail:'',
+  supported:false, enrolled:false, credId:null, bioEmail:'', credB64:'',
   init:function(){
     if(window.PublicKeyCredential&&navigator.credentials)this.supported=true;
     var storedCred=localStorage.getItem(this.KEY_CRED);
     var storedEmail=localStorage.getItem(this.KEY_EMAIL);
-    if(storedCred&&storedEmail){this.enrolled=true;this.bioEmail=storedEmail;this.credId=BIO.b64ToBuffer(storedCred);}
+    if(storedCred&&storedEmail){
+      this.enrolled=true;
+      this.bioEmail=storedEmail;
+      this.credB64=storedCred;
+      this.credId=BIO.b64ToBuffer(storedCred);
+    }
+    this.updateUI();
+  },
+  /* ── NEW: sync a server-fetched bio ID into BIO state ── */
+  syncFromServer:function(email, credB64){
+    if(!credB64||!email) return;
+    /* Only update if local storage doesn't already have a credential for this email */
+    var localEmail = localStorage.getItem(this.KEY_EMAIL);
+    var localCred  = localStorage.getItem(this.KEY_CRED);
+    if(localEmail === email && localCred) return; /* local device credential takes priority */
+    /* Store the server value so admin display and BIO object are consistent */
+    this.enrolled  = true;
+    this.bioEmail  = email;
+    this.credB64   = credB64;
+    this.credId    = null; /* no raw buffer — server ID only, can't authenticate with it */
+    /* Don't overwrite localStorage KEY_CRED — that's the device credential.
+       We only update the display so admin sees the server-side value. */
     this.updateUI();
   },
   updateUI:function(){
-    if(!this.supported){$('bio-unsupported').style.display='block';$('bio-row').style.display='none';return;}
+    if(!this.supported){$('bio-unsupported').style.display='block';$('bio-row').style.display='none';$('bio-id-display').style.display='none';return;}
     $('bio-unsupported').style.display='none';$('bio-row').style.display='grid';
     if(this.enrolled){
       var short=this.bioEmail.length>22?this.bioEmail.substring(0,10)+'…'+this.bioEmail.split('@')[1]:this.bioEmail;
-      $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;$('bio-register-hint').style.display='none';
-    }else{$('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';$('bio-register-hint').style.display='block';}
+      $('bio-fp-sub').textContent=short;$('bio-face-sub').textContent=short;
+      $('bio-register-hint').style.display='none';
+      $('bio-id-display').style.display='block';
+      $('bio-id-display-value').textContent=this.credB64;
+    }else{
+      $('bio-fp-sub').textContent='Touch sensor';$('bio-face-sub').textContent='Look at camera';
+      $('bio-register-hint').style.display='block';
+      $('bio-id-display').style.display='none';
+    }
   },
 
-  /* ── CHANGED: register now sends credId to the sheet via Apps Script ── */
   register:async function(email){
     var rpId=location.hostname||'localhost';
     var challenge=crypto.getRandomValues(new Uint8Array(32));
@@ -1083,12 +1174,16 @@ var BIO = {
     var cred=await navigator.credentials.create({publicKey:{challenge,rp:{name:'AI Tools Hub',id:rpId},user:{id:userId,name:email,displayName:email},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'preferred'},timeout:60000,attestation:'none'}});
     var credB64=BIO.bufferToB64(cred.rawId);
     localStorage.setItem(BIO.KEY_CRED,credB64);
-    localStorage.setItem(BIO.KEY_EMAIL,email);localStorage.setItem(BIO.KEY_RP,rpId);
-    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.updateUI();
-    /* ── Store credential ID in the sheet ── */
-    gsr('saveBiometricId',{email:email,bioCredId:credB64}).catch(function(){
-      console.warn('[BIO] Failed to store biometric ID in sheet (non-fatal).');
-    });
+    localStorage.setItem(BIO.KEY_EMAIL,email);
+    localStorage.setItem(BIO.KEY_RP,rpId);
+    BIO.enrolled=true;BIO.bioEmail=email;BIO.credId=cred.rawId;BIO.credB64=credB64;
+    BIO.updateUI();
+    gsr('saveBiometricId',{email:email,bioCredId:credB64})
+      .then(function(r){
+        if(r&&r.success){toast('🫆 Biometric ID saved to server.','ok');}
+        else{console.warn('[BIO] Sheet save returned non-success:',r);}
+      })
+      .catch(function(e){console.warn('[BIO] Failed to store biometric ID in sheet (non-fatal):',e.message);});
     return true;
   },
 
@@ -1101,6 +1196,45 @@ var BIO = {
   bufferToB64:function(buf){var arr=new Uint8Array(buf instanceof ArrayBuffer?buf:buf);return btoa(String.fromCharCode.apply(null,arr));},
   b64ToBuffer:function(b64){var bin=atob(b64),arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr.buffer;}
 };
+
+/* ══════════════════════════════════════════
+   CLIPBOARD HELPERS
+══════════════════════════════════════════ */
+function _clipboardFallback(val, successMsg) {
+  var ta = document.createElement('textarea');
+  ta.value = val;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); toast(successMsg || '📋 Copied!', 'ok'); }
+  catch(e) { toast('Could not copy.', 'err'); }
+  document.body.removeChild(ta);
+}
+
+function copyBioId() {
+  var val = BIO.credB64;
+  if (!val) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val)
+      .then(function(){ toast('📋 Credential ID copied!', 'ok'); })
+      .catch(function(){ _clipboardFallback(val, '📋 Credential ID copied!'); });
+  } else {
+    _clipboardFallback(val, '📋 Credential ID copied!');
+  }
+}
+
+function copyBioIdAdmin(val) {
+  if (!val) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val)
+      .then(function(){ toast('📋 Biometric ID copied!', 'ok'); })
+      .catch(function(){ _clipboardFallback(val, '📋 Biometric ID copied!'); });
+  } else {
+    _clipboardFallback(val, '📋 Biometric ID copied!');
+  }
+}
 
 function setBioState(type,state,label){
   var fpBtn=$('bio-fp-btn'),faceBtn=$('bio-face-btn');
@@ -1138,7 +1272,7 @@ async function doBiometric(type){
     await BIO.register(email);
     setBioState(type,'success','Registered ✓');
     toast('✅ Biometrics registered! Use them next time to sign in.','ok');
-    setMsg('msg-si','Biometrics set up! You can now sign in with touch/face.','ok');
+    setMsg('msg-si','Biometrics set up! Your credential ID is shown below.','ok');
   }catch(err){
     var msg2=err.name==='NotAllowedError'?'Biometric registration cancelled.':(err.name==='InvalidStateError'?'Already registered on this device.':'Failed to register: '+err.message);
     setBioState(type,'error','Failed ✗');setMsg('msg-si',msg2,'err');
@@ -1155,6 +1289,10 @@ window.addEventListener('load',function(){
       var s=JSON.parse(saved);
       if(s&&s.email){
         currentEmail=s.email;userCredits=Number(s.credits||100);
+        /* ── CHANGE 1: On session restore, sync server bio ID into BIO if present in session ── */
+        if(s.bioCredId && s.bioCredId.trim()){
+          BIO.syncFromServer(s.email, s.bioCredId.trim());
+        }
         setTimeout(function(){
           ls.style.opacity='0';ls.style.transition='opacity .3s';
           setTimeout(function(){ls.remove();initCatalog({isAdmin:s.isAdmin,credits:userCredits});},300);
@@ -1181,6 +1319,23 @@ function toggleEye(id,btn){var inp=$(id);if(!inp)return;var show=inp.type==='pas
 function esc(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function safeJSON(o){return JSON.stringify(o).replace(/'/g,'&#39;');}
 
+function escHtml(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function escAttr(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
 /* ── AUTH TABS ── */
 function switchTab(t){
   var si=t==='si';
@@ -1200,7 +1355,17 @@ function doSignIn(){
       setBtn('btn-si',false,'Sign In');
       if(r.success){
         currentEmail=email;userCredits=r.credits!=null?Number(r.credits):100;
-        localStorage.setItem('aih_session',JSON.stringify({email:email,credits:userCredits,isAdmin:r.isAdmin}));
+
+        /* ── CHANGE 2: Fetch bio ID from server response and store in session ── */
+        var sessionData = {email:email, credits:userCredits, isAdmin:r.isAdmin};
+        if(r.bioCredId && String(r.bioCredId).trim()){
+          sessionData.bioCredId = String(r.bioCredId).trim();
+          /* Sync into BIO object so the display box shows the server value
+             (only if the user has no local device credential yet) */
+          BIO.syncFromServer(email, sessionData.bioCredId);
+        }
+        localStorage.setItem('aih_session', JSON.stringify(sessionData));
+
         if(BIO.supported&&!BIO.enrolled)setMsg('msg-si','Signed in! Tip: tap a biometric button below to register for faster future logins.','inf');
         initCatalog(r);
       }else{setMsg('msg-si','Invalid email or password.','err');}
@@ -1420,7 +1585,6 @@ function loadAdminData(){
       $('adm-ts').textContent='Last updated: '+new Date().toLocaleTimeString();
       var totalLaunches=d.totalClicks||0;
       var lowCredUsers=(d.users||[]).filter(function(u){return Number(u.credits||0)<=10;}).length;
-      /* ── CHANGED: added biometric-registered stat ── */
       var bioUsers=(d.users||[]).filter(function(u){return u.bioCredId&&String(u.bioCredId).trim()!=='';}).length;
       $('adm-stats').innerHTML=
         '<div class="col-6 col-md-3"><div class="stat-card"><div class="stat-ico">👤</div><div><div class="stat-lbl">Users</div><div class="stat-val">'+(d.totalUsers||0)+'</div></div></div></div>'
@@ -1448,15 +1612,15 @@ function renderAdmTools(tools){
     if(isMD){
       return '<div class="adm-row tr-tools">'
         +'<span class="rank'+(rank<=3?' t3':'')+'">'+rank+'</span>'
-        +'<div><div class="row-name">'+esc(t.name)+'</div><div class="row-sub">'+esc(t.url||'')+'</div></div>'
-        +'<div><div class="row-name">'+esc(t.category||'—')+'</div></div>'
+        +'<div><div class="row-name">'+escHtml(t.name)+'</div><div class="row-sub">'+escHtml(t.url||'')+'</div></div>'
+        +'<div><div class="row-name">'+escHtml(t.category||'—')+'</div></div>'
         +'<span class="badge-c">'+((t.totalClicks||t.usageCount||0))+'</span>'
         +'<span class="badge-c" style="background:rgba(74,108,247,.1);color:#7c9fff;border-color:rgba(74,108,247,.3)">#'+(t.slNo||i+1)+'</span>'
         +'</div>';
     }else{
       return '<div class="adm-row" style="grid-template-columns:24px 1fr 52px 38px">'
         +'<span class="rank'+(rank<=3?' t3':'')+'">'+rank+'</span>'
-        +'<div><div class="row-name">'+esc(t.name)+'</div><div class="row-sub">'+esc(t.category||'')+'</div></div>'
+        +'<div><div class="row-name">'+escHtml(t.name)+'</div><div class="row-sub">'+escHtml(t.category||'')+'</div></div>'
         +'<span class="badge-c">'+((t.totalClicks||t.usageCount||0))+'</span>'
         +'<span style="font-size:11px;font-weight:700;color:var(--m1)">#'+(t.slNo||i+1)+'</span>'
         +'</div>';
@@ -1471,27 +1635,41 @@ function filterAdmTools(q){
   renderAdmTools(filtered);
 }
 
-/* ── CHANGED: renderAdmUsers now includes Biometric column ── */
 function renderAdmUsers(users){
   $('adm-user-count').textContent=users.length+' users';
   var isMD=window.innerWidth>=768;
   var head=isMD
-    ?'<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Actions</span></div>'
-    :'<div class="adm-thead" style="grid-template-columns:24px 1fr 44px 44px 60px"><span>#</span><span>User</span><span>Credits</span><span>Bio</span><span>Edit</span></div>';
+    ?'<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric Credential ID</span><span>Actions</span></div>'
+    :'<div class="adm-thead" style="grid-template-columns:24px 1fr 44px 1fr 60px"><span>#</span><span>User</span><span>Cr.</span><span>Bio ID</span><span>Edit</span></div>';
+
   var rows=users.map(function(u,i){
     var credClass=Number(u.credits||0)<=10?' red':Number(u.credits||0)>=200?' grn':'';
     var uid='uedit_'+i;
-    /* ── biometric badge ── */
     var hasBio=u.bioCredId&&String(u.bioCredId).trim()!=='';
-    var bioBadge=hasBio
-      ?'<span class="badge-bio yes">🫆 Active</span>'
+    var credIdFull=hasBio?String(u.bioCredId).trim():'';
+
+    var bioCellDesktop=hasBio
+      ?('<div class="bio-id-full-wrap">'
+          +'<span class="badge-bio yes">🫆 Registered</span>'
+          +'<div class="bio-id-full" title="Click &amp; select all">'+escHtml(credIdFull)+'</div>'
+          +'<button class="bio-id-copy" onclick="copyBioIdAdmin(this.dataset.id)" data-id="'+escAttr(credIdFull)+'">copy ID</button>'
+        +'</div>')
       :'<span class="badge-bio no">—</span>';
+
+    var bioCellMobile=hasBio
+      ?('<div class="bio-id-full-wrap">'
+          +'<span class="badge-bio yes" style="font-size:10px">🫆</span>'
+          +'<div class="bio-id-full" style="font-size:9px">'+escHtml(credIdFull)+'</div>'
+          +'<button class="bio-id-copy" onclick="copyBioIdAdmin(this.dataset.id)" data-id="'+escAttr(credIdFull)+'">copy</button>'
+        +'</div>')
+      :'<span class="badge-bio no">—</span>';
+
     if(isMD){
       return '<div class="adm-row tr-users" id="row_'+i+'">'
         +'<span class="rank">'+((i+1))+'</span>'
-        +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
-        +'<div><div class="row-name" style="font-size:13px;white-space:normal">'+esc(u.institution||'—')+'</div></div>'
-        +'<div style="display:flex;align-items:center;gap:6px">'
+        +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+escHtml(u.email||'')+'</div></div>'
+        +'<div><div class="row-name" style="font-size:13px;white-space:normal">'+escHtml(u.institution||'—')+'</div></div>'
+        +'<div style="display:flex;flex-direction:column;gap:4px">'
           +'<span class="badge-c'+credClass+'" id="cval_'+i+'">'+(u.credits||0)+'</span>'
           +'<div class="credit-edit" id="'+uid+'">'
             +'<input type="number" id="cinp_'+i+'" value="'+(u.credits||0)+'" min="0" max="9999">'
@@ -1499,15 +1677,15 @@ function renderAdmUsers(users){
             +'<button class="cancel-c" onclick="cancelEdit(\''+uid+'\')">✗</button>'
           +'</div>'
         +'</div>'
-        +bioBadge
+        +bioCellDesktop
         +'<button class="adm-act-btn" onclick="toggleCreditEdit(\''+uid+'\')"><i class="bi bi-pencil"></i> Credits</button>'
         +'</div>';
     }else{
-      return '<div class="adm-row" style="grid-template-columns:24px 1fr 44px 44px 60px" id="row_'+i+'">'
+      return '<div class="adm-row" style="grid-template-columns:24px 1fr 44px 1fr 60px" id="row_'+i+'">'
         +'<span class="rank">'+((i+1))+'</span>'
-        +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
+        +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+escHtml(u.email||'')+'</div></div>'
         +'<span class="badge-c'+credClass+'" id="cval_'+i+'">'+(u.credits||0)+'</span>'
-        +(hasBio?'<span style="font-size:16px;text-align:center">🫆</span>':'<span style="font-size:12px;color:var(--m1);text-align:center">—</span>')
+        +bioCellMobile
         +'<div>'
           +'<button class="adm-act-btn" onclick="toggleCreditEdit(\''+uid+'\')" style="padding:4px 8px;font-size:12px"><i class="bi bi-pencil"></i></button>'
           +'<div class="credit-edit" id="'+uid+'" style="flex-direction:column;gap:3px;margin-top:4px">'
@@ -1521,30 +1699,38 @@ function renderAdmUsers(users){
   $('adm-users').innerHTML=head+rows;
 }
 
+function renderLowCredits(users){
+  var low=users.filter(function(u){return Number(u.credits||0)<=10;});
+  if(!low.length){$('adm-low-credits').innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:14px">✅ All users have sufficient credits.</div>';return;}
+  var h='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric Credential ID</span><span>Action</span></div>';
+  low.forEach(function(u,i){
+    var hasBio=u.bioCredId&&String(u.bioCredId).trim()!=='';
+    var credIdFull=hasBio?String(u.bioCredId).trim():'';
+    var bioCellLow=hasBio
+      ?('<div class="bio-id-full-wrap">'
+          +'<span class="badge-bio yes">🫆 Registered</span>'
+          +'<div class="bio-id-full">'+escHtml(credIdFull)+'</div>'
+          +'<button class="bio-id-copy" onclick="copyBioIdAdmin(this.dataset.id)" data-id="'+escAttr(credIdFull)+'">copy ID</button>'
+        +'</div>')
+      :'<span class="badge-bio no">—</span>';
+    h+='<div class="adm-row tr-users">'
+      +'<span class="rank">'+((i+1))+'</span>'
+      +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+escHtml(u.email||'')+'</div></div>'
+      +'<div><div class="row-name" style="font-size:13px">'+escHtml(u.institution||'—')+'</div></div>'
+      +'<span class="badge-c red">'+(u.credits||0)+'</span>'
+      +bioCellLow
+      +'<button class="adm-act-btn success" onclick="quickTopup(\''+esc(u.email)+'\')"><i class="bi bi-plus-circle"></i> Top up</button>'
+      +'</div>';
+  });
+  $('adm-low-credits').innerHTML=h;
+}
+
 function filterAdmUsers(q){
   if(!q.trim()){renderAdmUsers(_admAllUsers);return;}
   var filtered=_admAllUsers.filter(function(u){
     return(u.name||'').toLowerCase().includes(q.toLowerCase())||(u.email||'').toLowerCase().includes(q.toLowerCase());
   });
   renderAdmUsers(filtered);
-}
-
-function renderLowCredits(users){
-  var low=users.filter(function(u){return Number(u.credits||0)<=10;});
-  if(!low.length){$('adm-low-credits').innerHTML='<div class="p-3 text-center" style="color:var(--grn);font-size:14px">✅ All users have sufficient credits.</div>';return;}
-  var h='<div class="adm-thead th-users"><span>#</span><span>User</span><span>Institution</span><span>Credits</span><span>Biometric</span><span>Action</span></div>';
-  low.forEach(function(u,i){
-    var hasBio=u.bioCredId&&String(u.bioCredId).trim()!=='';
-    h+='<div class="adm-row tr-users">'
-      +'<span class="rank">'+((i+1))+'</span>'
-      +'<div><div class="row-name">'+(u.name||u.email||'—')+'</div><div class="row-sub">'+esc(u.email||'')+'</div></div>'
-      +'<div><div class="row-name" style="font-size:13px">'+esc(u.institution||'—')+'</div></div>'
-      +'<span class="badge-c red">'+(u.credits||0)+'</span>'
-      +(hasBio?'<span class="badge-bio yes">🫆 Active</span>':'<span class="badge-bio no">—</span>')
-      +'<button class="adm-act-btn success" onclick="quickTopup(\''+esc(u.email)+'\')"><i class="bi bi-plus-circle"></i> Top up</button>'
-      +'</div>';
-  });
-  $('adm-low-credits').innerHTML=h;
 }
 
 function toggleCreditEdit(uid){
@@ -1582,36 +1768,93 @@ function quickTopup(email){
     }).catch(function(){toast('Connection error.','err');});
 }
 
+/* ══════════════════════════════════════════
+   CREDITS PANEL — Bulk Set Credits (FIXED)
+══════════════════════════════════════════ */
 var _lookupTimer=null;
+
 function admLookupUser(val){
   clearTimeout(_lookupTimer);
-  if(!val.trim()||!val.includes('@')){$('bulk-user-preview').textContent='';return;}
+  var preview=$('bulk-user-preview');
+  if(!val||!val.trim()||val.indexOf('@')===-1){if(preview)preview.textContent='';return;}
   _lookupTimer=setTimeout(function(){
     var match=_admAllUsers.find(function(u){return u.email===val.trim();});
     if(match){
-      $('bulk-user-preview').innerHTML='<span style="color:var(--grn)">✓ Found: '+esc(match.name||match.email)+'</span> — Current credits: <strong>'+match.credits+'</strong>';
-      $('bulk-credits').value=match.credits;
+      if(preview)preview.innerHTML='<span style="color:var(--grn)">✓ Found: '+escHtml(match.name||match.email)+'</span> — Current credits: <strong>'+(match.credits||0)+'</strong>';
+      var ci=$('bulk-credits');if(ci)ci.value=match.credits||0;
     }else{
-      $('bulk-user-preview').innerHTML='<span style="color:var(--red)">User not found in loaded data. Proceed anyway.</span>';
+      if(preview)preview.innerHTML='<span style="color:var(--red)">User not found in loaded data. Proceed anyway.</span>';
     }
   },400);
 }
 
+/* ── FIXED: doSetCredits uses direct fetch for reliability ── */
 function doSetCredits(){
-  var email=$('bulk-email').value.trim();
-  var credits=parseInt($('bulk-credits').value,10);
-  if(!email){setMsg('bulk-msg','Enter a user email.','err');return;}
-  if(isNaN(credits)||credits<0){setMsg('bulk-msg','Enter a valid credit amount.','err');return;}
-  setMsg('bulk-msg','Saving…','inf');
-  gsr('adminSetCredits',{adminEmail:currentEmail,targetEmail:email,credits:credits})
+  var emailEl = document.getElementById('bulk-email');
+  var credEl  = document.getElementById('bulk-credits');
+  var msgEl   = document.getElementById('bulk-msg');
+
+  if(!emailEl || !credEl){
+    toast('Credit form elements not found.','err');
+    return;
+  }
+
+  var email   = emailEl.value.trim();
+  var credits = parseInt(credEl.value, 10);
+
+  if(!email){
+    if(msgEl){msgEl.textContent='Enter a user email.';msgEl.className='amsg err';}
+    return;
+  }
+  if(isNaN(credits) || credits < 0){
+    if(msgEl){msgEl.textContent='Enter a valid credit amount (0 or more).';msgEl.className='amsg err';}
+    return;
+  }
+
+  var adminEmail = currentEmail;
+  if(!adminEmail){
+    if(msgEl){msgEl.textContent='Admin session lost. Please refresh.';msgEl.className='amsg err';}
+    return;
+  }
+
+  if(msgEl){msgEl.textContent='Saving…';msgEl.className='amsg inf';}
+
+  var url = APPS_SCRIPT_URL
+    + '?action=' + encodeURIComponent('adminSetCredits')
+    + '&p='      + encodeURIComponent(JSON.stringify({
+        adminEmail:  adminEmail,
+        targetEmail: email,
+        credits:     credits
+      }));
+
+  fetch(url, {mode:'cors'})
+    .then(function(res){ return res.json(); })
     .then(function(r){
-      if(r.success){
-        setMsg('bulk-msg','✅ Credits set to '+credits+' for '+email,'ok');
-        _admAllUsers.forEach(function(u){if(u.email===email)u.credits=credits;});
+      if(r && r.success){
+        if(msgEl){msgEl.textContent='✅ Credits set to '+credits+' for '+email;msgEl.className='amsg ok';}
+        toast('✅ Credits updated for '+email,'ok');
+        _admAllUsers.forEach(function(u){if(u.email===email) u.credits=credits;});
         renderLowCredits(_admAllUsers);
-        $('bulk-email').value='';$('bulk-user-preview').textContent='';
-      }else{setMsg('bulk-msg',r.message||'Failed.','err');}
-    }).catch(function(){setMsg('bulk-msg','Connection error.','err');});
+        emailEl.value  = '';
+        credEl.value   = '100';
+        var preview = document.getElementById('bulk-user-preview');
+        if(preview) preview.textContent = '';
+        setTimeout(function(){
+          if(msgEl && msgEl.textContent.indexOf('✅')===0){
+            msgEl.textContent='';msgEl.className='amsg';
+          }
+        }, 4000);
+      } else {
+        var errMsg = (r && r.message) ? r.message : 'Failed — check admin permissions in Apps Script.';
+        if(msgEl){msgEl.textContent=errMsg;msgEl.className='amsg err';}
+        toast(errMsg,'err');
+      }
+    })
+    .catch(function(e){
+      var errMsg = 'Network error: '+(e && e.message ? e.message : 'Unknown');
+      if(msgEl){msgEl.textContent=errMsg;msgEl.className='amsg err';}
+      toast(errMsg,'err');
+    });
 }
 
 /* ── FORGOT PASSWORD ── */
@@ -1715,8 +1958,8 @@ window.onpopstate = function(event) {
       navigator.serviceWorker.register('sw.js', { scope: './' })
         .then(function (reg) {
           console.log('[PWA] SW registered, scope:', reg.scope);
-          reg.addEventListener('updatefound', function () {      
-            var newSW = reg.installing;                           
+          reg.addEventListener('updatefound', function () {
+            var newSW = reg.installing;
             if (!newSW) return;
             newSW.addEventListener('statechange', function () {
               if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
